@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# eventclock
+# eventclock <img src="man/figures/logo.png" align="right" height="139" alt="eventclock hex logo" />
 
 <!-- badges: start -->
 
