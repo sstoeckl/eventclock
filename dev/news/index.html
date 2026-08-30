@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">eventclock</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,6 +19,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/eventclock-brexit.html">Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-event-betas.html">Event betas: assets on the event clock</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-validation.html">Validating the event-clock estimator</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -36,9 +38,40 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.0.0.9000" id="eventclock-0009000-development-version">eventclock 0.0.0.9000 (development version)<a class="anchor" aria-label="anchor" href="#eventclock-0009000-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.0" id="eventclock-030">eventclock 0.3.0<a class="anchor" aria-label="anchor" href="#eventclock-030"></a></h2>
 <div class="section level3">
-<h3 id="new-features-0-0-0-9000">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-0-9000"></a></h3>
+<h3 id="assets--finance-0-3-0">Assets &amp; finance<a class="anchor" aria-label="anchor" href="#assets--finance-0-3-0"></a></h3>
+<ul><li>
+<code><a href="../reference/event_beta.html">event_beta()</a></code> — realized-loading regression of asset returns on event-probability news, with a base-R Newey-West (Bartlett/HAC) covariance, model-implied outcome levels under the risk-neutral adding-up constraint, and — given an externally measured exposure via <code>deta</code> — the loading test of <code>beta = 1</code>.</li>
+<li>
+<code><a href="../reference/ec_relevance.html">ec_relevance()</a></code> — the sufficient statistic for whether event learning is first-order for an asset’s option prices; ties out exactly with <code><a href="../reference/ec_variance_share.html">ec_variance_share()</a></code> and <code><a href="../reference/ec_iv_rule.html">ec_iv_rule()</a></code>.</li>
+<li>
+<code><a href="../reference/q_from_ffutures.html">q_from_ffutures()</a></code> — meeting-implied probabilities from 30-day fed funds futures on the standard month-average extraction, with the new <code>fomc_meetings</code> calendar dataset (2021-2027).</li>
+<li>
+<code><a href="../reference/q_from_deal_spread.html">q_from_deal_spread()</a></code> — completion probabilities from merger-arb spreads: deal clocks feed the same q -&gt; logit -&gt; A pipeline.</li>
+<li>New dataset <code>djt2024</code> (daily DJT prices, June-November 2024) powering the event-beta example against <code>polymarket2024</code>.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="eventclock-020">eventclock 0.2.0<a class="anchor" aria-label="anchor" href="#eventclock-020"></a></h2>
+<div class="section level3">
+<h3 id="inference--validation-0-2-0">Inference &amp; validation<a class="anchor" aria-label="anchor" href="#inference--validation-0-2-0"></a></h3>
+<ul><li>
+<code>event_clock(se = TRUE)</code> — standard errors and confidence intervals for the realized-variation estimate, via the quarticity analogue (log-based intervals) or a moment-matched wild bootstrap (<code>se_method = "bootstrap"</code>).</li>
+<li>
+<code><a href="../reference/ec_signature.html">ec_signature()</a></code> and <code><a href="../reference/plot_signature.html">plot_signature()</a></code> — the sampling-frequency signature plot of the clock (subsample-averaged), the standard microstructure-noise diagnostic.</li>
+<li>
+<code><a href="../reference/ec_validate.html">ec_validate()</a></code> — data-quality report for event-probability series: coverage, staleness, tick size, gaps, and outliers, in the flag-don’t-drop spirit.</li>
+<li>
+<code><a href="../reference/ec_simulate_path.html">ec_simulate_path()</a></code> gains <code>jump_share</code>/<code>n_jumps</code> for lumpy information arrival (Bayes-consistent per step), the testbed for the jump-robust estimator variants.</li>
+<li>New vignette “Validating the event-clock estimator” (Monte Carlo: consistency, CI coverage, outcome-independence/measure robustness, bipower under jumps, microstructure and the snapshot rule).</li>
+<li>CI now runs the full <code>R CMD check</code> including vignettes on a three-OS matrix in a non-UTC timezone, plus a coverage job.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.0" id="eventclock-010-initial-version">eventclock 0.1.0 (initial version)<a class="anchor" aria-label="anchor" href="#eventclock-010-initial-version"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-1-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-1-0"></a></h3>
 <ul><li>Initial version of the package.</li>
 <li>
 <code><a href="../reference/as_event_prices.html">as_event_prices()</a></code> turns any <code>data.frame</code>/<code>tibble</code> of traded event probabilities into a standardized <code>event_prices</code> object with flag-don’t-drop cleaning (<code><a href="../reference/q_from_price.html">q_from_price()</a></code> handles discount and overround normalization).</li>

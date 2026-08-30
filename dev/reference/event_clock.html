@@ -21,7 +21,7 @@ together with standard robustness variants."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">eventclock</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,8 @@ together with standard robustness variants."><meta property="og:image" content="
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/eventclock-brexit.html">Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-event-betas.html">Event betas: assets on the event clock</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-validation.html">Validating the event-clock estimator</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -71,7 +73,11 @@ together with standard robustness variants.</p>
 <span>  sample_every <span class="op">=</span> <span class="fu"><a href="ec_default_params.html">ec_default_params</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">sample_every</span>,</span>
 <span>  trunc_sd <span class="op">=</span> <span class="fu"><a href="ec_default_params.html">ec_default_params</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">trunc_sd</span>,</span>
 <span>  scale_fn <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/stats/mad.html" class="external-link">mad</a></span>,</span>
-<span>  clip <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  clip <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  se <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  conf <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  se_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quarticity"</span>, <span class="st">"bootstrap"</span><span class="op">)</span>,</span>
+<span>  boot_reps <span class="op">=</span> <span class="fl">999</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -116,6 +122,31 @@ for <code>truncated</code> (default <code><a href="https://rdrr.io/r/stats/mad.h
 <dd><p>Numeric length-2 clipping bounds for <code>q</code> before the
 log-odds transform; defaults to the bounds stored in <code>x</code>.</p></dd>
 
+
+<dt id="arg-se">se<a class="anchor" aria-label="anchor" href="#arg-se"></a></dt>
+<dd><p>Logical; if <code>TRUE</code>, add a standard error and confidence
+interval for the <code>rv</code> estimate (columns are <code>NA</code> for the other
+methods). The asymptotic variance is estimated by the quarticity
+analogue \(\widehat{Var}(\widehat A) = \tfrac{2}{3}\sum (\Delta
+L_i)^4\); the interval is log-based,
+\(\exp\{\log \widehat A \pm z\, se/\widehat A\}\). With
+<code>se_method = "bootstrap"</code>, a wild bootstrap with two-point
+multipliers (moment-matched to the same asymptotic variance) is used
+and the interval is the percentile interval. Conditional drift
+contributes at order \((\Delta t)^2\) and is ignored.</p></dd>
+
+
+<dt id="arg-conf">conf<a class="anchor" aria-label="anchor" href="#arg-conf"></a></dt>
+<dd><p>Confidence level (default 0.95).</p></dd>
+
+
+<dt id="arg-se-method">se_method<a class="anchor" aria-label="anchor" href="#arg-se-method"></a></dt>
+<dd><p><code>"quarticity"</code> (default) or <code>"bootstrap"</code>.</p></dd>
+
+
+<dt id="arg-boot-reps">boot_reps<a class="anchor" aria-label="anchor" href="#arg-boot-reps"></a></dt>
+<dd><p>Bootstrap replications (default 999).</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -148,6 +179,10 @@ observations used.</p></dd>
 
 <dt>A</dt>
 <dd><p>the estimate \(\widehat A_{t,T}\).</p></dd>
+
+<dt>se, ci_lo, ci_hi</dt>
+<dd><p>(only with <code>se = TRUE</code>) standard error and
+confidence bounds for the <code>rv</code> rows.</p></dd>
 
 </dl></div>
     <div class="section level2">

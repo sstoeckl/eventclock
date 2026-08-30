@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">eventclock</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,8 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/eventclock-brexit.html">Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket</a></li>
+    <li><a class="dropdown-item" href="articles/eventclock-event-betas.html">Event betas: assets on the event clock</a></li>
+    <li><a class="dropdown-item" href="articles/eventclock-validation.html">Validating the event-clock estimator</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -75,17 +77,19 @@
 </h2>
 <ul>
 <li>
-<strong><code><a href="reference/as_event_prices.html">as_event_prices()</a></code></strong> — standardize any probability series (prediction markets, betting quotes, state prices) with flag-don’t-drop cleaning; <strong><code><a href="reference/q_from_price.html">q_from_price()</a></code></strong> handles discount and overround normalization.</li>
+<strong><code><a href="reference/as_event_prices.html">as_event_prices()</a></code></strong> — standardize any probability series (prediction markets, betting quotes, state prices) with flag-don’t-drop cleaning; converters <code><a href="reference/q_from_price.html">q_from_price()</a></code> (discount / overround), <code><a href="reference/q_from_ffutures.html">q_from_ffutures()</a></code> (fed funds futures, 25bp grid), and <code><a href="reference/q_from_deal_spread.html">q_from_deal_spread()</a></code> (merger-arb deal clocks); data screening with <code><a href="reference/ec_validate.html">ec_validate()</a></code>.</li>
 <li>
-<strong><code><a href="reference/event_clock.html">event_clock()</a></code></strong> — realized-variation estimator of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math> with truncation, bipower, and largest-move robustness variants; <strong><code><a href="reference/event_clock_path.html">event_clock_path()</a></code></strong> for the cumulative clock over time; <strong><code><a href="reference/event_clock_forecast.html">event_clock_forecast()</a></code></strong> for the trailing-window real-time benchmark.</li>
+<strong><code><a href="reference/event_clock.html">event_clock()</a></code></strong> — realized-variation estimator of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math> with truncation, bipower, and largest-move robustness variants, plus standard errors and confidence intervals (<code>se = TRUE</code>, quarticity or wild bootstrap); <strong><code><a href="reference/event_clock_path.html">event_clock_path()</a></code></strong> for the cumulative clock over time; <strong><code><a href="reference/event_clock_forecast.html">event_clock_forecast()</a></code></strong> for the trailing-window real-time benchmark; <strong><code><a href="reference/ec_signature.html">ec_signature()</a></code></strong> for the sampling-frequency (microstructure) diagnostic.</li>
 <li>
-<strong>Formula book</strong> — closed-form calculators in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>q</mi><mo>,</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(q, A)</annotation></semantics></math>: <code><a href="reference/ec_moments.html">ec_moments()</a></code>, <code><a href="reference/ec_exceedance.html">ec_exceedance()</a></code>, <code><a href="reference/ec_revision.html">ec_revision()</a></code>, <code><a href="reference/ec_atm_event_call.html">ec_atm_event_call()</a></code>, <code><a href="reference/ec_sigma_eff.html">ec_sigma_eff()</a></code>, <code><a href="reference/ec_variance_share.html">ec_variance_share()</a></code>, <code><a href="reference/ec_iv_rule.html">ec_iv_rule()</a></code>, <code><a href="reference/ec_target_clock.html">ec_target_clock()</a></code>; exact transition law and simulators (<code><a href="reference/ec_transition_density.html">ec_transition_density()</a></code>, <code><a href="reference/ec_simulate.html">ec_simulate()</a></code>, <code><a href="reference/ec_simulate_path.html">ec_simulate_path()</a></code>).</li>
+<strong>Assets &amp; finance</strong> — <code><a href="reference/event_beta.html">event_beta()</a></code>: realized event exposures <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mrow><mi mathvariant="normal">Δ</mi><mi>η</mi></mrow><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\widehat{\Delta\eta}</annotation></semantics></math> from returns with Newey-West errors and the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\beta = 1</annotation></semantics></math> loading test against an external exposure; <code><a href="reference/ec_relevance.html">ec_relevance()</a></code>: the sufficient statistic for pricing relevance.</li>
+<li>
+<strong>Formula book</strong> — closed-form calculators in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>q</mi><mo>,</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(q, A)</annotation></semantics></math>: <code><a href="reference/ec_moments.html">ec_moments()</a></code>, <code><a href="reference/ec_exceedance.html">ec_exceedance()</a></code>, <code><a href="reference/ec_revision.html">ec_revision()</a></code>, <code><a href="reference/ec_atm_event_call.html">ec_atm_event_call()</a></code>, <code><a href="reference/ec_sigma_eff.html">ec_sigma_eff()</a></code>, <code><a href="reference/ec_variance_share.html">ec_variance_share()</a></code>, <code><a href="reference/ec_iv_rule.html">ec_iv_rule()</a></code>, <code><a href="reference/ec_target_clock.html">ec_target_clock()</a></code>; exact transition law and simulators with lumpy-information jumps (<code><a href="reference/ec_transition_density.html">ec_transition_density()</a></code>, <code><a href="reference/ec_simulate.html">ec_simulate()</a></code>, <code><a href="reference/ec_simulate_path.html">ec_simulate_path()</a></code>).</li>
 <li>
 <strong>Polymarket connector</strong> — <code><a href="reference/pm_search.html">pm_search()</a></code>, <code><a href="reference/pm_markets.html">pm_markets()</a></code>, <code><a href="reference/pm_prices.html">pm_prices()</a></code>, <code><a href="reference/pm_daily.html">pm_daily()</a></code> on the public, keyless Gamma/CLOB APIs.</li>
 <li>
-<strong>Datasets</strong> — <code>brexit2016</code>, <code>us2016</code> (the working paper’s event windows), and <code>polymarket2024</code> (hourly 2024 U.S. election prices).</li>
+<strong>Datasets</strong> — <code>brexit2016</code>, <code>us2016</code> (the working paper’s event windows), <code>polymarket2024</code> (hourly 2024 U.S. election prices), <code>djt2024</code> (the matching exposed stock), and <code>fomc_meetings</code> (2021-2027 FOMC calendar).</li>
 <li>
-<strong>Plots</strong> — <code><a href="reference/plot_q.html">plot_q()</a></code>, <code><a href="reference/plot_clock.html">plot_clock()</a></code>, <code><a href="reference/plot_clock_vs_calendar.html">plot_clock_vs_calendar()</a></code>.</li>
+<strong>Plots</strong> — <code><a href="reference/plot_q.html">plot_q()</a></code>, <code><a href="reference/plot_clock.html">plot_clock()</a></code>, <code><a href="reference/plot_clock_vs_calendar.html">plot_clock_vs_calendar()</a></code>, <code><a href="reference/plot_signature.html">plot_signature()</a></code>.</li>
 </ul>
 </div>
 <div class="section level2">

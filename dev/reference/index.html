@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">eventclock</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,6 +19,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/eventclock-brexit.html">Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-event-betas.html">Event betas: assets on the event clock</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-validation.html">Validating the event-clock estimator</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -37,7 +39,7 @@
     <div class="section level2">
       <h2 id="event-prices">Event prices<a class="anchor" aria-label="anchor" href="#event-prices"></a></h2>
 
-      <div class="section-desc"><p>Standardize traded event probabilities.</p></div>
+      <div class="section-desc"><p>Standardize and screen traded event probabilities.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -57,6 +59,27 @@
 
         </dt>
         <dd>Convert traded state prices into risk-adjusted event probabilities</dd>
+
+        <dt>
+
+          <code><a href="q_from_ffutures.html">q_from_ffutures()</a></code>
+
+        </dt>
+        <dd>Meeting-implied probability from a fed funds futures price</dd>
+
+        <dt>
+
+          <code><a href="q_from_deal_spread.html">q_from_deal_spread()</a></code>
+
+        </dt>
+        <dd>Completion probability from a merger-arbitrage spread</dd>
+
+        <dt>
+
+          <code><a href="ec_validate.html">ec_validate()</a></code> <code><a href="ec_validate.html">print(<i>&lt;ec_validation&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Data-quality report for an event-probability series</dd>
       </dl></div><div class="section level2">
       <h2 id="the-event-clock">The event clock<a class="anchor" aria-label="anchor" href="#the-event-clock"></a></h2>
 
@@ -87,6 +110,50 @@
 
         </dt>
         <dd>Real-time event-clock forecast</dd>
+
+        <dt>
+
+          <code><a href="ec_signature.html">ec_signature()</a></code> <code><a href="ec_signature.html">plot(<i>&lt;ec_signature&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Sampling-frequency signature of the event clock</dd>
+
+        <dt>
+
+          <code><a href="plot_signature.html">plot_signature()</a></code>
+
+        </dt>
+        <dd>Plot the sampling-frequency signature</dd>
+
+        <dt>
+
+          <code><a href="ec_default_params.html">ec_default_params()</a></code>
+
+        </dt>
+        <dd>Default parameters of the eventclock package</dd>
+      </dl></div><div class="section level2">
+      <h2 id="assets-finance">Assets &amp; finance<a class="anchor" aria-label="anchor" href="#assets-finance"></a></h2>
+
+      <div class="section-desc"><p>Event exposures and pricing relevance.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="event_beta.html">event_beta()</a></code> <code><a href="event_beta.html">print(<i>&lt;event_beta&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Event beta: realized loading of asset returns on event-probability news</dd>
+
+        <dt>
+
+          <code><a href="ec_relevance.html">ec_relevance()</a></code>
+
+        </dt>
+        <dd>Pricing relevance of event learning: the sufficient statistic</dd>
       </dl></div><div class="section level2">
       <h2 id="formula-book">Formula book<a class="anchor" aria-label="anchor" href="#formula-book"></a></h2>
 
@@ -99,17 +166,10 @@
 
       <dl><dt>
 
-          <code><a href="ec_atm_event_call.html">ec_atm_event_call()</a></code>
+          <code><a href="ec_moments.html">ec_moments()</a></code>
 
         </dt>
-        <dd>ATM claim on the event factor</dd>
-
-        <dt>
-
-          <code><a href="ec_default_params.html">ec_default_params()</a></code>
-
-        </dt>
-        <dd>Default parameters of the eventclock package</dd>
+        <dd>Moments of the terminal probability and log-odds</dd>
 
         <dt>
 
@@ -120,27 +180,6 @@
 
         <dt>
 
-          <code><a href="ec_iv_rule.html">ec_iv_rule()</a></code>
-
-        </dt>
-        <dd>Rule of thumb: implied-volatility contribution of event learning</dd>
-
-        <dt>
-
-          <code><a href="ec_logit.html">ec_logit()</a></code> <code><a href="ec_logit.html">ec_ilogit()</a></code>
-
-        </dt>
-        <dd>Log-odds (logit) transform</dd>
-
-        <dt>
-
-          <code><a href="ec_moments.html">ec_moments()</a></code>
-
-        </dt>
-        <dd>Moments of the terminal probability and log-odds</dd>
-
-        <dt>
-
           <code><a href="ec_revision.html">ec_revision()</a></code>
 
         </dt>
@@ -148,10 +187,61 @@
 
         <dt>
 
+          <code><a href="ec_atm_event_call.html">ec_atm_event_call()</a></code>
+
+        </dt>
+        <dd>ATM claim on the event factor</dd>
+
+        <dt>
+
           <code><a href="ec_sigma_eff.html">ec_sigma_eff()</a></code>
 
         </dt>
         <dd>Effective volatility ahead of a scheduled event</dd>
+
+        <dt>
+
+          <code><a href="ec_variance_share.html">ec_variance_share()</a></code>
+
+        </dt>
+        <dd>Variance share of event learning</dd>
+
+        <dt>
+
+          <code><a href="ec_iv_rule.html">ec_iv_rule()</a></code>
+
+        </dt>
+        <dd>Rule of thumb: implied-volatility contribution of event learning</dd>
+
+        <dt>
+
+          <code><a href="ec_target_clock.html">ec_target_clock()</a></code>
+
+        </dt>
+        <dd>Event-clock time needed to reach near-certainty</dd>
+
+        <dt>
+
+          <code><a href="ec_logit.html">ec_logit()</a></code> <code><a href="ec_logit.html">ec_ilogit()</a></code>
+
+        </dt>
+        <dd>Log-odds (logit) transform</dd>
+      </dl></div><div class="section level2">
+      <h2 id="transition-simulation">Transition &amp; simulation<a class="anchor" aria-label="anchor" href="#transition-simulation"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="ec_transition_density.html">ec_transition_density()</a></code>
+
+        </dt>
+        <dd>Density of the terminal log-odds</dd>
 
         <dt>
 
@@ -166,27 +256,6 @@
 
         </dt>
         <dd>Simulate event-clock consistent probability paths</dd>
-
-        <dt>
-
-          <code><a href="ec_target_clock.html">ec_target_clock()</a></code>
-
-        </dt>
-        <dd>Event-clock time needed to reach near-certainty</dd>
-
-        <dt>
-
-          <code><a href="ec_transition_density.html">ec_transition_density()</a></code>
-
-        </dt>
-        <dd>Density of the terminal log-odds</dd>
-
-        <dt>
-
-          <code><a href="ec_variance_share.html">ec_variance_share()</a></code>
-
-        </dt>
-        <dd>Variance share of event learning</dd>
       </dl></div><div class="section level2">
       <h2 id="plots">Plots<a class="anchor" aria-label="anchor" href="#plots"></a></h2>
 
@@ -199,17 +268,10 @@
 
       <dl><dt>
 
-          <code><a href="as_event_prices.html">as_event_prices()</a></code> <code><a href="as_event_prices.html">print(<i>&lt;event_prices&gt;</i>)</a></code> <code><a href="as_event_prices.html">summary(<i>&lt;event_prices&gt;</i>)</a></code> <code><a href="as_event_prices.html">plot(<i>&lt;event_prices&gt;</i>)</a></code>
+          <code><a href="plot_q.html">plot_q()</a></code>
 
         </dt>
-        <dd>Standardize traded event probabilities as an <code>event_prices</code> object</dd>
-
-        <dt>
-
-          <code><a href="event_clock_path.html">event_clock_path()</a></code> <code><a href="event_clock_path.html">plot(<i>&lt;event_clock_path&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Cumulative event-clock path</dd>
+        <dd>Plot the event-probability path</dd>
 
         <dt>
 
@@ -224,13 +286,6 @@
 
         </dt>
         <dd>Event-clock time versus calendar time</dd>
-
-        <dt>
-
-          <code><a href="plot_q.html">plot_q()</a></code>
-
-        </dt>
-        <dd>Plot the event-probability path</dd>
       </dl></div><div class="section level2">
       <h2 id="polymarket-connector">Polymarket connector<a class="anchor" aria-label="anchor" href="#polymarket-connector"></a></h2>
 
@@ -298,6 +353,20 @@
 
         </dt>
         <dd>Polymarket 2024 U.S. presidential election prices (hourly)</dd>
+
+        <dt>
+
+          <code><a href="fomc_meetings.html">fomc_meetings</a></code>
+
+        </dt>
+        <dd>Scheduled FOMC meetings 2021-2027</dd>
+
+        <dt>
+
+          <code><a href="djt2024.html">djt2024</a></code>
+
+        </dt>
+        <dd>Trump Media &amp; Technology Group (DJT) daily prices, June-November 2024</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
