@@ -4,16 +4,12 @@ template:
   bootswatch: spacelab
 navbar:
   bg: primary
-development:
-  mode: auto
 reference:
 - title: Event prices
   desc: Standardize traded event probabilities.
   contents:
   - as_event_prices
   - q_from_price
-  - print.event_prices
-  - summary.event_prices
 - title: The event clock
   desc: Estimate information time A from log-odds variation.
   contents:
@@ -34,3 +30,4 @@ reference:
   contents:
   - brexit2016
   - us2016
+  - polymarket2024
