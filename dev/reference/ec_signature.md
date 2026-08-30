@@ -42,6 +42,10 @@ plot(x, ...)
   Numeric length-2 clipping bounds for `q` before the log-odds
   transform; defaults to the bounds stored in `x`.
 
+- ...:
+
+  Unused (for the `plot` method).
+
 ## Value
 
 A tibble of class `ec_signature` with columns
