@@ -1,0 +1,36 @@
+url: https://www.sebastianstoeckl.com/eventclock/
+template:
+  bootstrap: 5
+  bootswatch: spacelab
+navbar:
+  bg: primary
+development:
+  mode: auto
+reference:
+- title: Event prices
+  desc: Standardize traded event probabilities.
+  contents:
+  - as_event_prices
+  - q_from_price
+  - print.event_prices
+  - summary.event_prices
+- title: The event clock
+  desc: Estimate information time A from log-odds variation.
+  contents:
+  - event_clock
+  - event_clock_path
+  - event_clock_forecast
+- title: Formula book
+  desc: Closed-form calculators in (q, A).
+  contents:
+  - starts_with("ec_")
+- title: Plots
+  contents:
+  - starts_with("plot")
+- title: Polymarket connector
+  contents:
+  - starts_with("pm_")
+- title: Data
+  contents:
+  - brexit2016
+  - us2016

@@ -1,0 +1,16 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^README\.Rmd$
+^dev$
+^data-raw$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^doc$
+^Meta$
+^CITATION\.cff$
+^CLAUDE\.md$
+^\.claude$
+^vignettes/articles$

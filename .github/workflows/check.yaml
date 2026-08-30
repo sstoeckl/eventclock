@@ -1,0 +1,32 @@
+name: check
+
+on:
+  push:
+    branches: [ main, master, dev ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: check-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: r-lib/actions/setup-r@v2
+        with: { use-public-rspm: true }
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+      - name: Ignore vignettes in CI (avoid inst/doc warnings)
+        run: |
+          echo '^vignettes/.*$' >> .Rbuildignore
+
+      - name: R CMD check (no vignettes for speed)
+        uses: r-lib/actions/check-r-package@v2
+        with:
+          build_args: 'c("--no-build-vignettes","--no-manual")'
+          args: 'c("--no-manual","--as-cran")'

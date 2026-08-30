@@ -1,0 +1,36 @@
+citHeader("To cite eventclock in publications, please cite the working paper that introduces the event clock together with the package:")
+
+bibentry(
+  bibtype = "Unpublished",
+  title   = "Learning Before Scheduled Events: Prediction Markets, State Prices, and Option Valuation",
+  author  = c(
+    person("Michael", "Hanke"),
+    person("Wolfgang", "Schadner"),
+    person("Sebastian", "Stöckl"),
+    person("Alex", "Weissensteiner")
+  ),
+  year    = "2026",
+  note    = "Working Paper",
+  textVersion = paste(
+    "Hanke, M., Schadner, W., Stöckl, S., and Weissensteiner, A. (2026).",
+    "Learning Before Scheduled Events: Prediction Markets, State Prices, and Option Valuation.",
+    "Working Paper."
+  )
+)
+
+bibentry(
+  bibtype = "Manual",
+  title   = "eventclock: The Event Clock: Information Time from Traded Event Probabilities",
+  author  = person("Sebastian", "Stöckl"),
+  year    = "2026",
+  note    = "R package version 0.0.0.9000",
+  url     = "https://github.com/sstoeckl/eventclock",
+  textVersion = paste(
+    "Stöckl, S. (2026).",
+    "eventclock: The Event Clock: Information Time from Traded Event Probabilities.",
+    "R package version 0.0.0.9000.",
+    "https://github.com/sstoeckl/eventclock"
+  )
+)
+
+citFooter("A persistent link to the working paper will be added once it is publicly posted.")
