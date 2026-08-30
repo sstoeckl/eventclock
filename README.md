@@ -26,24 +26,35 @@ datasets of the working paper
 
 - **`as_event_prices()`** — standardize any probability series
   (prediction markets, betting quotes, state prices) with
-  flag-don’t-drop cleaning; **`q_from_price()`** handles discount and
-  overround normalization.
+  flag-don’t-drop cleaning; converters `q_from_price()` (discount /
+  overround), `q_from_ffutures()` (fed funds futures, 25bp grid), and
+  `q_from_deal_spread()` (merger-arb deal clocks); data screening with
+  `ec_validate()`.
 - **`event_clock()`** — realized-variation estimator of $A$ with
-  truncation, bipower, and largest-move robustness variants;
-  **`event_clock_path()`** for the cumulative clock over time;
-  **`event_clock_forecast()`** for the trailing-window real-time
-  benchmark.
+  truncation, bipower, and largest-move robustness variants, plus
+  standard errors and confidence intervals (`se = TRUE`, quarticity or
+  wild bootstrap); **`event_clock_path()`** for the cumulative clock
+  over time; **`event_clock_forecast()`** for the trailing-window
+  real-time benchmark; **`ec_signature()`** for the sampling-frequency
+  (microstructure) diagnostic.
+- **Assets & finance** — `event_beta()`: realized event exposures
+  $\widehat{\Delta\eta}$ from returns with Newey-West errors and the
+  $\beta = 1$ loading test against an external exposure;
+  `ec_relevance()`: the sufficient statistic for pricing relevance.
 - **Formula book** — closed-form calculators in $(q, A)$:
   `ec_moments()`, `ec_exceedance()`, `ec_revision()`,
   `ec_atm_event_call()`, `ec_sigma_eff()`, `ec_variance_share()`,
   `ec_iv_rule()`, `ec_target_clock()`; exact transition law and
-  simulators (`ec_transition_density()`, `ec_simulate()`,
-  `ec_simulate_path()`).
+  simulators with lumpy-information jumps (`ec_transition_density()`,
+  `ec_simulate()`, `ec_simulate_path()`).
 - **Polymarket connector** — `pm_search()`, `pm_markets()`,
   `pm_prices()`, `pm_daily()` on the public, keyless Gamma/CLOB APIs.
 - **Datasets** — `brexit2016`, `us2016` (the working paper’s event
-  windows), and `polymarket2024` (hourly 2024 U.S. election prices).
-- **Plots** — `plot_q()`, `plot_clock()`, `plot_clock_vs_calendar()`.
+  windows), `polymarket2024` (hourly 2024 U.S. election prices),
+  `djt2024` (the matching exposed stock), and `fomc_meetings` (2021-2027
+  FOMC calendar).
+- **Plots** — `plot_q()`, `plot_clock()`, `plot_clock_vs_calendar()`,
+  `plot_signature()`.
 
 ## Installation
 

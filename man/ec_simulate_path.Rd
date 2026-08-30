@@ -4,7 +4,7 @@
 \alias{ec_simulate_path}
 \title{Simulate event-clock consistent probability paths}
 \usage{
-ec_simulate_path(n_paths, n_steps, q, A)
+ec_simulate_path(n_paths, n_steps, q, A, jump_share = 0, n_jumps = 1)
 }
 \arguments{
 \item{n_paths}{Integer, number of paths.}
@@ -14,22 +14,42 @@ ec_simulate_path(n_paths, n_steps, q, A)
 \item{q}{Numeric vector of current event probabilities in \eqn{(0,1)}.}
 
 \item{A}{Numeric vector of event-clock time (non-negative).}
+
+\item{jump_share}{Numeric in \eqn{[0, 1)}: share of \code{A} arriving in
+jump steps (default 0 = smooth information flow).}
+
+\item{n_jumps}{Integer, number of jump steps per path (default 1;
+only used when \code{jump_share > 0}).}
 }
 \value{
 A tibble with columns \code{path}, \code{step} (0..\code{n_steps}), \code{t_frac}
-(fraction of clock time elapsed), \code{J}, \code{L}, and \code{q}.
+(fraction of calendar steps elapsed), \code{J}, \code{L}, \code{q}, and \code{is_jump}
+(\code{TRUE} for the jump steps; \code{FALSE} for step 0).
 }
 \description{
 Simulates paths of the event probability by composing the exact
-transition law over \code{n_steps} equal clock increments \eqn{a = A /
-n_{steps}}: the outcome \code{J} is drawn once per path, and conditional on
-\code{J} the log-odds follow a Gaussian random walk with drift
-\eqn{\pm a/2} and variance \code{a} per step. Unconditionally, each step is
-Bayes-consistent and \eqn{q_t} is a martingale.
+transition law over \code{n_steps} clock increments: the outcome \code{J} is
+drawn once per path, and conditional on \code{J} the log-odds follow a
+Gaussian random walk with drift \eqn{\pm a_i/2} and variance
+\eqn{a_i} per step, where \eqn{\sum_i a_i = A}. Unconditionally, each
+step is Bayes-consistent and \eqn{q_t} is a martingale.
+}
+\details{
+With \code{jump_share > 0}, information arrives \emph{lumpily}: a fraction
+\code{jump_share} of total clock time \code{A} is concentrated in \code{n_jumps}
+randomly placed steps (scheduled sub-events: debates, data releases),
+and the rest flows evenly. Every step still follows the exact
+Bayes-consistent transition, so all closed-form results continue to
+hold; lumpiness only changes \emph{when} the clock ticks. This is the
+testbed for the jump-robust estimator variants of \code{\link[=event_clock]{event_clock()}}.
 }
 \examples{
 set.seed(1)
 paths <- ec_simulate_path(n_paths = 3, n_steps = 50, q = 0.3, A = 1)
 # realized clock of one path is close to A:
 sum(diff(subset(paths, path == 1)$L)^2)
+
+# lumpy information: half of A arrives in two jump steps
+lumpy <- ec_simulate_path(2, 50, q = 0.3, A = 1,
+                          jump_share = 0.5, n_jumps = 2)
 }

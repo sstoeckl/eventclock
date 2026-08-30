@@ -28,6 +28,25 @@ kernel_drop_largest <- function(dL, k = 1) {
   sum(dL[-o[seq_len(k)]]^2)
 }
 
+# Asymptotic standard error of the realized variation via the quarticity
+# analogue: Var(RV) ~= 2 * sum(sigma_i^4), estimated by (2/3) * sum(dL^4)
+# (E[r^4] = 3 sigma^4 for Gaussian increments).
+kernel_rv_se <- function(dL) {
+  if (length(dL) < 2) return(NA_real_)
+  sqrt((2 / 3) * sum(dL^4))
+}
+
+# Wild bootstrap of the realized variation with two-point multipliers whose
+# squared value has mean 1 and variance 2/3, matching the quarticity-based
+# asymptotic variance (Goncalves-Meddahi-style moment matching).
+kernel_rv_boot <- function(dL, reps = 999) {
+  if (length(dL) < 2) return(matrix(numeric(0), nrow = 0))
+  d2 <- dL^2
+  m <- 1 + sqrt(2 / 3) * (2 * stats::rbinom(reps * length(d2), 1, 0.5) - 1)
+  m <- matrix(m, nrow = reps)
+  as.numeric(m %*% d2)
+}
+
 # ---------------------------------------------------------------------------
 # Shared window logic
 # ---------------------------------------------------------------------------
@@ -160,6 +179,19 @@ window_increments <- function(x, from, to, sample_every, clip) {
 #'   for `truncated` (default [stats::mad()]).
 #' @param clip Numeric length-2 clipping bounds for `q` before the
 #'   log-odds transform; defaults to the bounds stored in `x`.
+#' @param se Logical; if `TRUE`, add a standard error and confidence
+#'   interval for the `rv` estimate (columns are `NA` for the other
+#'   methods). The asymptotic variance is estimated by the quarticity
+#'   analogue \eqn{\widehat{Var}(\widehat A) = \tfrac{2}{3}\sum (\Delta
+#'   L_i)^4}; the interval is log-based,
+#'   \eqn{\exp\{\log \widehat A \pm z\, se/\widehat A\}}. With
+#'   `se_method = "bootstrap"`, a wild bootstrap with two-point
+#'   multipliers (moment-matched to the same asymptotic variance) is used
+#'   and the interval is the percentile interval. Conditional drift
+#'   contributes at order \eqn{(\Delta t)^2} and is ignored.
+#' @param conf Confidence level (default 0.95).
+#' @param se_method `"quarticity"` (default) or `"bootstrap"`.
+#' @param boot_reps Bootstrap replications (default 999).
 #'
 #' @return A tibble with one row per horizon and method:
 #'   \item{market_id}{market label (from `x`).}
@@ -173,6 +205,8 @@ window_increments <- function(x, from, to, sample_every, clip) {
 #'     observations used.}
 #'   \item{method}{estimator variant.}
 #'   \item{A}{the estimate \eqn{\widehat A_{t,T}}.}
+#'   \item{se, ci_lo, ci_hi}{(only with `se = TRUE`) standard error and
+#'     confidence bounds for the `rv` rows.}
 #'
 #' @examples
 #' data(brexit2016)
@@ -194,11 +228,15 @@ event_clock <- function(x, from = NULL, to = NULL,
                         sample_every = ec_default_params()$sample_every,
                         trunc_sd = ec_default_params()$trunc_sd,
                         scale_fn = stats::mad,
-                        clip = NULL) {
+                        clip = NULL,
+                        se = FALSE, conf = 0.95,
+                        se_method = c("quarticity", "bootstrap"),
+                        boot_reps = 999) {
   x <- as_event_prices(x)
   clip <- clip %||% attr(x, "clip") %||% ec_default_params()$clip
   methods <- match.arg(methods, ec_default_params()$methods, several.ok = TRUE)
-  stopifnot(sample_every >= 1)
+  se_method <- rlang::arg_match(se_method)
+  stopifnot(sample_every >= 1, conf > 0, conf < 1)
   sample_every <- as.integer(sample_every)
 
   from <- from %||% min(x$time)
@@ -218,13 +256,36 @@ event_clock <- function(x, from = NULL, to = NULL,
         largest2  = kernel_drop_largest(w$dL, 2)
       )
     }, numeric(1))
-    tibble::tibble(
+    out <- tibble::tibble(
       market_id = attr(x, "market_id") %||% NA_character_,
       from = from, to = to[i], horizon = labels[i],
       n_obs = w$n_obs, n_incr = length(w$dL),
       n_gaps = w$n_gaps, max_gap_days = w$max_gap_days,
       method = methods, A = unname(A)
     )
+    if (se) {
+      out$se <- NA_real_
+      out$ci_lo <- NA_real_
+      out$ci_hi <- NA_real_
+      irv <- which(methods == "rv")
+      if (length(irv) == 1 && length(w$dL) >= 2 && out$A[irv] > 0) {
+        z <- stats::qnorm(1 - (1 - conf) / 2)
+        if (se_method == "quarticity") {
+          s <- kernel_rv_se(w$dL)
+          out$se[irv] <- s
+          out$ci_lo[irv] <- exp(log(out$A[irv]) - z * s / out$A[irv])
+          out$ci_hi[irv] <- exp(log(out$A[irv]) + z * s / out$A[irv])
+        } else {
+          rv_star <- kernel_rv_boot(w$dL, reps = boot_reps)
+          out$se[irv] <- stats::sd(rv_star)
+          qq <- stats::quantile(rv_star, c((1 - conf) / 2, 1 - (1 - conf) / 2),
+                                names = FALSE)
+          out$ci_lo[irv] <- qq[1]
+          out$ci_hi[irv] <- qq[2]
+        }
+      }
+    }
+    out
   })
   dplyr::bind_rows(res)
 }

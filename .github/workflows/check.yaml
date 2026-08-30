@@ -8,12 +8,20 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.config.os }}
+    name: check (${{ matrix.config.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: ubuntu-latest }
+          - { os: windows-latest }
+          - { os: macos-latest }
     env:
       # run the suite in a non-UTC timezone to catch Date/POSIXct pitfalls
       TZ: "America/New_York"
     concurrency:
-      group: check-${{ github.ref }}
+      group: check-${{ matrix.config.os }}-${{ github.ref }}
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4

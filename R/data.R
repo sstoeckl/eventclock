@@ -75,3 +75,48 @@
 #' )
 #' plot_clock(event_clock_path(ep))
 "polymarket2024"
+
+#' Scheduled FOMC meetings 2021-2027
+#'
+#' Decision dates (second day of the two-day meeting) of the scheduled
+#' FOMC meetings, with a flag for meetings accompanied by a Summary of
+#' Economic Projections and press conference. Unscheduled meetings and
+#' notation votes are excluded. Companion calendar for
+#' [q_from_ffutures()].
+#'
+#' @format A tibble with 56 rows and 3 columns:
+#' \describe{
+#'   \item{decision_date}{Decision day (`Date`).}
+#'   \item{year}{Calendar year (integer).}
+#'   \item{sep}{`TRUE` for meetings with a Summary of Economic
+#'     Projections.}
+#' }
+#' @source Federal Reserve Board, "Meeting calendars and information",
+#'   \url{https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm}
+#'   (retrieved 2026-08-30).
+#' @examples
+#' data(fomc_meetings)
+#' subset(fomc_meetings, year == 2024)
+"fomc_meetings"
+
+#' Trump Media & Technology Group (DJT) daily prices, June-November 2024
+#'
+#' Daily closing prices, adjusted closes, and volume of the stock most
+#' directly exposed to the 2024 U.S. presidential election, matching the
+#' window of [polymarket2024]. Companion asset series for the event-beta
+#' example in [event_beta()].
+#'
+#' @format A tibble with 126 rows and 4 columns:
+#' \describe{
+#'   \item{date}{Trading day (`Date`).}
+#'   \item{close}{Closing price (USD).}
+#'   \item{adjusted}{Split/dividend-adjusted close (USD).}
+#'   \item{volume}{Trading volume (shares).}
+#' }
+#' @source Yahoo Finance (via the `tidyquant` package), ticker `DJT`,
+#'   retrieved 2026-08-30. See `data-raw/03-fetch-djt.R`.
+#' @examples
+#' data(djt2024)
+#' data(polymarket2024)
+#' event_beta(djt2024, pm_daily(as_event_prices(polymarket2024)))
+"djt2024"

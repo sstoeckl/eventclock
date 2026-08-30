@@ -6,23 +6,49 @@ navbar:
   bg: primary
 reference:
 - title: Event prices
-  desc: Standardize traded event probabilities.
+  desc: Standardize and screen traded event probabilities.
   contents:
   - as_event_prices
   - q_from_price
+  - q_from_ffutures
+  - q_from_deal_spread
+  - ec_validate
 - title: The event clock
   desc: Estimate information time A from log-odds variation.
   contents:
   - event_clock
   - event_clock_path
   - event_clock_forecast
+  - ec_signature
+  - plot_signature
+  - ec_default_params
+- title: Assets & finance
+  desc: Event exposures and pricing relevance.
+  contents:
+  - event_beta
+  - ec_relevance
 - title: Formula book
   desc: Closed-form calculators in (q, A).
   contents:
-  - starts_with("ec_")
+  - ec_moments
+  - ec_exceedance
+  - ec_revision
+  - ec_atm_event_call
+  - ec_sigma_eff
+  - ec_variance_share
+  - ec_iv_rule
+  - ec_target_clock
+  - ec_logit
+- title: Transition & simulation
+  contents:
+  - ec_transition_density
+  - ec_simulate
+  - ec_simulate_path
 - title: Plots
   contents:
-  - starts_with("plot")
+  - plot_q
+  - plot_clock
+  - plot_clock_vs_calendar
 - title: Polymarket connector
   contents:
   - starts_with("pm_")
@@ -31,3 +57,5 @@ reference:
   - brexit2016
   - us2016
   - polymarket2024
+  - fomc_meetings
+  - djt2024

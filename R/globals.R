@@ -7,6 +7,8 @@ utils::globalVariables(c(
   # polymarket connector
   "t", "p", "hr", "date", "outcome", "token_id", "question",
   "market_slug", "event_slug",
+  # signature / beta
+  "spacing_days", "A_min", "A_max", "dq",
   # plotting
   "method", "horizon"
 ))

@@ -12,7 +12,11 @@ event_clock(
   sample_every = ec_default_params()$sample_every,
   trunc_sd = ec_default_params()$trunc_sd,
   scale_fn = stats::mad,
-  clip = NULL
+  clip = NULL,
+  se = FALSE,
+  conf = 0.95,
+  se_method = c("quarticity", "bootstrap"),
+  boot_reps = 999
 )
 }
 \arguments{
@@ -37,6 +41,23 @@ for \code{truncated} (default \code{\link[stats:mad]{stats::mad()}}).}
 
 \item{clip}{Numeric length-2 clipping bounds for \code{q} before the
 log-odds transform; defaults to the bounds stored in \code{x}.}
+
+\item{se}{Logical; if \code{TRUE}, add a standard error and confidence
+interval for the \code{rv} estimate (columns are \code{NA} for the other
+methods). The asymptotic variance is estimated by the quarticity
+analogue \eqn{\widehat{Var}(\widehat A) = \tfrac{2}{3}\sum (\Delta
+L_i)^4}; the interval is log-based,
+\eqn{\exp\{\log \widehat A \pm z\, se/\widehat A\}}. With
+\code{se_method = "bootstrap"}, a wild bootstrap with two-point
+multipliers (moment-matched to the same asymptotic variance) is used
+and the interval is the percentile interval. Conditional drift
+contributes at order \eqn{(\Delta t)^2} and is ignored.}
+
+\item{conf}{Confidence level (default 0.95).}
+
+\item{se_method}{\code{"quarticity"} (default) or \code{"bootstrap"}.}
+
+\item{boot_reps}{Bootstrap replications (default 999).}
 }
 \value{
 A tibble with one row per horizon and method:
@@ -51,6 +72,8 @@ median observation spacing (see Details).}
 observations used.}
 \item{method}{estimator variant.}
 \item{A}{the estimate \eqn{\widehat A_{t,T}}.}
+\item{se, ci_lo, ci_hi}{(only with \code{se = TRUE}) standard error and
+confidence bounds for the \code{rv} rows.}
 }
 \description{
 The information accumulated about a scheduled event over a window

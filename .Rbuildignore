@@ -14,3 +14,4 @@
 ^CLAUDE\.md$
 ^\.claude$
 ^vignettes/articles$
+^Rplots\.pdf$

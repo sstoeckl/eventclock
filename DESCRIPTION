@@ -1,6 +1,6 @@
 Package: eventclock
 Title: The Event Clock: Information Time from Traded Event Probabilities
-Version: 0.0.0.9000
+Version: 0.3.0
 Authors@R:
     person("Sebastian", "Stöckl", , "sebastian.stoeckl@uni.li", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4196-6093"))
@@ -35,6 +35,7 @@ Suggests:
     curl,
     knitr,
     rmarkdown,
+    sandwich,
     spelling,
     testthat (>= 3.0.0)
 VignetteBuilder:

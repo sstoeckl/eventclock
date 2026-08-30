@@ -29,6 +29,33 @@ test_that("ec_simulate satisfies the martingale property and transition law", {
   expect_lt(abs(stats::var(sim$L_T[sim$J == 0]) - 0.166), 5e-3)
 })
 
+test_that("lumpy information: jumps are Bayes-consistent and bipower-robust", {
+  set.seed(9)
+  paths <- ec_simulate_path(200, 100, q = 0.4, A = 1,
+                            jump_share = 0.6, n_jumps = 2)
+  expect_true("is_jump" %in% names(paths))
+  expect_equal(sum(paths$is_jump[paths$path == 1]), 2)
+  # total clock unchanged by lumpiness; E[QV] = A + sum(a_i^2)/4 (drift term)
+  qv <- vapply(split(paths$L, paths$path), function(L) sum(diff(L)^2),
+               numeric(1))
+  a_base <- 1 * (1 - 0.6) / 100
+  a_jump <- a_base + 1 * 0.6 / 2
+  exp_qv <- 1 + (2 * a_jump^2 + 98 * a_base^2) / 4
+  expect_lt(abs(mean(qv) - exp_qv), 0.04)
+  # martingale survives lumpiness (sd(q_T) ~ 0.3, 200 paths -> se ~ 0.02)
+  expect_lt(abs(mean(paths$q[paths$step == 100]) - 0.4), 0.07)
+  # bipower sits below rv when information is lumpy (jump robustness),
+  # averaged across paths
+  ratio <- vapply(split(paths$L, paths$path), function(L) {
+    dL <- diff(L)
+    eventclock:::kernel_bipower(dL) / eventclock:::kernel_rv(dL)
+  }, numeric(1))
+  expect_lt(mean(ratio), 0.85)
+  # input validation
+  expect_error(ec_simulate_path(1, 10, 0.4, 1, jump_share = 0.5, n_jumps = 10))
+  expect_error(ec_simulate_path(1, 10, 0.4, 1, jump_share = 1))
+})
+
 test_that("ec_simulate_path composes the transition and realizes the clock", {
   set.seed(2)
   paths <- ec_simulate_path(n_paths = 300, n_steps = 100, q = 0.3, A = 1)

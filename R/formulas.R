@@ -197,6 +197,37 @@ ec_iv_rule <- function(deta, q, A, sigma, tenor) {
   (r$deta * r$q * (1 - r$q))^2 * r$A / (2 * r$sigma * r$tenor)
 }
 
+#' Pricing relevance of event learning: the sufficient statistic
+#'
+#' The single number that decides whether learning about an event is
+#' first-order for an asset's option prices: the ratio of learning
+#' variance to no-learning variance over the tenor,
+#' \deqn{\rho = \frac{[\Delta\eta\; q(1-q)]^2\, A}{\sigma^2 (T-t)}.}
+#'
+#' @details
+#' The other headline objects are monotone transforms of \eqn{\rho}: the
+#' variance share of learning is \eqn{\rho / (1 + \rho)}
+#' ([ec_variance_share()]) and the rule-of-thumb IV contribution is
+#' \eqn{\sigma \rho / 2} ([ec_iv_rule()]). Use \eqn{\rho} to screen
+#' (event, asset) pairs: FX pairs around elections sit at
+#' \eqn{\rho \approx 0.002}–\eqn{0.01} (irrelevant to two decimals),
+#' single names with large exposures can reach first-order magnitudes.
+#'
+#' @inheritParams ec_sigma_eff
+#' @return Numeric vector \eqn{\rho \ge 0}.
+#' @examples
+#' # US election 2016, 2W tenor: rho of about 1.1% -> variance share 1.1%
+#' ec_relevance(deta = -0.099, q = 0.172, A = 0.046,
+#'              sigma = 0.19326, tenor = 14 / 365)
+#' @seealso [ec_variance_share()], [ec_iv_rule()], [event_beta()]
+#' @export
+ec_relevance <- function(deta, q, A, sigma, tenor) {
+  check_prob(q); check_nonneg(A)
+  stopifnot(all(is.na(tenor) | tenor > 0), all(is.na(sigma) | sigma > 0))
+  r <- ec_recycle(deta = deta, q = q, A = A, sigma = sigma, tenor = tenor)
+  (r$deta * r$q * (1 - r$q))^2 * r$A / (r$sigma^2 * r$tenor)
+}
+
 #' Event-clock time needed to reach near-certainty
 #'
 #' Rule of thumb for the amount of event-clock time required for the
