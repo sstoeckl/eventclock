@@ -261,18 +261,78 @@ including weekends.</li>
 <h2 id="the-clock-over-time">The clock over time<a class="anchor" aria-label="anchor" href="#the-clock-over-time"></a>
 </h2>
 <p>The most instructive object is not the point estimate but the
-<em>path</em> of the clock — when did the information actually
-arrive?</p>
+<em>path</em> of the clock — when did the information actually arrive?
+The jumps of the cumulative clock have names: they are the campaign’s
+news days. (The attributions below were found by ranking the days by
+their contribution <code>dA</code> to the clock —
+<code><a href="../reference/event_clock_path.html">event_clock_path()</a></code> returns exactly that column.)</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">path_gb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/event_clock_path.html">event_clock_path</a></span><span class="op">(</span><span class="va">ep_gb</span>, from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2016-05-24"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_clock.html">plot_clock</a></span><span class="op">(</span><span class="va">path_gb</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># tiny helper used throughout: dotted line + label per event</span></span>
+<span><span class="co"># (labels alternate between two heights so that close-by events stay legible)</span></span>
+<span><span class="va">mark_events</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span>, <span class="va">events</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">drop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.05</span>, <span class="fl">1.55</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">events</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">p</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span></span>
+<span>      xintercept <span class="op">=</span> <span class="va">events</span><span class="op">$</span><span class="va">date</span>, linetype <span class="op">=</span> <span class="fl">3</span>, color <span class="op">=</span> <span class="st">"grey40"</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotate.html" class="external-link">annotate</a></span><span class="op">(</span><span class="st">"text"</span>,</span>
+<span>      x <span class="op">=</span> <span class="va">events</span><span class="op">$</span><span class="va">date</span>, y <span class="op">=</span> <span class="cn">Inf</span>, label <span class="op">=</span> <span class="va">events</span><span class="op">$</span><span class="va">label</span>,</span>
+<span>      angle <span class="op">=</span> <span class="fl">90</span>, vjust <span class="op">=</span> <span class="op">-</span><span class="fl">0.35</span>, hjust <span class="op">=</span> <span class="va">drop</span>, size <span class="op">=</span> <span class="fl">2.9</span>, color <span class="op">=</span> <span class="st">"grey30"</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">events_gb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"2016-03-23"</span>, <span class="st">"2016-04-23"</span>, <span class="st">"2016-05-23"</span>, <span class="st">"2016-06-01"</span>,</span>
+<span>    <span class="st">"2016-06-14"</span>, <span class="st">"2016-06-16"</span>, <span class="st">"2016-06-19"</span></span>
+<span>  <span class="op">)</span><span class="op">)</span>,</span>
+<span>  label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"Brussels attacks"</span>, <span class="st">"Obama visit"</span>, <span class="st">"Remain poll run"</span>, <span class="st">"ICM: Leave ahead"</span>,</span>
+<span>    <span class="st">"Leave poll wave"</span>, <span class="st">"Jo Cox murdered"</span>, <span class="st">"campaign resumes"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">path_gb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/event_clock_path.html">event_clock_path</a></span><span class="op">(</span><span class="va">ep_gb</span><span class="op">)</span></span>
+<span><span class="fu">mark_events</span><span class="op">(</span><span class="fu"><a href="../reference/plot_q.html">plot_q</a></span><span class="op">(</span><span class="va">ep_gb</span><span class="op">)</span>, <span class="va">events_gb</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_clock_vs_calendar.html">plot_clock_vs_calendar</a></span><span class="op">(</span><span class="va">path_gb</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">mark_events</span><span class="op">(</span><span class="fu"><a href="../reference/plot_clock.html">plot_clock</a></span><span class="op">(</span><span class="va">path_gb</span><span class="op">)</span>, <span class="va">events_gb</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-4-2.png" class="r-plt" alt="" width="672"></p>
+<p>The largest ticks of the Brexit clock, matched to the news of the day
+(<code>dL</code> is the log-odds move of the <em>Leave</em>
+probability):</p>
+<ul>
+<li>
+<strong>Mar 22–23</strong> — Brussels terror attacks; Leave odds
+jump (<code>dL = +0.19</code>).</li>
+<li>
+<strong>Apr 22–24</strong> — Obama’s London visit (“back of the
+queue”); Remain boost (<code>dL = -0.18</code>).</li>
+<li>
+<strong>May 20–26</strong> — the Remain poll run (ORB Remain +15,
+Treasury/IMF warnings); <code>q_leave</code> hits its sample low of
+0.17.</li>
+<li>
+<strong>May 31 – Jun 1</strong> — paired ICM phone/online polls put
+Leave ahead: the campaign’s turning point (<code>dL = +0.26</code>, 8%
+of the full-sample clock).</li>
+<li>
+<strong>Jun 10–14</strong> — the Leave poll wave plus The Sun’s
+endorsement — the single largest tick (<code>dL = +0.29</code>,
+10%).</li>
+<li>
+<strong>Jun 16</strong> — the murder of Jo Cox; campaigning is
+suspended (<code>dL = -0.20</code>).</li>
+<li>
+<strong>Jun 19–20</strong> — campaigning resumes, Remain recovers in
+the weekend polls (<code>dL = -0.29</code>, 10%).</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_clock_vs_calendar.html">plot_clock_vs_calendar</a></span><span class="op">(</span><span class="va">path_gb</span><span class="op">)</span></span></code></pre></div>
+<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="672"></p>
 <p>A path below the 45-degree line means information is back-loaded — it
-waits for the deadline; jumps mark days when the market learned a lot
-(polls, court rulings, debates).</p>
+waits for the deadline; the June cluster of poll shocks is clearly
+visible as the late steep segment.</p>
 </div>
 <div class="section level2">
 <h2 id="real-time-versus-ex-post">Real time versus ex post<a class="anchor" aria-label="anchor" href="#real-time-versus-ex-post"></a>
@@ -281,7 +341,7 @@ waits for the deadline; jumps mark days when the market learned a lot
 alive. In real time we do not; the paper’s benchmark annualizes the
 trailing 40-observation realized variation and scales it to the
 horizon:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/event_clock_forecast.html">event_clock_forecast</a></span><span class="op">(</span><span class="va">ep_us</span>,</span>
 <span>  at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2016-10-10"</span><span class="op">)</span>,</span>
 <span>  horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`1W` <span class="op">=</span> <span class="fl">7</span>, `2W` <span class="op">=</span> <span class="fl">14</span><span class="op">)</span></span>
@@ -307,7 +367,7 @@ while the paper works with a USD-state-price-converted
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>0.195</mn></mrow><annotation encoding="application/x-tex">q = 0.195</annotation></semantics></math>.
 The levels differ — but the clock is identical, because an
 (approximately) constant logit wedge has zero quadratic variation:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">shifted</span> <span class="op">&lt;-</span> <span class="va">brexit2016</span></span>
 <span><span class="va">shifted</span><span class="op">$</span><span class="va">q_leave</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_logit.html">ec_ilogit</a></span><span class="op">(</span><span class="fu"><a href="../reference/ec_logit.html">ec_logit</a></span><span class="op">(</span><span class="va">brexit2016</span><span class="op">$</span><span class="va">q_leave</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="va">ep_shift</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_event_prices.html">as_event_prices</a></span><span class="op">(</span><span class="va">shifted</span>, time <span class="op">=</span> <span class="st">"date"</span>, price <span class="op">=</span> <span class="st">"q_leave"</span><span class="op">)</span></span>
@@ -334,7 +394,7 @@ logistic-normal transition law
 The worked Brexit example
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>0.195</mn></mrow><annotation encoding="application/x-tex">q = 0.195</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>=</mo><mn>0.166</mn></mrow><annotation encoding="application/x-tex">A = 0.166</annotation></semantics></math>):</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ec_moments.html">ec_moments</a></span><span class="op">(</span>q <span class="op">=</span> <span class="fl">0.195</span>, A <span class="op">=</span> <span class="fl">0.166</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 10</span></span></span>
 <span><span class="co">#&gt;       q     A     L  E_qT  E_LT var_LT sd_LT    m3_LT  var_qT var_qT_bound</span></span>
@@ -361,7 +421,7 @@ percentage points, using the tenor-specific no-learning ATM volatility
 and the event exposures
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>η</mi></mrow><annotation encoding="application/x-tex">\Delta\eta</annotation></semantics></math>
 estimated in the paper):</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  brexit_2w <span class="op">=</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="../reference/ec_iv_rule.html">ec_iv_rule</a></span><span class="op">(</span>deta <span class="op">=</span> <span class="op">-</span><span class="fl">0.012</span>, q <span class="op">=</span> <span class="fl">0.195</span>, A <span class="op">=</span> <span class="fl">0.166</span>,</span>
 <span>                               sigma <span class="op">=</span> <span class="fl">0.10590</span>, tenor <span class="op">=</span> <span class="fl">14</span> <span class="op">/</span> <span class="fl">365</span><span class="op">)</span>,</span>
@@ -381,7 +441,7 @@ lever dominates.</p>
 <p>The package connects to the public, keyless Polymarket APIs. The
 shipped <code>polymarket2024</code> dataset was downloaded with exactly
 this code:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 1. find the event and the "Yes" token</span></span>
 <span><span class="fu"><a href="../reference/pm_search.html">pm_search</a></span><span class="op">(</span><span class="st">"presidential election winner 2024"</span><span class="op">)</span></span>
 <span><span class="va">mkts</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pm_markets.html">pm_markets</a></span><span class="op">(</span><span class="st">"presidential-election-winner-2024"</span><span class="op">)</span></span>
@@ -391,19 +451,64 @@ this code:</p>
 <span><span class="va">ep24</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pm_prices.html">pm_prices</a></span><span class="op">(</span><span class="va">tok</span>, from <span class="op">=</span> <span class="st">"2024-06-01"</span>, to <span class="op">=</span> <span class="st">"2024-11-06"</span>,</span>
 <span>                  market_id <span class="op">=</span> <span class="st">"Polymarket: Trump wins 2024"</span>,</span>
 <span>                  event_date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="st">"2024-11-05"</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">polymarket2024</span><span class="op">)</span></span>
 <span><span class="va">ep24</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_event_prices.html">as_event_prices</a></span><span class="op">(</span><span class="va">polymarket2024</span>,</span>
 <span>  market_id <span class="op">=</span> <span class="st">"Polymarket: Trump wins 2024"</span>,</span>
 <span>  event_date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="st">"2024-11-05"</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_clock.html">plot_clock</a></span><span class="op">(</span><span class="fu"><a href="../reference/event_clock_path.html">event_clock_path</a></span><span class="op">(</span><span class="va">ep24</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="672"></p>
+<span></span>
+<span><span class="va">events_24</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"2024-06-28 02:00"</span>, <span class="st">"2024-07-13 23:00"</span>, <span class="st">"2024-07-21 12:00"</span>,</span>
+<span>    <span class="st">"2024-08-03 12:00"</span>, <span class="st">"2024-10-15 12:00"</span>, <span class="st">"2024-11-03 00:00"</span></span>
+<span>  <span class="op">)</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span>,</span>
+<span>  label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"TV debate"</span>, <span class="st">"assassination attempt"</span>, <span class="st">"Biden withdraws"</span>,</span>
+<span>    <span class="st">"Harris surge"</span>, <span class="st">"October rally"</span>, <span class="st">"Selzer poll"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">mark_events</span><span class="op">(</span><span class="fu"><a href="../reference/plot_q.html">plot_q</a></span><span class="op">(</span><span class="va">ep24</span><span class="op">)</span>, <span class="va">events_24</span><span class="op">)</span></span></code></pre></div>
+<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="672"></p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">mark_events</span><span class="op">(</span><span class="fu"><a href="../reference/plot_clock.html">plot_clock</a></span><span class="op">(</span><span class="fu"><a href="../reference/event_clock_path.html">event_clock_path</a></span><span class="op">(</span><span class="va">ep24</span><span class="op">)</span><span class="op">)</span>, <span class="va">events_24</span><span class="op">)</span></span></code></pre></div>
+<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-11-2.png" class="r-plt" alt="" width="672"></p>
+<p>The jumps of the 2024 clock, again matched by ranking the daily
+contributions (<code>dL</code> on the Trump-Yes log-odds):</p>
+<ul>
+<li>
+<strong>Jun 27–28</strong> — the Biden–Trump TV debate: the largest
+<em>hourly</em> move of the whole sample (<code>dL = +0.35</code>),
+while the debate was still on air.</li>
+<li>
+<strong>Jul 13–14</strong> — the assassination attempt: the largest
+tick overall (<code>dL = +0.42</code>) — <strong>22% of the entire
+five-month clock in one day</strong>.</li>
+<li>
+<strong>Jul 17–21</strong> — Biden’s withdrawal: mostly priced in by
+the July 17 reports; the announcement itself is a modest tick.</li>
+<li>
+<strong>Aug 1–10</strong> — Harris secures the nomination, picks
+Walz, and surges (<code>dL = -0.20</code> and <code>-0.14</code>).</li>
+<li>
+<strong>early–mid Oct</strong> — the October rally (<code>dL</code>
+of <code>+0.11</code> to <code>+0.16</code> on Oct 7/15/22), with a
+sharp intraday reversal on Oct 23.</li>
+<li>
+<strong>Nov 2–3</strong> — the Selzer Iowa poll shock
+(<code>dL = -0.17</code>), reversed the next day; then election
+night.</li>
+</ul>
+<p>Conspicuously absent: the <strong>September 10 Harris–Trump
+debate</strong> does not rank among the top ticks — the market priced it
+as barely informative, which is exactly what the long September plateau
+of the clock shows.</p>
 <p>With intraday data, mind the sampling frequency: microstructure noise
 (bid-ask bounce on a coarse tick grid) inflates measured variation.
 Collapsing to one daily snapshot (last price at or before 16:00 New York
 time) is a robust default:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  hourly <span class="op">=</span> <span class="fu"><a href="../reference/event_clock.html">event_clock</a></span><span class="op">(</span><span class="va">ep24</span>, methods <span class="op">=</span> <span class="st">"rv"</span><span class="op">)</span><span class="op">$</span><span class="va">A</span>,</span>
 <span>  daily  <span class="op">=</span> <span class="fu"><a href="../reference/event_clock.html">event_clock</a></span><span class="op">(</span><span class="fu"><a href="../reference/pm_daily.html">pm_daily</a></span><span class="op">(</span><span class="va">ep24</span><span class="op">)</span>, methods <span class="op">=</span> <span class="st">"rv"</span><span class="op">)</span><span class="op">$</span><span class="va">A</span></span>
@@ -419,7 +524,7 @@ the exact transition law into full probability paths whose realized
 clock matches the input
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
 and whose probabilities are martingales by construction:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">paths</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_simulate_path.html">ec_simulate_path</a></span><span class="op">(</span>n_paths <span class="op">=</span> <span class="fl">20</span>, n_steps <span class="op">=</span> <span class="fl">200</span>, q <span class="op">=</span> <span class="fl">0.3</span>, A <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
@@ -431,7 +536,7 @@ and whose probabilities are martingales by construction:</p>
 <span>                     name <span class="op">=</span> <span class="st">"Outcome J"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Fraction of clock time elapsed"</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">q</span><span class="op">[</span><span class="va">t</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="672"></p>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
