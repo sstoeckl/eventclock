@@ -1,0 +1,6 @@
+# Articles
+
+### All vignettes
+
+- [Measuring the event clock: Brexit, the 2016 U.S. election, and
+  Polymarket](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-brexit.md):
