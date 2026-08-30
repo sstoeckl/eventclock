@@ -97,6 +97,12 @@ will be clipped before the log-odds transform in \code{\link[=event_clock]{event
 The clipping bounds, market id, and event date are stored as attributes
 (\code{clip}, \code{market_id}, \code{event_date}) and are picked up by
 \code{\link[=event_clock]{event_clock()}}, \code{\link[=event_clock_path]{event_clock_path()}}, and the plotting functions.
+
+\strong{Timezones.} A \code{POSIXct} time column is kept in the timezone it
+carries; character timestamps are parsed as UTC. Window bounds passed
+as \code{Date} to \code{\link[=event_clock]{event_clock()}} and friends are interpreted in the
+series' timezone (with \code{to} covering the full day), so mixing \code{Date}
+bounds with a non-UTC intraday series is safe.
 }
 \section{Functions}{
 \itemize{

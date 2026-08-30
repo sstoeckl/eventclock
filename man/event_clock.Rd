@@ -41,10 +41,14 @@ log-odds transform; defaults to the bounds stored in \code{x}.}
 \value{
 A tibble with one row per horizon and method:
 \item{market_id}{market label (from \code{x}).}
-\item{from, to}{window bounds actually used.}
+\item{from, to}{window bounds as supplied.}
 \item{horizon}{horizon label (names of \code{to}, or the date).}
 \item{n_obs}{number of non-missing observations in the window.}
 \item{n_incr}{number of increments used (after subsampling).}
+\item{n_gaps}{number of increments spanning more than 1.5 times the
+median observation spacing (see Details).}
+\item{max_gap_days}{largest spacing (in days) between consecutive
+observations used.}
 \item{method}{estimator variant.}
 \item{A}{the estimate \eqn{\widehat A_{t,T}}.}
 }
@@ -74,19 +78,39 @@ standard deviations, where the robust scale is \code{scale_fn(dL)}
 (\code{\link[stats:mad]{stats::mad()}} by default). Note that with daily data and short
 windows this criterion is coarse; reference results reported as
 "truncated" often coincide with dropping the single largest
-increment (\code{largest1}). Compare both.}
+increment (\code{largest1}). Compare both. When the robust scale is
+degenerate (e.g. more than half of the increments are identical),
+truncation is disabled with a message and plain realized variation
+is returned.}
 \item{\code{bipower}}{bipower variation
 \eqn{BV = \frac{\pi}{2}\sum_{i\ge 2} |\Delta L_i||\Delta L_{i-1}|},
 a jump-robust companion; the gap \eqn{RV - BV} is a descriptive
-\emph{jumpiness index}.}
+\emph{jumpiness index}. No finite-sample correction is applied, so \code{BV}
+is biased downward in very short windows (a 1-week window has only
+six neighbor products); read it as descriptive, not as an unbiased
+estimate.}
 \item{\code{largest1}, \code{largest2}}{realized variation after removing the
 one or two largest absolute increments.}
 }
 
-Windows are defined in calendar time from the valuation date \code{from} to
-each horizon date in \code{to} (they are \emph{anchored} windows, not trailing
-ones). All observations in the window are used, including weekends if
-the series has them.
+\strong{Windows.} Windows are defined in calendar time from the valuation
+date \code{from} to each horizon date in \code{to} (they are \emph{anchored} windows,
+not trailing ones). All observations in the window are used, including
+weekends if the series has them. \code{Date}-typed bounds combined with a
+\code{POSIXct}-typed series are interpreted in the series' timezone, with
+\code{to} covering the full horizon day.
+
+\strong{Missing observations and gaps.} Missing \code{q} values inside the window
+are skipped with a warning; the increment then \emph{bridges} the gap and
+aggregates more elapsed time than a regular one-period increment. Plain
+realized variation remains a valid (sparser) estimate of the window's
+total variation, but the robustness variants treat all increments as
+homogeneous: a gap-spanning increment is mechanically larger and can be
+misclassified as a jump by \code{truncated}/\code{largest1}/\code{largest2}, and it
+distorts the neighbor products of \code{bipower}. The output columns
+\code{n_gaps} (increments spanning more than 1.5 times the median
+observation spacing) and \code{max_gap_days} flag affected windows —
+interpret the robustness variants cautiously whenever \code{n_gaps > 0}.
 }
 \examples{
 data(brexit2016)

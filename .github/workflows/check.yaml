@@ -9,6 +9,9 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      # run the suite in a non-UTC timezone to catch Date/POSIXct pitfalls
+      TZ: "America/New_York"
     concurrency:
       group: check-${{ github.ref }}
       cancel-in-progress: true
@@ -17,16 +20,13 @@ jobs:
         with: { fetch-depth: 0 }
       - uses: r-lib/actions/setup-r@v2
         with: { use-public-rspm: true }
+      - uses: r-lib/actions/setup-pandoc@v2
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
-      - name: Ignore vignettes in CI (avoid inst/doc warnings)
-        run: |
-          echo '^vignettes/.*$' >> .Rbuildignore
 
-      - name: R CMD check (no vignettes for speed)
+      - name: R CMD check (as CRAN, vignettes included)
         uses: r-lib/actions/check-r-package@v2
         with:
-          build_args: 'c("--no-build-vignettes","--no-manual")'
           args: 'c("--no-manual","--as-cran")'

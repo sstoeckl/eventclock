@@ -26,6 +26,12 @@
 #' (`clip`, `market_id`, `event_date`) and are picked up by
 #' [event_clock()], [event_clock_path()], and the plotting functions.
 #'
+#' **Timezones.** A `POSIXct` time column is kept in the timezone it
+#' carries; character timestamps are parsed as UTC. Window bounds passed
+#' as `Date` to [event_clock()] and friends are interpreted in the
+#' series' timezone (with `to` covering the full day), so mixing `Date`
+#' bounds with a non-UTC intraday series is safe.
+#'
 #' @param x A `data.frame`/`tibble` (or an existing `event_prices` object,
 #'   returned unchanged).
 #' @param time Name of the time column (character). If `NULL`, the first of
@@ -126,6 +132,12 @@ as_event_prices.data.frame <- function(x, time = NULL, price = NULL,
   q <- q_from_price(q_raw, discount = discount, book = book, method = method)
 
   out <- tibble::tibble(time = tt, q_raw = q_raw, q = q)
+
+  # rows without a timestamp are unusable -> drop with a warning
+  if (anyNA(out$time)) {
+    cli::cli_warn("{sum(is.na(out$time))} row{?s} with missing timestamp removed.")
+    out <- out[!is.na(out$time), , drop = FALSE]
+  }
 
   # sort; duplicated timestamps break increments -> keep first, warn
   out <- out[order(out$time), , drop = FALSE]

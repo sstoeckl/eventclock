@@ -163,12 +163,58 @@ test_that("clock functions validate their inputs", {
     event_clock_forecast(as_event_prices(d2), horizon = -1),
     "strictly after"
   )
-  # NA q values are flagged and skipped, not propagated
+  # NA q values are skipped WITH a warning (increments bridge the gap)
   d3 <- tibble::tibble(
     time = as.Date("2020-01-01") + 0:4,
     q = c(0.5, NA, 0.55, 0.6, NA)
   )
-  res <- event_clock(as_event_prices(d3), methods = "rv")
+  expect_warning(
+    res <- event_clock(as_event_prices(d3), methods = "rv"),
+    "missing observation"
+  )
   expect_equal(res$n_obs, 3L)
   expect_false(is.na(res$A))
+})
+
+test_that("gap diagnostics flag increments that bridge missing data", {
+  # 6 daily obs, day 3 missing -> one increment spans 2 days
+  d <- tibble::tibble(
+    time = as.Date("2020-01-01") + 0:5,
+    q = c(0.50, 0.52, NA, 0.55, 0.57, 0.60)
+  )
+  expect_warning(
+    res <- event_clock(as_event_prices(d), methods = c("rv", "largest1")),
+    "missing observation"
+  )
+  expect_equal(unique(res$n_gaps), 1L)
+  expect_equal(unique(res$max_gap_days), 2)
+  # a gap-free series reports zero gaps and unit spacing
+  res2 <- event_clock(ep_brexit(), methods = "rv")
+  expect_equal(res2$n_gaps, 0L)
+  expect_equal(res2$max_gap_days, 1)
+  # forecast output carries the same diagnostics
+  f <- event_clock_forecast(ep_us(), at = as.Date("2016-10-10"), horizon = 7)
+  expect_equal(f$n_gaps, 0L)
+  expect_equal(f$max_gap_days, 1)
+})
+
+test_that("Date bounds work correctly on non-UTC POSIXct series", {
+  # noon observations in New York time; Date bounds must select whole days
+  d <- tibble::tibble(
+    time = as.POSIXct("2020-01-01 12:00", tz = "America/New_York") +
+      86400 * (0:4),
+    q = c(0.40, 0.45, 0.50, 0.55, 0.60)
+  )
+  ep <- as_event_prices(d)
+  res <- event_clock(ep,
+    from = as.Date("2020-01-02"), to = as.Date("2020-01-04"),
+    methods = "rv"
+  )
+  # days 2, 3, and 4 must all be inside the window
+  expect_equal(res$n_obs, 3L)
+  # and the path respects the same alignment
+  path <- event_clock_path(ep,
+    from = as.Date("2020-01-02"), to = as.Date("2020-01-04")
+  )
+  expect_equal(nrow(path), 3)
 })

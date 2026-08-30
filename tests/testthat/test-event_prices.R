@@ -79,6 +79,16 @@ test_that("character dates are parsed, bad time columns error", {
   expect_error(as_event_prices(d2), "must be")
 })
 
+test_that("rows with missing timestamps are removed with a warning", {
+  d <- tibble::tibble(
+    date = as.Date(c("2020-01-01", NA, "2020-01-03")),
+    q = c(0.4, 0.5, 0.6)
+  )
+  expect_warning(ep <- as_event_prices(d), "missing timestamp")
+  expect_equal(nrow(ep), 2)
+  expect_equal(ep$q, c(0.4, 0.6))
+})
+
 test_that("as_event_prices is idempotent on event_prices objects", {
   ep <- ep_brexit()
   expect_identical(as_event_prices(ep), ep)

@@ -32,6 +32,8 @@
 #' @export
 ec_moments <- function(q, A) {
   check_prob(q); check_nonneg(A)
+  r <- ec_recycle(q = q, A = A)
+  q <- r$q; A <- r$A
   L <- ec_logit(q)
   var_LT <- A + q * (1 - q) * A^2
   tibble::tibble(
@@ -91,7 +93,8 @@ ec_exceedance <- function(x, q, A) {
 #' @export
 ec_revision <- function(q, A) {
   check_prob(q); check_nonneg(A)
-  q * (1 - q) * sqrt(2 * A / pi)
+  r <- ec_recycle(q = q, A = A)
+  r$q * (1 - r$q) * sqrt(2 * r$A / pi)
 }
 
 #' ATM claim on the event factor
@@ -110,7 +113,8 @@ ec_revision <- function(q, A) {
 #' @export
 ec_atm_event_call <- function(q, A, deta) {
   check_prob(q); check_nonneg(A)
-  abs(deta) * q * (1 - q) * sqrt(A / (2 * pi))
+  r <- ec_recycle(q = q, A = A, deta = deta)
+  abs(r$deta) * r$q * (1 - r$q) * sqrt(r$A / (2 * pi))
 }
 
 #' Effective volatility ahead of a scheduled event
@@ -132,7 +136,8 @@ ec_atm_event_call <- function(q, A, deta) {
 ec_sigma_eff <- function(sigma, deta, q, A, tenor) {
   check_prob(q); check_nonneg(A)
   stopifnot(all(is.na(tenor) | tenor > 0))
-  sqrt(sigma^2 + (deta * q * (1 - q))^2 * A / tenor)
+  r <- ec_recycle(sigma = sigma, deta = deta, q = q, A = A, tenor = tenor)
+  sqrt(r$sigma^2 + (r$deta * r$q * (1 - r$q))^2 * r$A / r$tenor)
 }
 
 #' Variance share of event learning
@@ -153,8 +158,9 @@ ec_sigma_eff <- function(sigma, deta, q, A, tenor) {
 #' @export
 ec_variance_share <- function(sigma, deta, q, A, tenor) {
   check_prob(q); check_nonneg(A)
-  v <- (deta * q * (1 - q))^2 * A
-  1 / (1 + sigma^2 * tenor / v)
+  r <- ec_recycle(sigma = sigma, deta = deta, q = q, A = A, tenor = tenor)
+  v <- (r$deta * r$q * (1 - r$q))^2 * r$A
+  1 / (1 + r$sigma^2 * r$tenor / v)
 }
 
 #' Rule of thumb: implied-volatility contribution of event learning
@@ -187,7 +193,8 @@ ec_variance_share <- function(sigma, deta, q, A, tenor) {
 ec_iv_rule <- function(deta, q, A, sigma, tenor) {
   check_prob(q); check_nonneg(A)
   stopifnot(all(is.na(tenor) | tenor > 0), all(is.na(sigma) | sigma > 0))
-  (deta * q * (1 - q))^2 * A / (2 * sigma * tenor)
+  r <- ec_recycle(deta = deta, q = q, A = A, sigma = sigma, tenor = tenor)
+  (r$deta * r$q * (1 - r$q))^2 * r$A / (2 * r$sigma * r$tenor)
 }
 
 #' Event-clock time needed to reach near-certainty
@@ -207,5 +214,6 @@ ec_iv_rule <- function(deta, q, A, sigma, tenor) {
 #' @export
 ec_target_clock <- function(q, target) {
   check_prob(q); check_prob(target, "target")
-  2 * (ec_logit(target) - ec_logit(q))
+  r <- ec_recycle(q = q, target = target)
+  2 * (ec_logit(r$target) - ec_logit(r$q))
 }

@@ -24,6 +24,14 @@ Takes the last observation at or before \code{snapshot_hour} (local time in
 market prices with market closes (e.g. 16:00 New York time for US
 equities).
 }
+\details{
+Seconds are deliberately truncated when comparing against the cutoff:
+an observation stamped \code{16:00:59} still counts as \code{16:00}. API bars are
+typically stamped a few seconds after the full hour they represent, so
+minute precision is the robust convention for bar data. The stored
+\code{event_date} attribute is coerced to \code{Date} to match the collapsed
+time scale.
+}
 \examples{
 \dontrun{
 ep <- pm_prices(tok, from = "2024-06-01", to = "2024-11-06")

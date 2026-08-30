@@ -28,6 +28,32 @@ test_that("pm_events_tibble tolerates missing columns", {
   expect_true(is.na(out$volume))
 })
 
+test_that("pm_stitch dedupes and sorts overlapping chunks", {
+  c1 <- tibble::tibble(t = c(100, 200, 300), p = c(0.4, 0.5, 0.6))
+  c2 <- tibble::tibble(t = c(300, 400), p = c(0.99, 0.7)) # 300 duplicated
+  out <- eventclock:::pm_stitch(list(c1, c2))
+  expect_equal(out$t, c(100, 200, 300, 400))
+  # first occurrence wins on duplicates
+  expect_equal(out$p, c(0.4, 0.5, 0.6, 0.7))
+  # NULL chunks (failed fetches) are dropped silently
+  out2 <- eventclock:::pm_stitch(list(NULL, c1, NULL))
+  expect_equal(out2$t, c1$t)
+  expect_equal(NROW(eventclock:::pm_stitch(list(NULL, NULL))), 0)
+})
+
+test_that("pm_daily coerces a POSIXct event_date to Date for plotting", {
+  ep <- as_event_prices(polymarket2024,
+    market_id = "Polymarket: Trump wins 2024",
+    event_date = as.POSIXct("2024-11-05", tz = "UTC")
+  )
+  daily <- pm_daily(ep)
+  expect_s3_class(attr(daily, "event_date"), "Date")
+  expect_equal(attr(daily, "event_date"), as.Date("2024-11-05"))
+  # the documented workflow must plot without a type mismatch
+  expect_s3_class(plot_q(daily), "ggplot")
+  expect_s3_class(plot_clock(event_clock_path(daily)), "ggplot")
+})
+
 test_that("pm_daily collapses intraday data to one snapshot per day", {
   # constructed: three days, several intraday points each (UTC == snapshot tz
   # here to keep the arithmetic transparent)

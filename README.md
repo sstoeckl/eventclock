@@ -68,24 +68,25 @@ event_clock(ep,
   to = c(`1W` = as.Date("2016-05-31"), `2W` = as.Date("2016-06-07"),
          `1M` = as.Date("2016-06-23"))
 )
-#> # A tibble: 15 × 8
-#>    market_id     from       to         horizon n_obs n_incr method          A
-#>    <chr>         <date>     <date>     <chr>   <int>  <int> <chr>       <dbl>
-#>  1 Brexit: Leave 2016-05-24 2016-05-31 1W          8      7 rv        0.0639 
-#>  2 Brexit: Leave 2016-05-24 2016-05-31 1W          8      7 truncated 0.0639 
-#>  3 Brexit: Leave 2016-05-24 2016-05-31 1W          8      7 bipower   0.0605 
-#>  4 Brexit: Leave 2016-05-24 2016-05-31 1W          8      7 largest1  0.0290 
-#>  5 Brexit: Leave 2016-05-24 2016-05-31 1W          8      7 largest2  0.00883
-#>  6 Brexit: Leave 2016-05-24 2016-06-07 2W         15     14 rv        0.166  
-#>  7 Brexit: Leave 2016-05-24 2016-06-07 2W         15     14 truncated 0.166  
-#>  8 Brexit: Leave 2016-05-24 2016-06-07 2W         15     14 bipower   0.141  
-#>  9 Brexit: Leave 2016-05-24 2016-06-07 2W         15     14 largest1  0.0964 
-#> 10 Brexit: Leave 2016-05-24 2016-06-07 2W         15     14 largest2  0.0615 
-#> 11 Brexit: Leave 2016-05-24 2016-06-23 1M         31     30 rv        0.510  
-#> 12 Brexit: Leave 2016-05-24 2016-06-23 1M         31     30 truncated 0.510  
-#> 13 Brexit: Leave 2016-05-24 2016-06-23 1M         31     30 bipower   0.374  
-#> 14 Brexit: Leave 2016-05-24 2016-06-23 1M         31     30 largest1  0.425  
-#> 15 Brexit: Leave 2016-05-24 2016-06-23 1M         31     30 largest2  0.341
+#> # A tibble: 15 × 10
+#>    market_id     from       to         horizon n_obs n_incr n_gaps max_gap_days
+#>    <chr>         <date>     <date>     <chr>   <int>  <int>  <int>        <dbl>
+#>  1 Brexit: Leave 2016-05-24 2016-05-31 1W          8      7      0            1
+#>  2 Brexit: Leave 2016-05-24 2016-05-31 1W          8      7      0            1
+#>  3 Brexit: Leave 2016-05-24 2016-05-31 1W          8      7      0            1
+#>  4 Brexit: Leave 2016-05-24 2016-05-31 1W          8      7      0            1
+#>  5 Brexit: Leave 2016-05-24 2016-05-31 1W          8      7      0            1
+#>  6 Brexit: Leave 2016-05-24 2016-06-07 2W         15     14      0            1
+#>  7 Brexit: Leave 2016-05-24 2016-06-07 2W         15     14      0            1
+#>  8 Brexit: Leave 2016-05-24 2016-06-07 2W         15     14      0            1
+#>  9 Brexit: Leave 2016-05-24 2016-06-07 2W         15     14      0            1
+#> 10 Brexit: Leave 2016-05-24 2016-06-07 2W         15     14      0            1
+#> 11 Brexit: Leave 2016-05-24 2016-06-23 1M         31     30      0            1
+#> 12 Brexit: Leave 2016-05-24 2016-06-23 1M         31     30      0            1
+#> 13 Brexit: Leave 2016-05-24 2016-06-23 1M         31     30      0            1
+#> 14 Brexit: Leave 2016-05-24 2016-06-23 1M         31     30      0            1
+#> 15 Brexit: Leave 2016-05-24 2016-06-23 1M         31     30      0            1
+#> # ℹ 2 more variables: method <chr>, A <dbl>
 ```
 
 ``` r

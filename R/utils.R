@@ -45,3 +45,37 @@ check_nonneg <- function(A, name = "A") {
   }
   invisible(A)
 }
+
+# Explicit common-length recycling for the vectorized formula book. Errors on
+# incompatible lengths instead of silently misaligning values.
+ec_recycle <- function(...) {
+  args <- list(...)
+  n <- max(lengths(args))
+  bad <- vapply(args, function(a) n %% length(a) != 0, logical(1))
+  if (any(bad)) {
+    cli::cli_abort(
+      "Argument lengths ({toString(lengths(args))}) are incompatible; they must recycle to {n}."
+    )
+  }
+  lapply(args, rep_len, length.out = n)
+}
+
+# Align a window bound (from/to/at/event_date) with the class and timezone of
+# a time vector, so Date bounds and POSIXct series (or vice versa) compare as
+# a user expects instead of via R's implicit UTC-midnight coercion.
+# side = "end" maps a Date bound to the end of that day (23:59:59) so that
+# `to = as.Date(...)` includes the day's intraday observations.
+align_bound <- function(bound, time, side = c("start", "end")) {
+  side <- rlang::arg_match(side)
+  if (is.null(bound)) return(NULL)
+  if (inherits(time, "Date") && inherits(bound, "POSIXct")) {
+    return(as.Date(bound, tz = attr(bound, "tzone") %||% "UTC"))
+  }
+  if (inherits(time, "POSIXct") && inherits(bound, "Date")) {
+    tz <- attr(time, "tzone") %||% "UTC"
+    out <- as.POSIXct(format(bound), tz = tz)
+    if (side == "end") out <- out + (86400 - 1)
+    return(out)
+  }
+  bound
+}

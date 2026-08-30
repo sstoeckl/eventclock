@@ -18,9 +18,25 @@ pm_request <- function(base, path) {
 pm_perform <- function(req) {
   resp <- httr2::req_perform(req)
   if (httr2::resp_status(resp) != 200) {
-    cli::cli_abort("Polymarket API returned HTTP {httr2::resp_status(resp)}.")
+    body <- tryCatch(
+      substr(httr2::resp_body_string(resp), 1, 200),
+      error = function(e) ""
+    )
+    cli::cli_abort(c(
+      "Polymarket API returned HTTP {httr2::resp_status(resp)}.",
+      if (nzchar(body)) c(i = "Response: {body}")
+    ))
   }
   httr2::resp_body_json(resp, simplifyVector = TRUE)
+}
+
+# Stitch chunked price-history pulls: bind, dedupe on the timestamp, sort.
+pm_stitch <- function(chunks) {
+  raw <- dplyr::bind_rows(chunks)
+  if (NROW(raw) == 0) return(raw)
+  raw |>
+    dplyr::distinct(t, .keep_all = TRUE) |>
+    dplyr::arrange(t)
 }
 
 #' Search Polymarket events
@@ -181,13 +197,12 @@ pm_prices <- function(token_id, from, to, fidelity = 60,
     tibble::tibble(t = as.numeric(h$t), p = as.numeric(h$p))
   }
 
-  raw <- dplyr::bind_rows(lapply(seq_len(length(bounds) - 1), function(i) {
+  raw <- pm_stitch(lapply(seq_len(length(bounds) - 1), function(i) {
     fetch_chunk(bounds[i], bounds[i + 1])
   }))
   if (NROW(raw) == 0) {
     cli::cli_abort("No price history returned for token {.val {token_id}} in this window.")
   }
-  raw <- dplyr::distinct(raw, t, .keep_all = TRUE) |> dplyr::arrange(t)
 
   as_event_prices(
     tibble::tibble(
@@ -206,6 +221,14 @@ pm_prices <- function(token_id, from, to, fidelity = 60,
 #' `tz`) of each calendar day — the convention used to align prediction
 #' market prices with market closes (e.g. 16:00 New York time for US
 #' equities).
+#'
+#' @details
+#' Seconds are deliberately truncated when comparing against the cutoff:
+#' an observation stamped `16:00:59` still counts as `16:00`. API bars are
+#' typically stamped a few seconds after the full hour they represent, so
+#' minute precision is the robust convention for bar data. The stored
+#' `event_date` attribute is coerced to `Date` to match the collapsed
+#' time scale.
 #'
 #' @param x An `event_prices` object with intraday timestamps.
 #' @param tz Character time zone of the snapshot (default
@@ -238,11 +261,15 @@ pm_daily <- function(x, tz = "America/New_York", snapshot_hour = 16) {
     dplyr::slice_max(hr, n = 1, with_ties = FALSE) |>
     dplyr::ungroup() |>
     dplyr::select(time = date, q)
+  ed <- attr(x, "event_date")
+  if (!is.null(ed) && inherits(ed, "POSIXct")) {
+    ed <- as.Date(ed, tz = attr(ed, "tzone") %||% "UTC")
+  }
   as_event_prices(
     daily,
     time = "time", price = "q",
     clip = attr(x, "clip"),
     market_id = attr(x, "market_id"),
-    event_date = attr(x, "event_date")
+    event_date = ed
   )
 }

@@ -12,7 +12,12 @@ kernel_bipower <- function(dL) {
 
 kernel_truncated <- function(dL, trunc_sd = 3, scale_fn = stats::mad) {
   s <- scale_fn(dL)
-  if (!is.finite(s) || s <= 0) return(kernel_rv(dL))
+  if (!is.finite(s) || s <= 0) {
+    cli::cli_inform(c(
+      i = "Robust scale of the increments is degenerate (0 or non-finite); truncation is disabled and plain realized variation returned."
+    ))
+    return(kernel_rv(dL))
+  }
   sum(dL[abs(dL) <= trunc_sd * s]^2)
 }
 
@@ -23,16 +28,57 @@ kernel_drop_largest <- function(dL, k = 1) {
   sum(dL[-o[seq_len(k)]]^2)
 }
 
+# ---------------------------------------------------------------------------
+# Shared window logic
+# ---------------------------------------------------------------------------
+
+# Select the non-missing observations inside [from, to], with bounds aligned
+# to the class/timezone of x$time. Warns when missing values inside the
+# window are skipped, because increments then bridge the resulting gaps.
+window_rows <- function(x, from, to, warn_na = TRUE) {
+  from <- align_bound(from, x$time, side = "start")
+  to <- align_bound(to, x$time, side = "end")
+  in_win <- x$time >= from & x$time <= to
+  n_na <- sum(in_win & is.na(x$q))
+  if (warn_na && n_na > 0) {
+    cli::cli_warn(
+      "{n_na} missing observation{?s} inside the window skipped; adjacent increments bridge these gaps (see the Missing observations section of {.code ?event_clock})."
+    )
+  }
+  x[in_win & !is.na(x$q), , drop = FALSE]
+}
+
+# Gap diagnostics on the observations actually used: number of increments
+# spanning more than 1.5x the median observation spacing, and the largest
+# spacing in days.
+gap_stats <- function(time) {
+  if (length(time) < 2) {
+    return(list(n_gaps = 0L, max_gap_days = NA_real_))
+  }
+  dt <- as.numeric(difftime(time[-1], time[-length(time)], units = "days"))
+  list(
+    n_gaps = sum(dt > 1.5 * stats::median(dt)),
+    max_gap_days = max(dt)
+  )
+}
+
 # Extract clipped log-odds increments from an event_prices window.
-# Returns list(dL, n_obs) after NA removal and subsampling.
 window_increments <- function(x, from, to, sample_every, clip) {
-  keep <- x$time >= from & x$time <= to & !is.na(x$q)
-  q <- x$q[keep]
-  n_obs <- length(q)
-  if (n_obs < 2) return(list(dL = numeric(0), n_obs = n_obs))
+  d <- window_rows(x, from, to)
+  n_obs <- nrow(d)
+  empty <- list(
+    dL = numeric(0), n_obs = n_obs, n_gaps = 0L, max_gap_days = NA_real_
+  )
+  if (n_obs < 2) return(empty)
   idx <- seq(1L, n_obs, by = sample_every)
-  L <- ec_logit(clip_q(q[idx], clip))
-  list(dL = diff(L), n_obs = n_obs)
+  d <- d[idx, , drop = FALSE]
+  if (nrow(d) < 2) return(empty)
+  L <- ec_logit(clip_q(d$q, clip))
+  g <- gap_stats(d$time)
+  list(
+    dL = diff(L), n_obs = n_obs,
+    n_gaps = g$n_gaps, max_gap_days = g$max_gap_days
+  )
 }
 
 # ---------------------------------------------------------------------------
@@ -66,19 +112,39 @@ window_increments <- function(x, from, to, sample_every, clip) {
 #'     ([stats::mad()] by default). Note that with daily data and short
 #'     windows this criterion is coarse; reference results reported as
 #'     "truncated" often coincide with dropping the single largest
-#'     increment (`largest1`). Compare both.}
+#'     increment (`largest1`). Compare both. When the robust scale is
+#'     degenerate (e.g. more than half of the increments are identical),
+#'     truncation is disabled with a message and plain realized variation
+#'     is returned.}
 #'   \item{`bipower`}{bipower variation
 #'     \eqn{BV = \frac{\pi}{2}\sum_{i\ge 2} |\Delta L_i||\Delta L_{i-1}|},
 #'     a jump-robust companion; the gap \eqn{RV - BV} is a descriptive
-#'     *jumpiness index*.}
+#'     *jumpiness index*. No finite-sample correction is applied, so `BV`
+#'     is biased downward in very short windows (a 1-week window has only
+#'     six neighbor products); read it as descriptive, not as an unbiased
+#'     estimate.}
 #'   \item{`largest1`, `largest2`}{realized variation after removing the
 #'     one or two largest absolute increments.}
 #' }
 #'
-#' Windows are defined in calendar time from the valuation date `from` to
-#' each horizon date in `to` (they are *anchored* windows, not trailing
-#' ones). All observations in the window are used, including weekends if
-#' the series has them.
+#' **Windows.** Windows are defined in calendar time from the valuation
+#' date `from` to each horizon date in `to` (they are *anchored* windows,
+#' not trailing ones). All observations in the window are used, including
+#' weekends if the series has them. `Date`-typed bounds combined with a
+#' `POSIXct`-typed series are interpreted in the series' timezone, with
+#' `to` covering the full horizon day.
+#'
+#' **Missing observations and gaps.** Missing `q` values inside the window
+#' are skipped with a warning; the increment then *bridges* the gap and
+#' aggregates more elapsed time than a regular one-period increment. Plain
+#' realized variation remains a valid (sparser) estimate of the window's
+#' total variation, but the robustness variants treat all increments as
+#' homogeneous: a gap-spanning increment is mechanically larger and can be
+#' misclassified as a jump by `truncated`/`largest1`/`largest2`, and it
+#' distorts the neighbor products of `bipower`. The output columns
+#' `n_gaps` (increments spanning more than 1.5 times the median
+#' observation spacing) and `max_gap_days` flag affected windows —
+#' interpret the robustness variants cautiously whenever `n_gaps > 0`.
 #'
 #' @param x An `event_prices` object (see [as_event_prices()]), or a
 #'   `data.frame` coercible to one.
@@ -97,10 +163,14 @@ window_increments <- function(x, from, to, sample_every, clip) {
 #'
 #' @return A tibble with one row per horizon and method:
 #'   \item{market_id}{market label (from `x`).}
-#'   \item{from, to}{window bounds actually used.}
+#'   \item{from, to}{window bounds as supplied.}
 #'   \item{horizon}{horizon label (names of `to`, or the date).}
 #'   \item{n_obs}{number of non-missing observations in the window.}
 #'   \item{n_incr}{number of increments used (after subsampling).}
+#'   \item{n_gaps}{number of increments spanning more than 1.5 times the
+#'     median observation spacing (see Details).}
+#'   \item{max_gap_days}{largest spacing (in days) between consecutive
+#'     observations used.}
 #'   \item{method}{estimator variant.}
 #'   \item{A}{the estimate \eqn{\widehat A_{t,T}}.}
 #'
@@ -152,6 +222,7 @@ event_clock <- function(x, from = NULL, to = NULL,
       market_id = attr(x, "market_id") %||% NA_character_,
       from = from, to = to[i], horizon = labels[i],
       n_obs = w$n_obs, n_incr = length(w$dL),
+      n_gaps = w$n_gaps, max_gap_days = w$max_gap_days,
       method = methods, A = unname(A)
     )
   })
@@ -191,13 +262,14 @@ event_clock_path <- function(x, from = NULL, to = NULL,
   to <- to %||% max(x$time)
   stopifnot(length(to) == 1)
 
-  keep <- x$time >= from & x$time <= to & !is.na(x$q)
-  d <- x[keep, , drop = FALSE]
-  if (nrow(d) < 2) {
-    cli::cli_abort("Need at least 2 non-missing observations in the window.")
+  d <- window_rows(x, from, to)
+  if (nrow(d) >= 2) {
+    idx <- seq(1L, nrow(d), by = as.integer(sample_every))
+    d <- d[idx, , drop = FALSE]
   }
-  idx <- seq(1L, nrow(d), by = as.integer(sample_every))
-  d <- d[idx, , drop = FALSE]
+  if (nrow(d) < 2) {
+    cli::cli_abort("Need at least 2 non-missing observations in the window (after subsampling).")
+  }
 
   L <- ec_logit(clip_q(d$q, clip))
   dL <- c(NA_real_, diff(L))
@@ -240,7 +312,8 @@ plot.event_clock_path <- function(x, ...) plot_clock(x, ...)
 #'   are common robustness settings).
 #'
 #' @return A tibble with columns `market_id`, `at`, `horizon`,
-#'   `horizon_days`, `trailing`, `n_incr`, and `A_forecast`.
+#'   `horizon_days`, `trailing`, `n_incr`, `n_gaps`, `max_gap_days`, and
+#'   `A_forecast`. See [event_clock()] for the gap diagnostics.
 #'
 #' @examples
 #' data(us2016)
@@ -258,8 +331,7 @@ event_clock_forecast <- function(x, at = NULL, horizon,
   clip <- clip %||% attr(x, "clip") %||% ec_default_params()$clip
   at <- at %||% max(x$time)
 
-  keep <- x$time <= at & !is.na(x$q)
-  d <- x[keep, , drop = FALSE]
+  d <- window_rows(x, min(x$time), at)
   if (nrow(d) < 2) {
     cli::cli_abort("Need at least 2 non-missing observations up to {.val {format(at)}}.")
   }
@@ -269,6 +341,7 @@ event_clock_forecast <- function(x, at = NULL, horizon,
 
   L <- ec_logit(clip_q(d$q, clip))
   rv <- kernel_rv(diff(L))
+  g <- gap_stats(d$time)
   span_days <- as.numeric(difftime(d$time[nrow(d)], d$time[1], units = "days"))
   if (span_days <= 0) {
     cli::cli_abort("Trailing window has zero calendar span.")
@@ -290,6 +363,7 @@ event_clock_forecast <- function(x, at = NULL, horizon,
     market_id = attr(x, "market_id") %||% NA_character_,
     at = at, horizon = labels, horizon_days = h_days,
     trailing = as.integer(trailing), n_incr = length(L) - 1L,
+    n_gaps = g$n_gaps, max_gap_days = g$max_gap_days,
     A_forecast = rv / span_days * h_days
   )
 }

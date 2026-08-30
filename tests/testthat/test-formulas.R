@@ -98,3 +98,25 @@ test_that("formula-book inputs are validated", {
   expect_error(ec_revision(1.2, 0.1), "inside")
   expect_error(ec_target_clock(0.5, 1), "inside")
 })
+
+test_that("vector recycling is explicit and incompatible lengths error", {
+  # compatible: scalar against vector
+  expect_length(ec_revision(q = c(0.2, 0.3, 0.4), A = 0.1), 3)
+  # compatible: exact multiples
+  expect_length(ec_iv_rule(
+    deta = -0.01, q = c(0.2, 0.3), A = c(0.1, 0.2, 0.1, 0.2),
+    sigma = 0.1, tenor = 14 / 365
+  ), 4)
+  # incompatible lengths must error, not silently misalign
+  expect_error(ec_revision(q = c(0.2, 0.3), A = c(0.1, 0.2, 0.3)), "incompatible")
+  expect_error(
+    ec_sigma_eff(sigma = c(0.1, 0.2), deta = -0.01, q = c(0.2, 0.3, 0.4),
+                 A = 0.1, tenor = 14 / 365),
+    "incompatible"
+  )
+  # recycled call matches the element-wise call
+  expect_equal(
+    ec_revision(q = c(0.2, 0.3), A = 0.1),
+    c(ec_revision(0.2, 0.1), ec_revision(0.3, 0.1))
+  )
+})

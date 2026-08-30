@@ -34,7 +34,8 @@ plot_q <- function(x, event_date = NULL, ...) {
     ggplot2::theme_minimal(base_size = 12)
   if (!is.null(event_date)) {
     p <- p + ggplot2::geom_vline(
-      xintercept = event_date, linetype = 2, color = "firebrick"
+      xintercept = align_bound(event_date, x$time),
+      linetype = 2, color = "firebrick"
     )
   }
   p
@@ -75,7 +76,10 @@ plot_clock <- function(path, normalize = TRUE, ...) {
     ggplot2::theme_minimal(base_size = 12)
   ed <- attr(path, "event_date")
   if (!is.null(ed)) {
-    p <- p + ggplot2::geom_vline(xintercept = ed, linetype = 2, color = "firebrick")
+    p <- p + ggplot2::geom_vline(
+      xintercept = align_bound(ed, path$time),
+      linetype = 2, color = "firebrick"
+    )
   }
   p
 }

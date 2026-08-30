@@ -36,7 +36,8 @@ log-odds transform; defaults to the bounds stored in \code{x}.}
 }
 \value{
 A tibble with columns \code{market_id}, \code{at}, \code{horizon},
-\code{horizon_days}, \code{trailing}, \code{n_incr}, and \code{A_forecast}.
+\code{horizon_days}, \code{trailing}, \code{n_incr}, \code{n_gaps}, \code{max_gap_days}, and
+\code{A_forecast}. See \code{\link[=event_clock]{event_clock()}} for the gap diagnostics.
 }
 \description{
 The real-time benchmark used in the accompanying working paper: estimate
