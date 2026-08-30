@@ -1,0 +1,9 @@
+pandoc: 3.8.3
+pkgdown: 2.2.1
+pkgdown_sha: ~
+articles:
+  eventclock-brexit: eventclock-brexit.html
+last_built: 2026-08-30T11:37Z
+urls:
+  reference: https://www.sebastianstoeckl.com/eventclock/dev//reference
+  article: https://www.sebastianstoeckl.com/eventclock/dev//articles
