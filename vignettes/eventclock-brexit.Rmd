@@ -113,17 +113,68 @@ Two details worth noting:
 ## The clock over time
 
 The most instructive object is not the point estimate but the *path* of
-the clock — when did the information actually arrive?
+the clock — when did the information actually arrive? The jumps of the
+cumulative clock have names: they are the campaign's news days. (The
+attributions below were found by ranking the days by their contribution
+`dA` to the clock — `event_clock_path()` returns exactly that column.)
 
 ```{r}
-path_gb <- event_clock_path(ep_gb, from = as.Date("2016-05-24"))
-plot_clock(path_gb)
+# tiny helper used throughout: dotted line + label per event
+# (labels alternate between two heights so that close-by events stay legible)
+mark_events <- function(p, events) {
+  drop <- rep(c(1.05, 1.55), length.out = nrow(events))
+  p +
+    ggplot2::geom_vline(
+      xintercept = events$date, linetype = 3, color = "grey40"
+    ) +
+    ggplot2::annotate("text",
+      x = events$date, y = Inf, label = events$label,
+      angle = 90, vjust = -0.35, hjust = drop, size = 2.9, color = "grey30"
+    )
+}
+
+events_gb <- data.frame(
+  date = as.Date(c(
+    "2016-03-23", "2016-04-23", "2016-05-23", "2016-06-01",
+    "2016-06-14", "2016-06-16", "2016-06-19"
+  )),
+  label = c(
+    "Brussels attacks", "Obama visit", "Remain poll run", "ICM: Leave ahead",
+    "Leave poll wave", "Jo Cox murdered", "campaign resumes"
+  )
+)
+
+path_gb <- event_clock_path(ep_gb)
+mark_events(plot_q(ep_gb), events_gb)
+mark_events(plot_clock(path_gb), events_gb)
+```
+
+The largest ticks of the Brexit clock, matched to the news of the day
+(`dL` is the log-odds move of the *Leave* probability):
+
+* **Mar 22–23** — Brussels terror attacks; Leave odds jump
+  (`dL = +0.19`).
+* **Apr 22–24** — Obama's London visit ("back of the queue"); Remain
+  boost (`dL = -0.18`).
+* **May 20–26** — the Remain poll run (ORB Remain +15, Treasury/IMF
+  warnings); `q_leave` hits its sample low of 0.17.
+* **May 31 – Jun 1** — paired ICM phone/online polls put Leave ahead:
+  the campaign's turning point (`dL = +0.26`, 8% of the full-sample
+  clock).
+* **Jun 10–14** — the Leave poll wave plus The Sun's endorsement — the
+  single largest tick (`dL = +0.29`, 10%).
+* **Jun 16** — the murder of Jo Cox; campaigning is suspended
+  (`dL = -0.20`).
+* **Jun 19–20** — campaigning resumes, Remain recovers in the weekend
+  polls (`dL = -0.29`, 10%).
+
+```{r}
 plot_clock_vs_calendar(path_gb)
 ```
 
 A path below the 45-degree line means information is back-loaded — it
-waits for the deadline; jumps mark days when the market learned a lot
-(polls, court rulings, debates).
+waits for the deadline; the June cluster of poll shocks is clearly
+visible as the late steep segment.
 
 ## Real time versus ex post
 
@@ -227,8 +278,41 @@ ep24 <- as_event_prices(polymarket2024,
   market_id = "Polymarket: Trump wins 2024",
   event_date = as.POSIXct("2024-11-05", tz = "UTC")
 )
-plot_clock(event_clock_path(ep24))
+
+events_24 <- data.frame(
+  date = as.POSIXct(c(
+    "2024-06-28 02:00", "2024-07-13 23:00", "2024-07-21 12:00",
+    "2024-08-03 12:00", "2024-10-15 12:00", "2024-11-03 00:00"
+  ), tz = "UTC"),
+  label = c(
+    "TV debate", "assassination attempt", "Biden withdraws",
+    "Harris surge", "October rally", "Selzer poll"
+  )
+)
+
+mark_events(plot_q(ep24), events_24)
+mark_events(plot_clock(event_clock_path(ep24)), events_24)
 ```
+
+The jumps of the 2024 clock, again matched by ranking the daily
+contributions (`dL` on the Trump-Yes log-odds):
+
+* **Jun 27–28** — the Biden–Trump TV debate: the largest *hourly* move
+  of the whole sample (`dL = +0.35`), while the debate was still on air.
+* **Jul 13–14** — the assassination attempt: the largest tick overall
+  (`dL = +0.42`) — **22% of the entire five-month clock in one day**.
+* **Jul 17–21** — Biden's withdrawal: mostly priced in by the July 17
+  reports; the announcement itself is a modest tick.
+* **Aug 1–10** — Harris secures the nomination, picks Walz, and surges
+  (`dL = -0.20` and `-0.14`).
+* **early–mid Oct** — the October rally (`dL` of `+0.11` to `+0.16` on
+  Oct 7/15/22), with a sharp intraday reversal on Oct 23.
+* **Nov 2–3** — the Selzer Iowa poll shock (`dL = -0.17`), reversed the
+  next day; then election night.
+
+Conspicuously absent: the **September 10 Harris–Trump debate** does not
+rank among the top ticks — the market priced it as barely informative,
+which is exactly what the long September plateau of the clock shows.
 
 With intraday data, mind the sampling frequency: microstructure noise
 (bid-ask bounce on a coarse tick grid) inflates measured variation.
