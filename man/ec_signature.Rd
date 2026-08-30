@@ -22,6 +22,8 @@ full sample). Names are used as horizon labels.}
 
 \item{clip}{Numeric length-2 clipping bounds for \code{q} before the
 log-odds transform; defaults to the bounds stored in \code{x}.}
+
+\item{...}{Unused (for the \code{plot} method).}
 }
 \value{
 A tibble of class \code{ec_signature} with columns

@@ -10,6 +10,7 @@
 #'
 #' @inheritParams event_clock
 #' @param max_every Integer, largest subsampling step (default 10).
+#' @param ... Unused (for the `plot` method).
 #'
 #' @return A tibble of class `ec_signature` with columns
 #'   \item{sample_every}{subsampling step \eqn{k}.}
