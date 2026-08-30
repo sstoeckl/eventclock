@@ -20,7 +20,11 @@ event_clock(
   sample_every = ec_default_params()$sample_every,
   trunc_sd = ec_default_params()$trunc_sd,
   scale_fn = stats::mad,
-  clip = NULL
+  clip = NULL,
+  se = FALSE,
+  conf = 0.95,
+  se_method = c("quarticity", "bootstrap"),
+  boot_reps = 999
 )
 ```
 
@@ -65,6 +69,30 @@ event_clock(
   Numeric length-2 clipping bounds for `q` before the log-odds
   transform; defaults to the bounds stored in `x`.
 
+- se:
+
+  Logical; if `TRUE`, add a standard error and confidence interval for
+  the `rv` estimate (columns are `NA` for the other methods). The
+  asymptotic variance is estimated by the quarticity analogue
+  \\\widehat{Var}(\widehat A) = \tfrac{2}{3}\sum (\Delta L_i)^4\\; the
+  interval is log-based, \\\exp\\\log \widehat A \pm z\\ se/\widehat
+  A\\\\. With `se_method = "bootstrap"`, a wild bootstrap with two-point
+  multipliers (moment-matched to the same asymptotic variance) is used
+  and the interval is the percentile interval. Conditional drift
+  contributes at order \\(\Delta t)^2\\ and is ignored.
+
+- conf:
+
+  Confidence level (default 0.95).
+
+- se_method:
+
+  `"quarticity"` (default) or `"bootstrap"`.
+
+- boot_reps:
+
+  Bootstrap replications (default 999).
+
 ## Value
 
 A tibble with one row per horizon and method:
@@ -105,6 +133,11 @@ A tibble with one row per horizon and method:
 - A:
 
   the estimate \\\widehat A\_{t,T}\\.
+
+- se, ci_lo, ci_hi:
+
+  (only with `se = TRUE`) standard error and confidence bounds for the
+  `rv` rows.
 
 ## Details
 
