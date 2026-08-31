@@ -4,8 +4,8 @@
 
 #' Plot the event-probability path
 #'
-#' Line plot of the traded event probability \eqn{q_t}, with an optional
-#' marker at the scheduled event date.
+#' Line plot of the state-price-implied event probability \eqn{q_t}, with
+#' an optional marker at the scheduled event date.
 #'
 #' @param x An `event_prices` object (or coercible).
 #' @param event_date Optional event date; defaults to the one stored on
@@ -29,7 +29,7 @@ plot_q <- function(x, event_date = NULL, ...) {
     ggplot2::labs(
       x = NULL, y = expression(q[t]),
       title = attr(x, "market_id"),
-      subtitle = "Traded event probability"
+      subtitle = "State-price-implied event probability"
     ) +
     ggplot2::theme_minimal(base_size = 12)
   if (!is.null(event_date)) {

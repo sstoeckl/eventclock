@@ -18,8 +18,8 @@ plot_q(x, event_date = NULL, ...)
 A ggplot object.
 }
 \description{
-Line plot of the traded event probability \eqn{q_t}, with an optional
-marker at the scheduled event date.
+Line plot of the state-price-implied event probability \eqn{q_t}, with
+an optional marker at the scheduled event date.
 }
 \examples{
 data(brexit2016)

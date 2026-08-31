@@ -2,7 +2,7 @@
 % Please edit documentation in R/normalize.R
 \name{q_from_price}
 \alias{q_from_price}
-\title{Convert traded state prices into risk-adjusted event probabilities}
+\title{Convert event state prices into state-price-implied event probabilities}
 \usage{
 q_from_price(
   price,
@@ -40,11 +40,11 @@ overround by normalizing with the sum of all outcome prices in the book.
 \details{
 Two normalizations are available:
 \itemize{
-\item \code{method = "discount"} (default): \eqn{q = \psi / D}. Under
-deterministic interest rates the result is the risk-adjusted
-(risk-neutral) event probability; with stochastic rates it is a
-forward-measure probability. At short horizons the correction is a few
-basis points but it is systematic.
+\item \code{method = "discount"} (default): \eqn{q = \psi / D}. The result is
+the \emph{state-price-implied event probability} under the payout
+numeraire (with stochastic interest rates, a forward-measure
+probability). At short horizons the correction is a few basis
+points but it is systematic.
 \item \code{method = "overround"}: \eqn{q_j = \psi_j / \sum_i \psi_i}, where
 \code{book} supplies \eqn{\sum_i \psi_i}. Use this only when the raw quotes
 include a bookmaker margin that has \emph{not} already been removed by the

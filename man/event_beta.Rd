@@ -60,7 +60,7 @@ sample) and the function reports \eqn{\beta = b / \Delta\eta} with a
 Wald test of \eqn{\beta = 1}. Without \code{deta}, the regression is
 exactly identified and only \eqn{\widehat{\Delta\eta}} is reported.
 
-Under the risk-neutral adding-up constraint
+Under the pricing-measure adding-up constraint
 \eqn{q\,\eta_1 + (1-q)\,\eta_2 = 1}, point estimates of the levels can
 be backed out as \eqn{\eta_1 = 1 + (1-q)\Delta\eta} and
 \eqn{\eta_2 = 1 - q\Delta\eta}; these are model-implied, not

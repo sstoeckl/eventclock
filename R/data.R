@@ -55,7 +55,8 @@
 #' Hourly prices of the Polymarket contract "Will Donald Trump win the
 #' 2024 US presidential election?" (the "Yes" outcome token), June to
 #' November 2024, downloaded from the public CLOB API with [pm_prices()].
-#' The price of the claim is the traded event probability. This dataset
+#' The claim price is the U.S.-dollar-numeraire event state price — the
+#' state-price-implied event probability up to discounting. This dataset
 #' powers the intraday examples; rebuild it any time with the script in
 #' `data-raw/`.
 #'

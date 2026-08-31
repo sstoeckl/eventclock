@@ -104,11 +104,11 @@ window_increments <- function(x, from, to, sample_every, clip) {
 # User-facing estimator
 # ---------------------------------------------------------------------------
 
-#' Estimate event-clock (information) time from log-odds variation
+#' Estimate event-clock time from log-odds variation
 #'
 #' The information accumulated about a scheduled event over a window
 #' \eqn{[t, T]} — *event-clock time* \eqn{A_{t,T}} — equals the quadratic
-#' variation of the log-odds of the traded event probability,
+#' variation of the log-odds of the state-price-implied event probability,
 #' \eqn{A_{t,T} = [\mathrm{logit}(q)]_{t,T}}. `event_clock()` estimates it
 #' by the realized variation
 #' \deqn{\widehat A_{t,T} = \sum_i \left[\mathrm{logit}(q_{t_{i+1}}) -

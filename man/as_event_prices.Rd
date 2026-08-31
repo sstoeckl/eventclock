@@ -7,7 +7,7 @@
 \alias{print.event_prices}
 \alias{summary.event_prices}
 \alias{plot.event_prices}
-\title{Standardize traded event probabilities as an \code{event_prices} object}
+\title{Standardize traded event state prices as an \code{event_prices} object}
 \usage{
 as_event_prices(x, ...)
 
@@ -72,10 +72,11 @@ log-odds transform (default \code{c(0.01, 0.99)}, see
 An \code{event_prices} tibble; see Details.
 }
 \description{
-\code{as_event_prices()} turns a \code{data.frame}/\code{tibble} holding a time series of
-traded event probabilities (prediction-market prices, betting quotes,
-state prices) into a standardized \code{event_prices} tibble that all
-estimation and plotting functions of the package understand.
+\code{as_event_prices()} turns a \code{data.frame}/\code{tibble} holding a time series
+of traded event state prices or the implied event probabilities
+(prediction-market contracts, betting quotes) into a standardized
+\code{event_prices} tibble that all estimation and plotting functions of the
+package understand.
 }
 \details{
 The constructor follows a strict \emph{flag, don't drop} convention: raw

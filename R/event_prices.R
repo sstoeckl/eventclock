@@ -1,9 +1,10 @@
-#' Standardize traded event probabilities as an `event_prices` object
+#' Standardize traded event state prices as an `event_prices` object
 #'
-#' `as_event_prices()` turns a `data.frame`/`tibble` holding a time series of
-#' traded event probabilities (prediction-market prices, betting quotes,
-#' state prices) into a standardized `event_prices` tibble that all
-#' estimation and plotting functions of the package understand.
+#' `as_event_prices()` turns a `data.frame`/`tibble` holding a time series
+#' of traded event state prices or the implied event probabilities
+#' (prediction-market contracts, betting quotes) into a standardized
+#' `event_prices` tibble that all estimation and plotting functions of the
+#' package understand.
 #'
 #' @details
 #' The constructor follows a strict *flag, don't drop* convention: raw
