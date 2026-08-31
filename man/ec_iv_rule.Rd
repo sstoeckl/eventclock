@@ -2,7 +2,7 @@
 % Please edit documentation in R/formulas.R
 \name{ec_iv_rule}
 \alias{ec_iv_rule}
-\title{Rule of thumb: implied-volatility contribution of event learning}
+\title{First-order implied-volatility contribution of event learning}
 \usage{
 ec_iv_rule(deta, q, A, sigma, tenor)
 }
@@ -23,7 +23,7 @@ ec_iv_rule(deta, q, A, sigma, tenor)
 Numeric vector, the IV contribution in decimal volatility units.
 }
 \description{
-The paper's four-lever rule of thumb for the ATM implied-volatility
+A first-order expansion of implied volatility gives the ATM
 contribution of learning ahead of a scheduled event:
 \deqn{\Delta \mathrm{IV} \approx \frac{[\Delta\eta\; q(1-q)]^2\,
   A}{2\,\sigma\,(T-t)}.}
@@ -32,6 +32,9 @@ contribution of learning ahead of a scheduled event:
 The four levers: the event exposure \eqn{\Delta\eta} (squared), the
 movability of the probability \eqn{q(1-q)} (squared), the event-clock
 time \eqn{A}, and the dilution by the no-learning volatility and tenor.
+(The function name \code{ec_iv_rule()} is kept for API stability; the
+formula is the working paper's first-order expansion of implied
+volatility.)
 
 \strong{Units and the \eqn{\sigma} convention.} With \code{sigma} as decimal
 annualized volatility and \code{tenor} in years, the result is a decimal

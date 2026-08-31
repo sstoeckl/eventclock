@@ -163,9 +163,9 @@ ec_variance_share <- function(sigma, deta, q, A, tenor) {
   1 / (1 + r$sigma^2 * r$tenor / v)
 }
 
-#' Rule of thumb: implied-volatility contribution of event learning
+#' First-order implied-volatility contribution of event learning
 #'
-#' The paper's four-lever rule of thumb for the ATM implied-volatility
+#' A first-order expansion of implied volatility gives the ATM
 #' contribution of learning ahead of a scheduled event:
 #' \deqn{\Delta \mathrm{IV} \approx \frac{[\Delta\eta\; q(1-q)]^2\,
 #'   A}{2\,\sigma\,(T-t)}.}
@@ -174,6 +174,9 @@ ec_variance_share <- function(sigma, deta, q, A, tenor) {
 #' The four levers: the event exposure \eqn{\Delta\eta} (squared), the
 #' movability of the probability \eqn{q(1-q)} (squared), the event-clock
 #' time \eqn{A}, and the dilution by the no-learning volatility and tenor.
+#' (The function name `ec_iv_rule()` is kept for API stability; the
+#' formula is the working paper's first-order expansion of implied
+#' volatility.)
 #'
 #' **Units and the \eqn{\sigma} convention.** With `sigma` as decimal
 #' annualized volatility and `tenor` in years, the result is a decimal
@@ -207,7 +210,7 @@ ec_iv_rule <- function(deta, q, A, sigma, tenor) {
 #' @details
 #' The other headline objects are monotone transforms of \eqn{\rho}: the
 #' variance share of learning is \eqn{\rho / (1 + \rho)}
-#' ([ec_variance_share()]) and the rule-of-thumb IV contribution is
+#' ([ec_variance_share()]) and the first-order IV contribution is
 #' \eqn{\sigma \rho / 2} ([ec_iv_rule()]). Use \eqn{\rho} to screen
 #' (event, asset) pairs: FX pairs around elections sit at
 #' \eqn{\rho \approx 0.002}–\eqn{0.01} (irrelevant to two decimals),

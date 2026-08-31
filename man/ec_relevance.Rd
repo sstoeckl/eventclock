@@ -31,7 +31,7 @@ variance to no-learning variance over the tenor,
 \details{
 The other headline objects are monotone transforms of \eqn{\rho}: the
 variance share of learning is \eqn{\rho / (1 + \rho)}
-(\code{\link[=ec_variance_share]{ec_variance_share()}}) and the rule-of-thumb IV contribution is
+(\code{\link[=ec_variance_share]{ec_variance_share()}}) and the first-order IV contribution is
 \eqn{\sigma \rho / 2} (\code{\link[=ec_iv_rule]{ec_iv_rule()}}). Use \eqn{\rho} to screen
 (event, asset) pairs: FX pairs around elections sit at
 \eqn{\rho \approx 0.002}–\eqn{0.01} (irrelevant to two decimals),
