@@ -22,11 +22,11 @@ Option Valuation. Working Paper.
     }
 
 Stöckl, S. (2026). eventclock: The Event Clock: Information Time from
-Traded Event Probabilities. R package version 0.0.0.9000.
+Traded Event State Prices. R package version 0.0.0.9000.
 https://github.com/sstoeckl/eventclock
 
     @Manual{,
-      title = {eventclock: The Event Clock: Information Time from Traded Event Probabilities},
+      title = {eventclock: The Event Clock: Information Time from Traded Event State Prices},
       author = {Sebastian Stöckl},
       year = {2026},
       note = {R package version 0.0.0.9000},

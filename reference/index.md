@@ -10,10 +10,11 @@ Standardize and screen traded event probabilities.
   [`plot(`*`<event_prices>`*`)`](https://www.sebastianstoeckl.com/eventclock/reference/as_event_prices.md)
   :
 
-  Standardize traded event probabilities as an `event_prices` object
+  Standardize traded event state prices as an `event_prices` object
 
 - [`q_from_price()`](https://www.sebastianstoeckl.com/eventclock/reference/q_from_price.md)
-  : Convert traded state prices into risk-adjusted event probabilities
+  : Convert event state prices into state-price-implied event
+  probabilities
 
 - [`q_from_ffutures()`](https://www.sebastianstoeckl.com/eventclock/reference/q_from_ffutures.md)
   : Meeting-implied probability from a fed funds futures price
@@ -30,7 +31,7 @@ Standardize and screen traded event probabilities.
 Estimate information time A from log-odds variation.
 
 - [`event_clock()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock.md)
-  : Estimate event-clock (information) time from log-odds variation
+  : Estimate event-clock time from log-odds variation
 - [`event_clock_path()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_path.md)
   [`plot(`*`<event_clock_path>`*`)`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_path.md)
   : Cumulative event-clock path

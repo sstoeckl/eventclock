@@ -83,7 +83,7 @@ time
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>A</mi><mrow><mi>t</mi><mo>,</mo><mi>T</mi></mrow></msub><annotation encoding="application/x-tex">A_{t,T}</annotation></semantics></math>
 is the quadratic variation of the log-odds
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>t</mi></msub><mo>=</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><mi>t</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">L_t = \mathrm{logit}(q_t)</annotation></semantics></math>
-of a traded event probability
+of the state-price-implied event probability
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mi>t</mi></msub><annotation encoding="application/x-tex">q_t</annotation></semantics></math>,</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>A</mi><mo accent="true">̂</mo></mover><mrow><mi>t</mi><mo>,</mo><mi>T</mi></mrow></msub><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><munder><mo>∑</mo><mrow><msub><mi>t</mi><mi>i</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>,</mo><mi>T</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">[</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><msub><mi>t</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><msub><mi>t</mi><mi>i</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">]</mo><mn>2</mn></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">\widehat A_{t,T} \;=\; \sum_{t_i \in [t,T)}
   \bigl[\mathrm{logit}(q_{t_{i+1}}) - \mathrm{logit}(q_{t_i})\bigr]^2 .</annotation></semantics></math></p>
@@ -365,8 +365,8 @@ week.</p>
 <p>On the paper’s valuation date, the raw betting-quote probability of
 <em>Leave</em> is
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>0.202</mn></mrow><annotation encoding="application/x-tex">q = 0.202</annotation></semantics></math>,
-while the paper works with a USD-state-price-converted
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>0.195</mn></mrow><annotation encoding="application/x-tex">q = 0.195</annotation></semantics></math>.
+while the paper works with the U.S.-dollar-numeraire state price
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>0.195</mn></mrow><annotation encoding="application/x-tex">q = 0.195</annotation></semantics></math>).
 The levels differ — but the clock is identical, because an
 (approximately) constant logit wedge has zero quadratic variation:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">

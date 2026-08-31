@@ -11,7 +11,8 @@ Ahead of a scheduled event — a referendum, an election, a central-bank
 decision — markets learn. The *event clock* measures how much
 outcome-relevant information has arrived and when: event-clock time
 $`A_{t,T}`$ is the quadratic variation of the log-odds
-$`L_t = \mathrm{logit}(q_t)`$ of a traded event probability $`q_t`$,
+$`L_t = \mathrm{logit}(q_t)`$ of the state-price-implied event
+probability $`q_t`$,
 
 ``` math
 \widehat A_{t,T} \;=\; \sum_{t_i \in [t,T)}
@@ -225,10 +226,10 @@ the 0.015/0.046 that actually materialized before election week.
 ## Why levels do not matter: the wedge property
 
 On the paper’s valuation date, the raw betting-quote probability of
-*Leave* is $`q = 0.202`$, while the paper works with a
-USD-state-price-converted $`q = 0.195`$. The levels differ — but the
-clock is identical, because an (approximately) constant logit wedge has
-zero quadratic variation:
+*Leave* is $`q = 0.202`$, while the paper works with the
+U.S.-dollar-numeraire state price ($`q = 0.195`$). The levels differ —
+but the clock is identical, because an (approximately) constant logit
+wedge has zero quadratic variation:
 
 ``` r
 

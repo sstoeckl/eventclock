@@ -8,8 +8,9 @@ library(eventclock)
 ## From the clock to asset prices
 
 The event clock answers “how much was learned, and when”. The asset side
-asks: “who cares?” To first order, an asset with outcome-conditional
-mean multipliers $`\eta_1, \eta_2`$ responds to probability news as
+asks: “who cares?” To first order, an asset whose event multiplier has
+outcome-conditional means $`\eta_1, \eta_2`$ responds to probability
+news as
 ``` math
  r_t \;\approx\; \Delta\eta \,\Delta q_t, \qquad
    \Delta\eta = \eta_1 - \eta_2, 
@@ -25,7 +26,7 @@ option smiles. Two consequences:
 
 - the levels reported by
   [`event_beta()`](https://www.sebastianstoeckl.com/eventclock/reference/event_beta.md)
-  come from the risk-neutral adding-up constraint
+  come from the pricing-measure adding-up constraint
   $`q\eta_1 + (1-q)\eta_2 = 1`$ — they are model-implied, not
   independently identified;
 - the loading test $`\beta = 1`$ is meaningful only against an

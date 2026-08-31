@@ -1,9 +1,9 @@
-# Estimate event-clock (information) time from log-odds variation
+# Estimate event-clock time from log-odds variation
 
 The information accumulated about a scheduled event over a window \\\[t,
 T\]\\ — *event-clock time* \\A\_{t,T}\\ — equals the quadratic variation
-of the log-odds of the traded event probability, \\A\_{t,T} =
-\[\mathrm{logit}(q)\]\_{t,T}\\. `event_clock()` estimates it by the
+of the log-odds of the state-price-implied event probability, \\A\_{t,T}
+= \[\mathrm{logit}(q)\]\_{t,T}\\. `event_clock()` estimates it by the
 realized variation \$\$\widehat A\_{t,T} = \sum_i
 \left\[\mathrm{logit}(q\_{t\_{i+1}}) -
 \mathrm{logit}(q\_{t_i})\right\]^2\$\$ together with standard robustness

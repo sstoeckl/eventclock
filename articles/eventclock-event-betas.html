@@ -77,8 +77,8 @@
 <h2 id="from-the-clock-to-asset-prices">From the clock to asset prices<a class="anchor" aria-label="anchor" href="#from-the-clock-to-asset-prices"></a>
 </h2>
 <p>The event clock answers “how much was learned, and when”. The asset
-side asks: “who cares?” To first order, an asset with
-outcome-conditional mean multipliers
+side asks: “who cares?” To first order, an asset whose event multiplier
+has outcome-conditional means
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>η</mi><mn>1</mn></msub><mo>,</mo><msub><mi>η</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\eta_1, \eta_2</annotation></semantics></math>
 responds to probability news as
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mi>t</mi></msub><mspace width="0.278em"></mspace><mo>≈</mo><mspace width="0.278em"></mspace><mi mathvariant="normal">Δ</mi><mi>η</mi><mspace width="0.167em"></mspace><mi mathvariant="normal">Δ</mi><msub><mi>q</mi><mi>t</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><mi mathvariant="normal">Δ</mi><mi>η</mi><mo>=</mo><msub><mi>η</mi><mn>1</mn></msub><mo>−</mo><msub><mi>η</mi><mn>2</mn></msub><mo>,</mo></mrow><annotation encoding="application/x-tex"> r_t \;\approx\; \Delta\eta \,\Delta q_t, \qquad
@@ -96,7 +96,7 @@ separately, and not the outcome-conditional dispersions: those require
 event-spanning option smiles. Two consequences:</p>
 <ul>
 <li>the levels reported by <code><a href="../reference/event_beta.html">event_beta()</a></code> come from the
-risk-neutral adding-up constraint
+pricing-measure adding-up constraint
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><msub><mi>η</mi><mn>1</mn></msub><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo><msub><mi>η</mi><mn>2</mn></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">q\eta_1 + (1-q)\eta_2 = 1</annotation></semantics></math>
 — they are model-implied, not independently identified;</li>
 <li>the loading test
