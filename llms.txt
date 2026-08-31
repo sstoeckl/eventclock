@@ -230,7 +230,7 @@ Closed-form calculators in (q, A).
 - [`ec_variance_share()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_variance_share.md)
   : Variance share of event learning
 - [`ec_iv_rule()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_iv_rule.md)
-  : Rule of thumb: implied-volatility contribution of event learning
+  : First-order implied-volatility contribution of event learning
 - [`ec_target_clock()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_target_clock.md)
   : Event-clock time needed to reach near-certainty
 - [`ec_logit()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_logit.md)

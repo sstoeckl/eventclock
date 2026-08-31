@@ -1,9 +1,8 @@
-# Rule of thumb: implied-volatility contribution of event learning
+# First-order implied-volatility contribution of event learning
 
-The paper's four-lever rule of thumb for the ATM implied-volatility
-contribution of learning ahead of a scheduled event: \$\$\Delta
-\mathrm{IV} \approx \frac{\[\Delta\eta\\ q(1-q)\]^2\\
-A}{2\\\sigma\\(T-t)}.\$\$
+A first-order expansion of implied volatility gives the ATM contribution
+of learning ahead of a scheduled event: \$\$\Delta \mathrm{IV} \approx
+\frac{\[\Delta\eta\\ q(1-q)\]^2\\ A}{2\\\sigma\\(T-t)}.\$\$
 
 ## Usage
 
@@ -42,7 +41,9 @@ Numeric vector, the IV contribution in decimal volatility units.
 
 The four levers: the event exposure \\\Delta\eta\\ (squared), the
 movability of the probability \\q(1-q)\\ (squared), the event-clock time
-\\A\\, and the dilution by the no-learning volatility and tenor.
+\\A\\, and the dilution by the no-learning volatility and tenor. (The
+function name `ec_iv_rule()` is kept for API stability; the formula is
+the working paper's first-order expansion of implied volatility.)
 
 **Units and the \\\sigma\\ convention.** With `sigma` as decimal
 annualized volatility and `tenor` in years, the result is a decimal

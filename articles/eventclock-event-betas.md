@@ -102,9 +102,9 @@ c(rho = rho, variance_share = rho / (1 + rho),
 
 Compare this with an FX pair around the same election: with
 $`|\Delta\eta|`$ two orders of magnitude smaller, $`\rho`$ collapses to
-rounding-error size — the four-lever anatomy of the rule of thumb
-(exposure squared, movability squared, clock, dilution) decides who
-cares about the event.
+rounding-error size — the four-lever anatomy of the first-order
+expansion (exposure squared, movability squared, clock, dilution)
+decides who cares about the event.
 
 ## One pipeline, many state prices
 

@@ -43,7 +43,7 @@ Numeric vector \\\rho \ge 0\\.
 The other headline objects are monotone transforms of \\\rho\\: the
 variance share of learning is \\\rho / (1 + \rho)\\
 ([`ec_variance_share()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_variance_share.md))
-and the rule-of-thumb IV contribution is \\\sigma \rho / 2\\
+and the first-order IV contribution is \\\sigma \rho / 2\\
 ([`ec_iv_rule()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_iv_rule.md)).
 Use \\\rho\\ to screen (event, asset) pairs: FX pairs around elections
 sit at \\\rho \approx 0.002\\–\\0.01\\ (irrelevant to two decimals),

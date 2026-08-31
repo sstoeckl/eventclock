@@ -415,10 +415,10 @@ The worked Brexit example
 <span><span class="co"># the two-week clock</span></span>
 <span><span class="fu"><a href="../reference/ec_target_clock.html">ec_target_clock</a></span><span class="op">(</span>q <span class="op">=</span> <span class="fl">0.195</span>, target <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span> <span class="op">/</span> <span class="fl">0.166</span></span>
 <span><span class="co">#&gt; [1] 43.55503</span></span></code></pre></div>
-<p>The rule of thumb for the implied-volatility contribution of event
-learning,
+<p>A first-order expansion of implied volatility gives the contribution
+of event learning,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mrow><mi mathvariant="normal">I</mi><mi mathvariant="normal">V</mi></mrow><mo>≈</mo><mo stretchy="false" form="prefix">[</mo><mi mathvariant="normal">Δ</mi><mi>η</mi><mspace width="0.167em"></mspace><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">]</mo><mn>2</mn></msup><mi>A</mi><mspace width="0.167em"></mspace><mi>/</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>σ</mi><mo stretchy="false" form="prefix">(</mo><mi>T</mi><mo>−</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Delta\mathrm{IV} \approx [\Delta\eta\, q(1-q)]^2 A \,/\, (2\sigma(T-t))</annotation></semantics></math>,
-reproduces the paper’s headline decomposition (in annualized IV
+which reproduces the paper’s headline decomposition (in annualized IV
 percentage points, using the tenor-specific no-learning ATM volatility
 and the event exposures
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>η</mi></mrow><annotation encoding="application/x-tex">\Delta\eta</annotation></semantics></math>

@@ -276,10 +276,10 @@ ec_target_clock(q = 0.195, target = 0.9) / 0.166
 #> [1] 43.55503
 ```
 
-The rule of thumb for the implied-volatility contribution of event
-learning,
+A first-order expansion of implied volatility gives the contribution of
+event learning,
 $`\Delta\mathrm{IV} \approx [\Delta\eta\, q(1-q)]^2 A \,/\, (2\sigma(T-t))`$,
-reproduces the paper’s headline decomposition (in annualized IV
+which reproduces the paper’s headline decomposition (in annualized IV
 percentage points, using the tenor-specific no-learning ATM volatility
 and the event exposures $`\Delta\eta`$ estimated in the paper):
 
