@@ -1,0 +1,5 @@
+setwd("D:/OneDrive - University of Liechtenstein/ROOT/Packages/eventclock")
+devtools::document()
+cat("\n---- testthat: spanning ----\n")
+res <- devtools::test(filter = "spanning", reporter = "summary")
+print(res)
