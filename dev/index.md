@@ -14,9 +14,6 @@ datasets of the working paper
 > *Learning Before Scheduled Events: Prediction Markets, State Prices,
 > and Option Valuation.* Working Paper.
 
-A Python port is available at
-[cgebe/eventclock-py](https://github.com/cgebe/eventclock-py).
-
 ## Features
 
 - **[`as_event_prices()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/as_event_prices.md)**
