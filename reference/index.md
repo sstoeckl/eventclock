@@ -42,8 +42,26 @@ Estimate information time A from log-odds variation.
   : Sampling-frequency signature of the event clock
 - [`plot_signature()`](https://www.sebastianstoeckl.com/eventclock/reference/plot_signature.md)
   : Plot the sampling-frequency signature
+- [`ec_recovery_set()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_recovery_set.md)
+  : Partial-recovery interval for the event clock
 - [`ec_default_params()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_default_params.md)
   : Default parameters of the eventclock package
+
+## Event-spanning options
+
+The lognormal event mixture and the event exposure theta.
+
+- [`ec_mix_price()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_mix_price.md)
+  [`ec_mix_iv()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_mix_price.md)
+  : Option prices and implied volatility under the event mixture
+- [`ec_theta_fit()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_theta_fit.md)
+  [`print(`*`<ec_theta_fit>`*`)`](https://www.sebastianstoeckl.com/eventclock/reference/ec_theta_fit.md)
+  : Estimate the event exposure theta from event-spanning option
+  surfaces
+- [`ec_theta_hump()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_theta_hump.md)
+  : First-order event exposure from the spanning variance hump
+- [`ec_delta_to_k()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_delta_to_k.md)
+  : Convert a call-equivalent delta grid to log-moneyness
 
 ## Assets & finance
 

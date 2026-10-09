@@ -6,5 +6,7 @@
   Polymarket](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-brexit.md):
 - [Event betas: assets on the event
   clock](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-betas.md):
+- [Event-spanning options: estimating the event
+  exposure](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.md):
 - [Validating the event-clock
   estimator](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-validation.md):

@@ -4,6 +4,7 @@
 <url><loc>https://www.sebastianstoeckl.com/eventclock/LICENSE.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/articles/eventclock-brexit.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-betas.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/articles/eventclock-validation.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/articles/index.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/authors.html</loc></url>
@@ -14,10 +15,13 @@
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/djt2024.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_atm_event_call.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_default_params.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_delta_to_k.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_exceedance.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_iv_rule.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_logit.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_mix_price.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_moments.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_recovery_set.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_relevance.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_revision.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_sigma_eff.html</loc></url>
@@ -25,6 +29,8 @@
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_simulate.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_simulate_path.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_target_clock.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_theta_fit.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_theta_hump.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_transition_density.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_validate.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/reference/ec_variance_share.html</loc></url>

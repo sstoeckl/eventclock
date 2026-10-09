@@ -4,8 +4,9 @@ pkgdown_sha: ~
 articles:
   eventclock-brexit: eventclock-brexit.html
   eventclock-event-betas: eventclock-event-betas.html
+  eventclock-event-spanning: eventclock-event-spanning.html
   eventclock-validation: eventclock-validation.html
-last_built: 2026-08-31T08:14Z
+last_built: 2026-10-09T07:24Z
 urls:
   reference: https://www.sebastianstoeckl.com/eventclock/reference
   article: https://www.sebastianstoeckl.com/eventclock/articles
