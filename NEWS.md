@@ -1,3 +1,27 @@
+# eventclock (development version)
+
+## Event-spanning options
+
+* `ec_mix_price()` / `ec_mix_iv()` — forward-normalized option prices and
+  Black implied dispersions under the two-component lognormal event
+  mixture (outcome-conditional means parametrized by the event exposure
+  `theta = log(m1/m2)` under the pricing-measure adding-up
+  normalization).
+* `ec_theta_fit()` — the common conditional-mean-ratio design: per-surface
+  outcome-conditional dispersions, one event exposure `theta` across all
+  event-spanning surfaces (surface-balanced IV objective); `common =
+  FALSE` gives the free-ratio diagnostic.
+* `ec_theta_hump()` — first-order `|theta|` from the spanning
+  total-variance hump, `sqrt(dvar / (q (1 - q)))`; the quick estimator on
+  top of an existing maturity-hump pipeline.
+* `ec_delta_to_k()` — call-equivalent delta grid to log-forward moneyness.
+
+## Event clock
+
+* `ec_recovery_set()` — the sharp partial-recovery interval
+  `[(1 - eps)_+^2 A, (1 + eps)^2 A]` for the physical event clock, the
+  working paper's sensitivity grid around exact recovery.
+
 # eventclock 0.3.0
 
 ## Assets & finance

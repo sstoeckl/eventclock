@@ -21,7 +21,15 @@ reference:
   - event_clock_forecast
   - ec_signature
   - plot_signature
+  - ec_recovery_set
   - ec_default_params
+- title: Event-spanning options
+  desc: The lognormal event mixture and the event exposure theta.
+  contents:
+  - ec_mix_price
+  - ec_theta_fit
+  - ec_theta_hump
+  - ec_delta_to_k
 - title: Assets & finance
   desc: Event exposures and pricing relevance.
   contents:
