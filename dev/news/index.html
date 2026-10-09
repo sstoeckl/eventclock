@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">eventclock</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,6 +20,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/eventclock-brexit.html">Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket</a></li>
     <li><a class="dropdown-item" href="../articles/eventclock-event-betas.html">Event betas: assets on the event clock</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-event-spanning.html">Event-spanning options: estimating the event exposure</a></li>
     <li><a class="dropdown-item" href="../articles/eventclock-validation.html">Validating the event-clock estimator</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -37,6 +38,25 @@
       <small>Source: <a href="https://github.com/sstoeckl/eventclock/blob/dev/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.0" id="eventclock-040">eventclock 0.4.0<a class="anchor" aria-label="anchor" href="#eventclock-040"></a></h2>
+<div class="section level3">
+<h3 id="event-spanning-options-0-4-0">Event-spanning options<a class="anchor" aria-label="anchor" href="#event-spanning-options-0-4-0"></a></h3>
+<ul><li>
+<code><a href="../reference/ec_mix_price.html">ec_mix_price()</a></code> / <code><a href="../reference/ec_mix_price.html">ec_mix_iv()</a></code> — forward-normalized option prices and Black implied dispersions under the two-component lognormal event mixture (outcome-conditional means parametrized by the event exposure <code>theta = log(m1/m2)</code> under the pricing-measure adding-up normalization).</li>
+<li>
+<code><a href="../reference/ec_theta_fit.html">ec_theta_fit()</a></code> — the common conditional-mean-ratio design: per-surface outcome-conditional dispersions, one event exposure <code>theta</code> across all event-spanning surfaces (surface-balanced IV objective); <code>common = FALSE</code> gives the free-ratio diagnostic.</li>
+<li>
+<code><a href="../reference/ec_theta_hump.html">ec_theta_hump()</a></code> — first-order <code>|theta|</code> from the spanning total-variance hump, <code>sqrt(dvar / (q (1 - q)))</code>; the quick estimator on top of an existing maturity-hump pipeline.</li>
+<li>
+<code><a href="../reference/ec_delta_to_k.html">ec_delta_to_k()</a></code> — call-equivalent delta grid to log-forward moneyness.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="event-clock-0-4-0">Event clock<a class="anchor" aria-label="anchor" href="#event-clock-0-4-0"></a></h3>
+<ul><li>
+<code><a href="../reference/ec_recovery_set.html">ec_recovery_set()</a></code> — the sharp partial-recovery interval <code>[(1 - eps)_+^2 A, (1 + eps)^2 A]</code> for the physical event clock, the working paper’s sensitivity grid around exact recovery.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="eventclock-030">eventclock 0.3.0<a class="anchor" aria-label="anchor" href="#eventclock-030"></a></h2>
 <div class="section level3">

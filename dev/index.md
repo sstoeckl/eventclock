@@ -1,11 +1,11 @@
 # eventclock
 
-`eventclock` measures **event-clock (information) time** ahead of
+`eventclock` measures **event-clock time** (information time) ahead of
 scheduled events — referendums, elections, central-bank decisions — from
-traded event probabilities such as prediction-market prices. Event-clock
-time $`A_{t,T}`$ is the quadratic variation of the log-odds of the
-traded event probability: how much outcome-relevant information arrived,
-and when.
+traded event state prices such as prediction-market contracts.
+Event-clock time $`A_{t,T}`$ is the quadratic variation of the log-odds
+of the state-price-implied event probability: how much outcome-relevant
+information arrived, and when.
 
 The package implements the estimators, closed-form calculators, and
 datasets of the working paper
@@ -13,6 +13,9 @@ datasets of the working paper
 > Hanke, M., Schadner, W., Stöckl, S., and Weissensteiner, A. (2026).
 > *Learning Before Scheduled Events: Prediction Markets, State Prices,
 > and Option Valuation.* Working Paper.
+
+A Python port is available at
+[cgebe/eventclock-py](https://github.com/cgebe/eventclock-py).
 
 ## Features
 

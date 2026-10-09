@@ -1,4 +1,4 @@
-# Convert traded state prices into risk-adjusted event probabilities
+# Convert event state prices into state-price-implied event probabilities
 
 Traded event claims (prediction-market contracts, betting quotes, binary
 options) pay one unit at resolution. Their price is therefore a
@@ -49,11 +49,11 @@ returned unchanged so that the caller can flag rather than drop them.
 
 Two normalizations are available:
 
-- `method = "discount"` (default): \\q = \psi / D\\. Under deterministic
-  interest rates the result is the risk-adjusted (risk-neutral) event
-  probability; with stochastic rates it is a forward-measure
-  probability. At short horizons the correction is a few basis points
-  but it is systematic.
+- `method = "discount"` (default): \\q = \psi / D\\. The result is the
+  *state-price-implied event probability* under the payout numeraire
+  (with stochastic interest rates, a forward-measure probability). At
+  short horizons the correction is a few basis points but it is
+  systematic.
 
 - `method = "overround"`: \\q_j = \psi_j / \sum_i \psi_i\\, where `book`
   supplies \\\sum_i \psi_i\\. Use this only when the raw quotes include

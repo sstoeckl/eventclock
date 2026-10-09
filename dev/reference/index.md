@@ -10,10 +10,11 @@ Standardize and screen traded event probabilities.
   [`plot(`*`<event_prices>`*`)`](https://www.sebastianstoeckl.com/eventclock/dev/reference/as_event_prices.md)
   :
 
-  Standardize traded event probabilities as an `event_prices` object
+  Standardize traded event state prices as an `event_prices` object
 
 - [`q_from_price()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/q_from_price.md)
-  : Convert traded state prices into risk-adjusted event probabilities
+  : Convert event state prices into state-price-implied event
+  probabilities
 
 - [`q_from_ffutures()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/q_from_ffutures.md)
   : Meeting-implied probability from a fed funds futures price
@@ -30,7 +31,7 @@ Standardize and screen traded event probabilities.
 Estimate information time A from log-odds variation.
 
 - [`event_clock()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/event_clock.md)
-  : Estimate event-clock (information) time from log-odds variation
+  : Estimate event-clock time from log-odds variation
 - [`event_clock_path()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/event_clock_path.md)
   [`plot(`*`<event_clock_path>`*`)`](https://www.sebastianstoeckl.com/eventclock/dev/reference/event_clock_path.md)
   : Cumulative event-clock path
@@ -41,8 +42,26 @@ Estimate information time A from log-odds variation.
   : Sampling-frequency signature of the event clock
 - [`plot_signature()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/plot_signature.md)
   : Plot the sampling-frequency signature
+- [`ec_recovery_set()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_recovery_set.md)
+  : Partial-recovery interval for the event clock
 - [`ec_default_params()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_default_params.md)
   : Default parameters of the eventclock package
+
+## Event-spanning options
+
+The lognormal event mixture and the event exposure theta.
+
+- [`ec_mix_price()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_mix_price.md)
+  [`ec_mix_iv()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_mix_price.md)
+  : Option prices and implied volatility under the event mixture
+- [`ec_theta_fit()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_theta_fit.md)
+  [`print(`*`<ec_theta_fit>`*`)`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_theta_fit.md)
+  : Estimate the event exposure theta from event-spanning option
+  surfaces
+- [`ec_theta_hump()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_theta_hump.md)
+  : First-order event exposure from the spanning variance hump
+- [`ec_delta_to_k()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_delta_to_k.md)
+  : Convert a call-equivalent delta grid to log-moneyness
 
 ## Assets & finance
 
@@ -72,7 +91,7 @@ Closed-form calculators in (q, A).
 - [`ec_variance_share()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_variance_share.md)
   : Variance share of event learning
 - [`ec_iv_rule()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_iv_rule.md)
-  : Rule of thumb: implied-volatility contribution of event learning
+  : First-order implied-volatility contribution of event learning
 - [`ec_target_clock()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_target_clock.md)
   : Event-clock time needed to reach near-certainty
 - [`ec_logit()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_logit.md)

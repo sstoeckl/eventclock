@@ -88,10 +88,10 @@ option-implied, or from an independent sample) and the function reports
 `deta`, the regression is exactly identified and only
 \\\widehat{\Delta\eta}\\ is reported.
 
-Under the risk-neutral adding-up constraint \\q\\\eta_1 + (1-q)\\\eta_2
-= 1\\, point estimates of the levels can be backed out as \\\eta_1 = 1 +
-(1-q)\Delta\eta\\ and \\\eta_2 = 1 - q\Delta\eta\\; these are
-model-implied, not independently identified, and are returned for
+Under the pricing-measure adding-up constraint \\q\\\eta_1 +
+(1-q)\\\eta_2 = 1\\, point estimates of the levels can be backed out as
+\\\eta_1 = 1 + (1-q)\Delta\eta\\ and \\\eta_2 = 1 - q\Delta\eta\\; these
+are model-implied, not independently identified, and are returned for
 convenience (evaluated at the sample-average `q`).
 
 ## Methods (by generic)

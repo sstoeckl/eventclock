@@ -8,8 +8,9 @@ library(eventclock)
 ## From the clock to asset prices
 
 The event clock answers “how much was learned, and when”. The asset side
-asks: “who cares?” To first order, an asset with outcome-conditional
-mean multipliers $`\eta_1, \eta_2`$ responds to probability news as
+asks: “who cares?” To first order, an asset whose event multiplier has
+outcome-conditional means $`\eta_1, \eta_2`$ responds to probability
+news as
 ``` math
  r_t \;\approx\; \Delta\eta \,\Delta q_t, \qquad
    \Delta\eta = \eta_1 - \eta_2, 
@@ -25,7 +26,7 @@ option smiles. Two consequences:
 
 - the levels reported by
   [`event_beta()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/event_beta.md)
-  come from the risk-neutral adding-up constraint
+  come from the pricing-measure adding-up constraint
   $`q\eta_1 + (1-q)\eta_2 = 1`$ — they are model-implied, not
   independently identified;
 - the loading test $`\beta = 1`$ is meaningful only against an
@@ -101,9 +102,9 @@ c(rho = rho, variance_share = rho / (1 + rho),
 
 Compare this with an FX pair around the same election: with
 $`|\Delta\eta|`$ two orders of magnitude smaller, $`\rho`$ collapses to
-rounding-error size — the four-lever anatomy of the rule of thumb
-(exposure squared, movability squared, clock, dilution) decides who
-cares about the event.
+rounding-error size — the four-lever anatomy of the first-order
+expansion (exposure squared, movability squared, clock, dilution)
+decides who cares about the event.
 
 ## One pipeline, many state prices
 

@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">eventclock</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,6 +40,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/eventclock-brexit.html">Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket</a></li>
     <li><a class="dropdown-item" href="../articles/eventclock-event-betas.html">Event betas: assets on the event clock</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-event-spanning.html">Event-spanning options: estimating the event exposure</a></li>
     <li><a class="dropdown-item" href="../articles/eventclock-validation.html">Validating the event-clock estimator</a></li>
   </ul>
 </li>
@@ -83,7 +84,7 @@ time
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>A</mi><mrow><mi>t</mi><mo>,</mo><mi>T</mi></mrow></msub><annotation encoding="application/x-tex">A_{t,T}</annotation></semantics></math>
 is the quadratic variation of the log-odds
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>t</mi></msub><mo>=</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><mi>t</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">L_t = \mathrm{logit}(q_t)</annotation></semantics></math>
-of a traded event probability
+of the state-price-implied event probability
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mi>t</mi></msub><annotation encoding="application/x-tex">q_t</annotation></semantics></math>,</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>A</mi><mo accent="true">̂</mo></mover><mrow><mi>t</mi><mo>,</mo><mi>T</mi></mrow></msub><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><munder><mo>∑</mo><mrow><msub><mi>t</mi><mi>i</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>,</mo><mi>T</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">[</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><msub><mi>t</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><msub><mi>t</mi><mi>i</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">]</mo><mn>2</mn></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">\widehat A_{t,T} \;=\; \sum_{t_i \in [t,T)}
   \bigl[\mathrm{logit}(q_{t_{i+1}}) - \mathrm{logit}(q_{t_i})\bigr]^2 .</annotation></semantics></math></p>
@@ -365,8 +366,8 @@ week.</p>
 <p>On the paper’s valuation date, the raw betting-quote probability of
 <em>Leave</em> is
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>0.202</mn></mrow><annotation encoding="application/x-tex">q = 0.202</annotation></semantics></math>,
-while the paper works with a USD-state-price-converted
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>0.195</mn></mrow><annotation encoding="application/x-tex">q = 0.195</annotation></semantics></math>.
+while the paper works with the U.S.-dollar-numeraire state price
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>0.195</mn></mrow><annotation encoding="application/x-tex">q = 0.195</annotation></semantics></math>).
 The levels differ — but the clock is identical, because an
 (approximately) constant logit wedge has zero quadratic variation:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -415,10 +416,10 @@ The worked Brexit example
 <span><span class="co"># the two-week clock</span></span>
 <span><span class="fu"><a href="../reference/ec_target_clock.html">ec_target_clock</a></span><span class="op">(</span>q <span class="op">=</span> <span class="fl">0.195</span>, target <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span> <span class="op">/</span> <span class="fl">0.166</span></span>
 <span><span class="co">#&gt; [1] 43.55503</span></span></code></pre></div>
-<p>The rule of thumb for the implied-volatility contribution of event
-learning,
+<p>A first-order expansion of implied volatility gives the contribution
+of event learning,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mrow><mi mathvariant="normal">I</mi><mi mathvariant="normal">V</mi></mrow><mo>≈</mo><mo stretchy="false" form="prefix">[</mo><mi mathvariant="normal">Δ</mi><mi>η</mi><mspace width="0.167em"></mspace><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">]</mo><mn>2</mn></msup><mi>A</mi><mspace width="0.167em"></mspace><mi>/</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>σ</mi><mo stretchy="false" form="prefix">(</mo><mi>T</mi><mo>−</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Delta\mathrm{IV} \approx [\Delta\eta\, q(1-q)]^2 A \,/\, (2\sigma(T-t))</annotation></semantics></math>,
-reproduces the paper’s headline decomposition (in annualized IV
+which reproduces the paper’s headline decomposition (in annualized IV
 percentage points, using the tenor-specific no-learning ATM volatility
 and the event exposures
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>η</mi></mrow><annotation encoding="application/x-tex">\Delta\eta</annotation></semantics></math>

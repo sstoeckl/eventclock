@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">eventclock</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,6 +20,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/eventclock-brexit.html">Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket</a></li>
     <li><a class="dropdown-item" href="../articles/eventclock-event-betas.html">Event betas: assets on the event clock</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-event-spanning.html">Event-spanning options: estimating the event exposure</a></li>
     <li><a class="dropdown-item" href="../articles/eventclock-validation.html">Validating the event-clock estimator</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -51,14 +52,14 @@
           <code><a href="as_event_prices.html">as_event_prices()</a></code> <code><a href="as_event_prices.html">print(<i>&lt;event_prices&gt;</i>)</a></code> <code><a href="as_event_prices.html">summary(<i>&lt;event_prices&gt;</i>)</a></code> <code><a href="as_event_prices.html">plot(<i>&lt;event_prices&gt;</i>)</a></code>
 
         </dt>
-        <dd>Standardize traded event probabilities as an <code>event_prices</code> object</dd>
+        <dd>Standardize traded event state prices as an <code>event_prices</code> object</dd>
 
         <dt>
 
           <code><a href="q_from_price.html">q_from_price()</a></code>
 
         </dt>
-        <dd>Convert traded state prices into risk-adjusted event probabilities</dd>
+        <dd>Convert event state prices into state-price-implied event probabilities</dd>
 
         <dt>
 
@@ -95,7 +96,7 @@
           <code><a href="event_clock.html">event_clock()</a></code>
 
         </dt>
-        <dd>Estimate event-clock (information) time from log-odds variation</dd>
+        <dd>Estimate event-clock time from log-odds variation</dd>
 
         <dt>
 
@@ -127,10 +128,54 @@
 
         <dt>
 
+          <code><a href="ec_recovery_set.html">ec_recovery_set()</a></code>
+
+        </dt>
+        <dd>Partial-recovery interval for the event clock</dd>
+
+        <dt>
+
           <code><a href="ec_default_params.html">ec_default_params()</a></code>
 
         </dt>
         <dd>Default parameters of the eventclock package</dd>
+      </dl></div><div class="section level2">
+      <h2 id="event-spanning-options">Event-spanning options<a class="anchor" aria-label="anchor" href="#event-spanning-options"></a></h2>
+
+      <div class="section-desc"><p>The lognormal event mixture and the event exposure theta.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="ec_mix_price.html">ec_mix_price()</a></code> <code><a href="ec_mix_price.html">ec_mix_iv()</a></code>
+
+        </dt>
+        <dd>Option prices and implied volatility under the event mixture</dd>
+
+        <dt>
+
+          <code><a href="ec_theta_fit.html">ec_theta_fit()</a></code> <code><a href="ec_theta_fit.html">print(<i>&lt;ec_theta_fit&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Estimate the event exposure theta from event-spanning option surfaces</dd>
+
+        <dt>
+
+          <code><a href="ec_theta_hump.html">ec_theta_hump()</a></code>
+
+        </dt>
+        <dd>First-order event exposure from the spanning variance hump</dd>
+
+        <dt>
+
+          <code><a href="ec_delta_to_k.html">ec_delta_to_k()</a></code>
+
+        </dt>
+        <dd>Convert a call-equivalent delta grid to log-moneyness</dd>
       </dl></div><div class="section level2">
       <h2 id="assets-finance">Assets &amp; finance<a class="anchor" aria-label="anchor" href="#assets-finance"></a></h2>
 
@@ -211,7 +256,7 @@
           <code><a href="ec_iv_rule.html">ec_iv_rule()</a></code>
 
         </dt>
-        <dd>Rule of thumb: implied-volatility contribution of event learning</dd>
+        <dd>First-order implied-volatility contribution of event learning</dd>
 
         <dt>
 

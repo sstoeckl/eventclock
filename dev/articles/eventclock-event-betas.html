@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">eventclock</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,6 +40,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/eventclock-brexit.html">Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket</a></li>
     <li><a class="dropdown-item" href="../articles/eventclock-event-betas.html">Event betas: assets on the event clock</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-event-spanning.html">Event-spanning options: estimating the event exposure</a></li>
     <li><a class="dropdown-item" href="../articles/eventclock-validation.html">Validating the event-clock estimator</a></li>
   </ul>
 </li>
@@ -77,8 +78,8 @@
 <h2 id="from-the-clock-to-asset-prices">From the clock to asset prices<a class="anchor" aria-label="anchor" href="#from-the-clock-to-asset-prices"></a>
 </h2>
 <p>The event clock answers “how much was learned, and when”. The asset
-side asks: “who cares?” To first order, an asset with
-outcome-conditional mean multipliers
+side asks: “who cares?” To first order, an asset whose event multiplier
+has outcome-conditional means
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>η</mi><mn>1</mn></msub><mo>,</mo><msub><mi>η</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\eta_1, \eta_2</annotation></semantics></math>
 responds to probability news as
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mi>t</mi></msub><mspace width="0.278em"></mspace><mo>≈</mo><mspace width="0.278em"></mspace><mi mathvariant="normal">Δ</mi><mi>η</mi><mspace width="0.167em"></mspace><mi mathvariant="normal">Δ</mi><msub><mi>q</mi><mi>t</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><mi mathvariant="normal">Δ</mi><mi>η</mi><mo>=</mo><msub><mi>η</mi><mn>1</mn></msub><mo>−</mo><msub><mi>η</mi><mn>2</mn></msub><mo>,</mo></mrow><annotation encoding="application/x-tex"> r_t \;\approx\; \Delta\eta \,\Delta q_t, \qquad
@@ -96,7 +97,7 @@ separately, and not the outcome-conditional dispersions: those require
 event-spanning option smiles. Two consequences:</p>
 <ul>
 <li>the levels reported by <code><a href="../reference/event_beta.html">event_beta()</a></code> come from the
-risk-neutral adding-up constraint
+pricing-measure adding-up constraint
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><msub><mi>η</mi><mn>1</mn></msub><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo><msub><mi>η</mi><mn>2</mn></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">q\eta_1 + (1-q)\eta_2 = 1</annotation></semantics></math>
 — they are model-implied, not independently identified;</li>
 <li>the loading test
@@ -173,9 +174,9 @@ q(1-q)]^2 A / (\sigma^2 T)</annotation></semantics></math>:</p>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi mathvariant="normal">Δ</mi><mi>η</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|\Delta\eta|</annotation></semantics></math>
 two orders of magnitude smaller,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ρ</mi><annotation encoding="application/x-tex">\rho</annotation></semantics></math>
-collapses to rounding-error size — the four-lever anatomy of the rule of
-thumb (exposure squared, movability squared, clock, dilution) decides
-who cares about the event.</p>
+collapses to rounding-error size — the four-lever anatomy of the
+first-order expansion (exposure squared, movability squared, clock,
+dilution) decides who cares about the event.</p>
 </div>
 <div class="section level2">
 <h2 id="one-pipeline-many-state-prices">One pipeline, many state prices<a class="anchor" aria-label="anchor" href="#one-pipeline-many-state-prices"></a>

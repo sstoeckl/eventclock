@@ -1,7 +1,7 @@
 # Plot the event-probability path
 
-Line plot of the traded event probability \\q_t\\, with an optional
-marker at the scheduled event date.
+Line plot of the state-price-implied event probability \\q_t\\, with an
+optional marker at the scheduled event date.
 
 ## Usage
 
