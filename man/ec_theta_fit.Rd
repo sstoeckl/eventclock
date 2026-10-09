@@ -43,8 +43,9 @@ warning (two free dispersions need cross-sectional information).}
 An object of class \code{ec_theta_fit}: a list with
 \item{theta, ratio}{the common event exposure and
 \eqn{m_1/m_2 = e^{\theta}}.}
-\item{rmse}{surface-balanced root mean squared IV error, in the units
-of the \code{iv} input (annualized if \code{tau} was supplied).}
+\item{rmse}{surface-balanced root mean squared vega-scaled pricing
+error — implied-volatility units to first order, in the units of
+the \code{iv} input (annualized if \code{tau} was supplied).}
 \item{surfaces}{per-surface tibble: \code{q}, nodes, fitted \code{s1}, \code{s2}
 (total dispersions), per-surface \code{rmse}, and \code{theta} when
 \code{common = FALSE}.}
@@ -56,8 +57,10 @@ event-spanning option surfaces: each surface (one valuation date and one
 expiry) gets its own outcome-conditional dispersions \eqn{(s_1, s_2)},
 while the event exposure \eqn{\theta = \log(m_1/m_2)} is restricted to
 be common across all surfaces — the working paper's common
-conditional-mean-ratio design. The objective is the surface-balanced
-mean of per-surface weighted squared implied-volatility errors, so each
+conditional-mean-ratio design. The objective is the working paper's:
+price residuals divided by the Black vega at the observed node (the
+implied-volatility error to first order), averaged with node weights
+within each surface and surface-balanced across surfaces, so each
 surface carries equal weight regardless of how many quotes it has.
 }
 \details{

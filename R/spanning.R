@@ -8,6 +8,10 @@
 # Undiscounted Black (1976) call on a forward f with strike K and *total*
 # (non-annualized) dispersion s. All arguments same length.
 black_call <- function(f, K, s) {
+  n <- max(length(f), length(K), length(s))
+  f <- rep_len(f, n)
+  K <- rep_len(K, n)
+  s <- rep_len(s, n)
   out <- pmax(f - K, 0)
   ok <- is.finite(f) & is.finite(K) & is.finite(s) & s > 0 & f > 0 & K > 0
   if (any(ok)) {
@@ -226,19 +230,28 @@ ec_recovery_set <- function(A, eps = c(0, 0.10, 0.25, 0.50)) {
 
 # Per-surface inner fit: dispersions (log-parametrized) given theta.
 # obs: list with k, iv (in input units), w, scale (total = iv_units * scale,
-# i.e. scale = sqrt(tau) when iv is annualized, 1 otherwise), q (scalar).
+# i.e. scale = sqrt(tau) when iv is annualized, 1 otherwise), q (scalar),
+# plus precomputed observed call prices (C_obs) and Black vegas (vega) at
+# the observed dispersions. The objective is the working paper's: price
+# residuals divided by vega, which is the implied-volatility error to
+# first order -- and needs no numerical IV inversion in the inner loop.
 fit_dispersions <- function(obs, theta, par0 = NULL) {
   if (is.null(par0)) {
     s0 <- obs$iv[which.min(abs(obs$k))] * obs$scale[which.min(abs(obs$k))]
     s0 <- max(s0, 1e-3)
     par0 <- log(c(s0, s0))
   }
+  K <- exp(obs$k)
+  nK <- length(K)
+  m <- mix_means(obs$q, theta)
+  f1 <- rep(m$m1, nK)
+  f2 <- rep(m$m2, nK)
   obj <- function(par) {
     s <- exp(par)
     if (any(!is.finite(s)) || any(s > 20)) return(1e10)
-    tot <- ec_mix_iv(obs$k, obs$q, theta, s[1], s[2])
-    model <- tot / obs$scale
-    err <- model - obs$iv
+    model <- obs$q * black_call(f1, K, rep(s[1], nK)) +
+      (1 - obs$q) * black_call(f2, K, rep(s[2], nK))
+    err <- (model - obs$C_obs) / obs$vega / obs$scale
     if (any(!is.finite(err))) return(1e10)
     sum(obs$w * err^2) / sum(obs$w)
   }
@@ -255,8 +268,10 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
 #' expiry) gets its own outcome-conditional dispersions \eqn{(s_1, s_2)},
 #' while the event exposure \eqn{\theta = \log(m_1/m_2)} is restricted to
 #' be common across all surfaces — the working paper's common
-#' conditional-mean-ratio design. The objective is the surface-balanced
-#' mean of per-surface weighted squared implied-volatility errors, so each
+#' conditional-mean-ratio design. The objective is the working paper's:
+#' price residuals divided by the Black vega at the observed node (the
+#' implied-volatility error to first order), averaged with node weights
+#' within each surface and surface-balanced across surfaces, so each
 #' surface carries equal weight regardless of how many quotes it has.
 #'
 #' @param surfaces A `data.frame` with one row per observed node and
@@ -286,8 +301,9 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
 #' @return An object of class `ec_theta_fit`: a list with
 #'   \item{theta, ratio}{the common event exposure and
 #'     \eqn{m_1/m_2 = e^{\theta}}.}
-#'   \item{rmse}{surface-balanced root mean squared IV error, in the units
-#'     of the `iv` input (annualized if `tau` was supplied).}
+#'   \item{rmse}{surface-balanced root mean squared vega-scaled pricing
+#'     error — implied-volatility units to first order, in the units of
+#'     the `iv` input (annualized if `tau` was supplied).}
 #'   \item{surfaces}{per-surface tibble: `q`, nodes, fitted `s1`, `s2`
 #'     (total dispersions), per-surface `rmse`, and `theta` when
 #'     `common = FALSE`.}
@@ -350,7 +366,13 @@ ec_theta_fit <- function(surfaces, theta_range = c(-3, 3), common = TRUE,
         "Surface {.val {as.character(p$surface[1])}} has non-constant {.field q}."
       )
     }
-    list(k = p$k, iv = p$iv, w = p$w, scale = p$scale, q = qs[1])
+    s_obs <- p$iv * p$scale
+    d1 <- (-p$k) / s_obs + s_obs / 2
+    list(
+      k = p$k, iv = p$iv, w = p$w, scale = p$scale, q = qs[1],
+      C_obs = black_call(rep(1, nrow(p)), exp(p$k), s_obs),
+      vega = pmax(stats::dnorm(d1), 1e-8)
+    )
   })
 
   warm <- vector("list", length(obs))
