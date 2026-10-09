@@ -1,4 +1,4 @@
-# eventclock (development version)
+# eventclock 0.4.0
 
 ## Event-spanning options
 

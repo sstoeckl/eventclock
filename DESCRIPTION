@@ -1,6 +1,6 @@
 Package: eventclock
 Title: The Event Clock: Information Time from Traded Event State Prices
-Version: 0.3.0.9000
+Version: 0.4.0
 Authors@R:
     person("Sebastian", "Stöckl", , "sebastian.stoeckl@uni.li", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4196-6093"))
