@@ -11,7 +11,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="https://www.sebastianstoeckl.com/eventclock/dev/apple-touch-icon.png">
 <link rel="icon" sizes="any" href="https://www.sebastianstoeckl.com/eventclock/dev/favicon.ico">
 <link rel="manifest" href="https://www.sebastianstoeckl.com/eventclock/dev/site.webmanifest">
-<script src="https://www.sebastianstoeckl.com/eventclock/dev/deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script src="https://www.sebastianstoeckl.com/eventclock/dev/NA">
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="https://www.sebastianstoeckl.com/eventclock/dev/deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="https://www.sebastianstoeckl.com/eventclock/dev/deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="https://www.sebastianstoeckl.com/eventclock/dev/deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="https://www.sebastianstoeckl.com/eventclock/dev/deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="https://www.sebastianstoeckl.com/eventclock/dev/deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -26,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="https://www.sebastianstoeckl.com/eventclock/dev/index.html">eventclock</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,10 +45,11 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="https://www.sebastianstoeckl.com/eventclock/dev/articles/eventclock-brexit.html">Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket</a></li>
-    <li><a class="dropdown-item" href="https://www.sebastianstoeckl.com/eventclock/dev/articles/eventclock-event-betas.html">Event betas: assets on the event clock</a></li>
-    <li><a class="dropdown-item" href="https://www.sebastianstoeckl.com/eventclock/dev/articles/eventclock-event-spanning.html">Event-spanning options: estimating the event exposure</a></li>
-    <li><a class="dropdown-item" href="https://www.sebastianstoeckl.com/eventclock/dev/articles/eventclock-validation.html">Validating the event-clock estimator</a></li>
+<li><a class="dropdown-item" href="https://www.sebastianstoeckl.com/eventclock/dev/articles/eventclock-brexit.html">Getting started: the Event Clock for Brexit, the 2016 U.S. election, and Polymarket</a></li>
+    <li><a class="dropdown-item" href="https://www.sebastianstoeckl.com/eventclock/dev/articles/eventclock-measurement.html">Measuring the Event Clock in practice: sampling, forecasts, and two venues</a></li>
+    <li><a class="dropdown-item" href="https://www.sebastianstoeckl.com/eventclock/dev/articles/eventclock-validation.html">Does the estimator work? Validation on simulated data</a></li>
+    <li><a class="dropdown-item" href="https://www.sebastianstoeckl.com/eventclock/dev/articles/eventclock-event-betas.html">Event betas: which assets move with the event probability?</a></li>
+    <li><a class="dropdown-item" href="https://www.sebastianstoeckl.com/eventclock/dev/articles/eventclock-event-spanning.html">Event-spanning options: estimating an asset's exposure to an event</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="https://www.sebastianstoeckl.com/eventclock/dev/news/index.html">Changelog</a></li>

@@ -1,6 +1,6 @@
 # Cumulative event-clock path
 
-Computes the running (cumulative) event clock \\\widehat A_t = \sum\_{s
+Computes the running (cumulative) Event Clock \\\widehat A_t = \sum\_{s
 \le t} (\Delta L_s)^2\\ — the object behind the "clock plot": how much
 of the eventual information had arrived by each calendar date.
 

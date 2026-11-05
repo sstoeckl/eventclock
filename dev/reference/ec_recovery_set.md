@@ -1,18 +1,22 @@
-# Partial-recovery interval for the event clock
+# Partial-recovery interval for the Event Clock
 
-Under exact recovery the measured state-price log-odds quadratic
-variation *is* the physical event clock. Under the partial-recovery
-bound of the working paper — valuation-wedge quadratic variation no
-larger than \\\varepsilon^2\\ times the physical clock — the sharp
-implied interval for the clock is
-\$\$\big((1-\varepsilon)\_+\big)^2\\\widehat{A} \\\le\\ A \\\le\\
-(1+\varepsilon)^2\\\widehat{A},\$\$ where \\\widehat{A}\\ is the
-measured log-odds variation. Exact recovery is \\\varepsilon = 0\\.
+A traded event price can move for two reasons: news about the outcome,
+or a change in how the market values the two outcomes relative to each
+other. Under *exact recovery* only the first moves log odds
+continuously, and the measured log-odds variation *is* the physical
+Event Clock. *Partial recovery* allows the valuation gap to contribute
+too, but at most a fraction \\\delta^2\\ of the measured variation,
+\\\[\upsilon\]^c \le \delta^2 \[L\]^c\\. The physical clock then lies in
+the sharp interval \$\$(1-\delta)\_+^2\\\widehat{A} \\\le\\ A \\\le\\
+(1+\delta)^2\\\widehat{A},\$\$ where \\\widehat{A}\\ is the measured
+log-odds variation. Exact recovery is \\\delta = 0\\. The lower end is
+the "low-clock endpoint" used for conservative sensitivity analysis: at
+\\\delta = 0.5\\ it scales the measured clock by \\(1 - 0.5)^2 = 0.25\\.
 
 ## Usage
 
 ``` r
-ec_recovery_set(A, eps = c(0, 0.1, 0.25, 0.5))
+ec_recovery_set(A, delta = c(0, 0.1, 0.25, 0.5), eps = NULL)
 ```
 
 ## Arguments
@@ -20,33 +24,45 @@ ec_recovery_set(A, eps = c(0, 0.1, 0.25, 0.5))
 - A:
 
   Measured log-odds quadratic variation (e.g. the `A` column of
-  [`event_clock()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/event_clock.md)).
+  [`event_clock()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/event_clock.md),
+  or a forecast from
+  [`event_clock_forecast()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/event_clock_forecast.md)).
+
+- delta:
+
+  Partial-recovery bound(s) \\\delta \ge 0\\; the default is a
+  sensitivity grid up to the deliberately wide \\\delta = 0.5\\.
 
 - eps:
 
-  Partial-recovery bound(s) \\\varepsilon \ge 0\\; the default
-  reproduces the working paper's sensitivity grid.
+  Deprecated alias for `delta` (the argument name used up to version
+  0.4.0).
 
 ## Value
 
-A tibble with columns `A`, `eps`, `lower`, `upper` (one row per `A`
-\\\times\\ `eps` combination).
+A tibble with columns `A`, `delta`, `lower`, `upper` (one row per `A`
+\\\times\\ `delta` combination).
+
+## References
+
+Hanke, Schadner, Stöckl, and Weissensteiner (Working Paper), "The Event
+Clock: What State Prices Identify About Physical Information".
 
 ## Examples
 
 ``` r
 ec_recovery_set(0.511)                   # Brexit 1M clock
 #> # A tibble: 4 × 4
-#>       A   eps lower upper
+#>       A delta lower upper
 #>   <dbl> <dbl> <dbl> <dbl>
 #> 1 0.511  0    0.511 0.511
 #> 2 0.511  0.1  0.414 0.618
 #> 3 0.511  0.25 0.287 0.798
 #> 4 0.511  0.5  0.128 1.15 
-ec_recovery_set(c(0.064, 0.166), eps = 0.25)
+ec_recovery_set(c(0.064, 0.166), delta = 0.5)
 #> # A tibble: 2 × 4
-#>       A   eps  lower upper
+#>       A delta  lower upper
 #>   <dbl> <dbl>  <dbl> <dbl>
-#> 1 0.064  0.25 0.036  0.1  
-#> 2 0.166  0.25 0.0934 0.259
+#> 1 0.064   0.5 0.016  0.144
+#> 2 0.166   0.5 0.0415 0.374
 ```

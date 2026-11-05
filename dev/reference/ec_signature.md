@@ -1,4 +1,4 @@
-# Sampling-frequency signature of the event clock
+# Sampling-frequency signature of the Event Clock
 
 Computes the clock estimate \\\widehat A\\ across sampling frequencies —
 the analogue of the volatility signature plot. For each subsampling step

@@ -5,6 +5,7 @@
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//articles/eventclock-brexit.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//articles/eventclock-event-betas.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//articles/eventclock-event-spanning.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//articles/eventclock-measurement.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//articles/eventclock-validation.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//articles/index.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//authors.html</loc></url>
@@ -17,9 +18,12 @@
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_default_params.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_delta_to_k.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_exceedance.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_forecast_rules.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_forecast_select.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_iv_rule.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_logit.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_mix_price.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_mix_price_pre.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_moments.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_recovery_set.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_relevance.html</loc></url>
@@ -38,9 +42,15 @@
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/event_clock.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/event_clock_forecast.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/event_clock_path.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/event_clock_staggered.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/event_clock_venues.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/event_clock_venues_path.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/eventclock-package.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/fomc_meetings.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/index.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/kalshi2024.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ks_markets.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ks_prices.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/plot_clock.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/plot_clock_vs_calendar.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/plot_q.html</loc></url>
@@ -54,5 +64,6 @@
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/q_from_ffutures.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/q_from_price.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/us2016.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/us2016_surfaces_sim.html</loc></url>
 </urlset>
 

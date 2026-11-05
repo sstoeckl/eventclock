@@ -5,17 +5,23 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Event-spanning options: estimating the event exposure • eventclock</title>
+<title>Event-spanning options: estimating an asset's exposure to an event • eventclock</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Event-spanning options: estimating the event exposure">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Event-spanning options: estimating an asset's exposure to an event">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -25,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">eventclock</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,10 +44,11 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/eventclock-brexit.html">Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket</a></li>
-    <li><a class="dropdown-item" href="../articles/eventclock-event-betas.html">Event betas: assets on the event clock</a></li>
-    <li><a class="dropdown-item" href="../articles/eventclock-event-spanning.html">Event-spanning options: estimating the event exposure</a></li>
-    <li><a class="dropdown-item" href="../articles/eventclock-validation.html">Validating the event-clock estimator</a></li>
+<li><a class="dropdown-item" href="../articles/eventclock-brexit.html">Getting started: the Event Clock for Brexit, the 2016 U.S. election, and Polymarket</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-measurement.html">Measuring the Event Clock in practice: sampling, forecasts, and two venues</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-validation.html">Does the estimator work? Validation on simulated data</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-event-betas.html">Event betas: which assets move with the event probability?</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-event-spanning.html">Event-spanning options: estimating an asset's exposure to an event</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -63,7 +70,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Event-spanning options: estimating the event exposure</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Event-spanning options: estimating an asset's exposure to an event</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/sstoeckl/eventclock/blob/dev/vignettes/eventclock-event-spanning.Rmd" class="external-link"><code>vignettes/eventclock-event-spanning.Rmd</code></a></small>
@@ -73,63 +80,96 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/sstoeckl/eventclock" class="external-link">eventclock</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/sstoeckl/eventclock" class="external-link">eventclock</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="two-kinds-of-options-around-a-scheduled-event">Two kinds of options around a scheduled event<a class="anchor" aria-label="anchor" href="#two-kinds-of-options-around-a-scheduled-event"></a>
+<h2 id="how-much-does-an-asset-care-about-an-event">How much does an asset care about an event?<a class="anchor" aria-label="anchor" href="#how-much-does-an-asset-care-about-an-event"></a>
 </h2>
-<p>An option that expires <em>after</em> a scheduled event is exposed to
-the realized outcome itself: its price depends on how the asset is
-distributed conditional on each outcome. An option that expires
-<em>before</em> resolution is exposed only to <em>learning</em> —
-revisions in the event probability while the option is alive. The
-working paper’s sequential design keeps these roles strictly
-separate:</p>
-<ol style="list-style-type: decimal">
-<li>the traded event market supplies the state-price-implied event
-probability
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mi>t</mi></msub><annotation encoding="application/x-tex">q_t</annotation></semantics></math>
-and, via the event clock, the information-flow input
-(<code><a href="../reference/q_from_price.html">q_from_price()</a></code>, <code><a href="../reference/event_clock.html">event_clock()</a></code>);</li>
+<p>Scheduled binary events — elections, referendums, central-bank or
+court decisions, merger votes, drug approvals — move asset prices
+through a simple question: <em>how much would this asset be worth under
+outcome 1 (the event happens) and how much under outcome 2 (it does
+not)?</em> Write <span class="math inline">\(\eta_1\)</span> and <span class="math inline">\(\eta_2\)</span> for those two values as multiples
+of today’s value. (In the transition law of
+<code><a href="../articles/eventclock-brexit.html">vignette("eventclock-brexit")</a></code>, outcome 1 is <span class="math inline">\(J = 1\)</span> and outcome 2 is <span class="math inline">\(J = 0\)</span>.) This vignette measures their
+ratio from option prices, on a log scale: <span class="math display">\[
+  \theta \;=\; \log\!\big(\eta_1 / \eta_2\big).
+\]</span> We call <span class="math inline">\(\theta\)</span> the
+<strong>log exposure</strong>. A stock worth 10% more under outcome 1
+than under outcome 2 has <span class="math inline">\(\theta \approx
+0.10\)</span>; an index that barely cares has <span class="math inline">\(\theta \approx 0\)</span>. The sign says
+<em>which</em> outcome the asset favors, the magnitude <em>how much</em>
+is at stake. (<code><a href="../articles/eventclock-event-betas.html">vignette("eventclock-event-betas")</a></code> estimates
+the <em>exposure</em> from stock returns as the difference <span class="math inline">\(\Delta\eta = \eta_1 - \eta_2\)</span>; the two
+measures are linked exactly by <span class="math inline">\(\Delta\eta =
+(e^\theta - 1)/(q e^\theta + 1 - q)\)</span>.)</p>
+<p>The key idea is <strong>which options to use</strong>. An option that
+expires <em>after</em> the event is exposed to the outcome itself: its
+price mixes the asset’s two possible distributions, and that mixture is
+what identifies <span class="math inline">\(\theta\)</span>. An option
+that expires <em>before</em> the event never sees the outcome; it is
+exposed only to <em>learning</em> — revisions in the event probability
+while it is alive. Estimating <span class="math inline">\(\theta\)</span> from options that span the event
+<strong>only</strong>, and leaving the shorter options out, keeps the
+shorter options available as a genuine out-of-sample test of the
+learning channel (the “held-out” test below).</p>
+<p><strong>What you need.</strong> One long table of option smiles for
+expiries <em>after</em> the event date, one row per smile point, with
+columns:</p>
+<ul>
 <li>
-<strong>event-spanning options identify the outcome-conditional
-asset distributions</strong> — this vignette;</li>
-<li>pre-resolution options and the underlying are <em>held out</em> and
-used as overidentifying restrictions, not as calibration
-instruments.</li>
-</ol>
-<p>This vignette covers step 2: the lognormal event mixture, the
-<strong>event exposure</strong>
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mn>1</mn></msub><mi>/</mi><msub><mi>m</mi><mn>2</mn></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
-  \theta \;=\; \log\!\big(m_1 / m_2\big),
-</annotation></semantics></math> the log ratio of the
-outcome-conditional risk-neutral means of the event multiplier, and how
-to estimate a common
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
-from a panel of event-spanning option surfaces.</p>
+<code>surface</code> — an identifier of the smile (valuation date ×
+expiry);</li>
+<li>
+<code>k</code> — log moneyness <span class="math inline">\(\log(K/F)\)</span>, strike over forward (or a
+delta grid, converted with <code><a href="../reference/ec_delta_to_k.html">ec_delta_to_k()</a></code>, see
+below);</li>
+<li>
+<code>iv</code> — the implied volatility: annualized if you also
+supply <code>tau</code>, the time to expiry in years; without
+<code>tau</code> it is read as total dispersion, volatility × <span class="math inline">\(\sqrt{\tau}\)</span>;</li>
+<li>
+<code>q</code> — the event probability on the valuation date
+(e.g. from Polymarket via <code><a href="../reference/pm_prices.html">pm_prices()</a></code>, or
+<code><a href="../reference/q_from_price.html">q_from_price()</a></code>);</li>
+<li>optionally <code>w</code> — a weight per point (for instance the
+number of quotes behind it), and <code>iv_bid</code>,
+<code>iv_ask</code> — the quotes’ bid and ask implied volatilities.</li>
+</ul>
+<p>Five or more points per smile are enough. No proprietary option data
+ships with the package; the examples below are simulated. A realistic
+simulated panel looks like this:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">us2016_surfaces_sim</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">us2016_surfaces_sim</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 6</span></span></span>
+<span><span class="co">#&gt;   event_date obs_date   expiry_date  node    iv     q</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2016-11-08 2016-10-11 2016-11-18    0.1 0.110 0.164</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2016-11-08 2016-10-11 2016-11-18    0.2 0.113 0.164</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2016-11-08 2016-10-11 2016-11-18    0.3 0.117 0.164</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2016-11-08 2016-10-11 2016-11-18    0.4 0.116 0.164</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="the-lognormal-event-mixture">The lognormal event mixture<a class="anchor" aria-label="anchor" href="#the-lognormal-event-mixture"></a>
+<h2 id="the-model-a-mixture-of-two-outcomes">The model: a mixture of two outcomes<a class="anchor" aria-label="anchor" href="#the-model-a-mixture-of-two-outcomes"></a>
 </h2>
-<p>Normalize the terminal asset value by its forward. Conditional on
-outcome 1 (probability
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>)
-the gross event multiplier is lognormal with conditional mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>m</mi><mn>1</mn></msub><annotation encoding="application/x-tex">m_1</annotation></semantics></math>
-and total dispersion
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mn>1</mn></msub><annotation encoding="application/x-tex">s_1</annotation></semantics></math>;
-conditional on outcome 2 it is lognormal with mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>m</mi><mn>2</mn></msub><annotation encoding="application/x-tex">m_2</annotation></semantics></math>
-and dispersion
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mn>2</mn></msub><annotation encoding="application/x-tex">s_2</annotation></semantics></math>.
-The pricing-measure adding-up (scale) normalization
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mspace width="0.167em"></mspace><msub><mi>m</mi><mn>1</mn></msub><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msub><mi>m</mi><mn>2</mn></msub><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mn>1</mn></mrow><annotation encoding="application/x-tex">
-  q\,m_1 + (1-q)\,m_2 \;=\; 1
-</annotation></semantics></math> fixes the level, so
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>q</mi><mo>,</mo><mi>θ</mi><mo>,</mo><msub><mi>s</mi><mn>1</mn></msub><mo>,</mo><msub><mi>s</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(q, \theta, s_1, s_2)</annotation></semantics></math>
-fully parametrize the mixture. <code><a href="../reference/ec_mix_price.html">ec_mix_price()</a></code> prices
-forward-normalized European options; <code><a href="../reference/ec_mix_price.html">ec_mix_iv()</a></code> converts
-them into Black implied dispersions:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<p>Divide the asset’s value at expiry by today’s forward price. If
+outcome 1 happens (probability <span class="math inline">\(q\)</span>),
+that ratio is lognormal with mean <span class="math inline">\(\eta_1\)</span> and <em>total dispersion</em>
+<span class="math inline">\(s_1\)</span> — the standard deviation of the
+log return over the option’s remaining life, i.e. annualized volatility
+times <span class="math inline">\(\sqrt{\tau}\)</span>. If outcome 2
+happens, it is lognormal with mean <span class="math inline">\(\eta_2\)</span> and dispersion <span class="math inline">\(s_2\)</span>. Averaged over the two outcomes the
+asset must be worth its forward, <span class="math inline">\(q\eta_1 +
+(1-q)\eta_2 =
+1\)</span>, so <span class="math inline">\((q, \theta, s_1,
+s_2)\)</span> describe the mixture completely.</p>
+<p><code><a href="../reference/ec_mix_price.html">ec_mix_price()</a></code> prices European calls and puts under this
+mixture, per unit of forward and without discounting;
+<code><a href="../reference/ec_mix_price.html">ec_mix_iv()</a></code> turns the prices into implied volatilities in
+total-dispersion units (divide by <span class="math inline">\(\sqrt{\tau}\)</span> for the usual annualized
+number):</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.6</span>, by <span class="op">=</span> <span class="fl">0.04</span><span class="op">)</span></span>
 <span><span class="va">smile</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="fu"><a href="../reference/ec_mix_price.html">ec_mix_iv</a></span><span class="op">(</span><span class="va">k</span>, q <span class="op">=</span> <span class="fl">0.35</span>, theta <span class="op">=</span> <span class="va">theta</span>,</span>
 <span>                                   s1 <span class="op">=</span> <span class="fl">0.25</span>, s2 <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span>
@@ -139,75 +179,48 @@ them into Black implied dispersions:</p>
 <span>  theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"theta = 0"</span>, <span class="st">"theta = 0.5"</span>, <span class="st">"theta = 1.0"</span><span class="op">)</span>,</span>
 <span>                     each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">k</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">dat</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">k</span>, <span class="va">iv</span>, colour <span class="op">=</span> <span class="va">theta</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"log-forward moneyness k"</span>, y <span class="op">=</span> <span class="st">"total implied dispersion"</span>,</span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"log moneyness k = log(K/F)"</span>, y <span class="op">=</span> <span class="st">"total implied dispersion"</span>,</span>
 <span>       colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eventclock-event-spanning_files/figure-html/smiles-1.png" class="r-plt" alt="Implied-dispersion smiles of the event mixture for increasing event exposure" width="672"></p>
-<p>With
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\theta = 0</annotation></semantics></math>
-the mixture collapses to a single lognormal and the smile is flat. A
-nonzero exposure adds the two-point outcome spread on top of the
-conditional dispersions: the smile rises and, away from
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>1</mn><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">q = 1/2</annotation></semantics></math>,
-becomes asymmetric. That asymmetry is exactly what the surface fit
-uses.</p>
-<p>Two useful identities connect this family to the rest of the
-package:</p>
-<ul>
-<li>
-<strong>to first order,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
-is the event beta.</strong> The returns-based exposure of
-<code><a href="../reference/event_beta.html">event_beta()</a></code> estimates
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>η</mi><mo>=</mo><msub><mi>η</mi><mn>1</mn></msub><mo>−</mo><msub><mi>η</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\Delta\eta = \eta_1 -
-\eta_2</annotation></semantics></math>, and for small exposures
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>η</mi><mo>≈</mo><mi>θ</mi></mrow><annotation encoding="application/x-tex">\Delta\eta \approx \theta</annotation></semantics></math>:
-the two measurements are the same object seen from returns and from
-option smiles;</li>
-<li>
-<strong>the event contributes
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msup><mi>θ</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">q(1-q)\,\theta^2</annotation></semantics></math>
-of total log variance</strong> (exactly, when the conditional
-dispersions coincide) — the basis of the quick estimator below.</li>
-</ul>
+<p><img src="eventclock-event-spanning_files/figure-html/smiles-1.png" class="r-plt" alt="Implied-dispersion smiles of the event mixture for increasing log exposure" width="672"></p>
+<p>With <span class="math inline">\(\theta = 0\)</span> the two outcomes
+look alike and the smile is flat. A nonzero exposure spreads the two
+outcomes apart: the smile rises and, unless <span class="math inline">\(q = 1/2\)</span>, tilts to one side. That shape is
+what the estimation uses. A useful identity: when <span class="math inline">\(s_1 = s_2\)</span>, the event adds exactly <span class="math inline">\(q(1-q)\,\theta^2\)</span> to the variance of the
+log return — the basis of the quick estimator further below.</p>
 </div>
 <div class="section level2">
 <h2 id="delta-grids">Delta grids<a class="anchor" aria-label="anchor" href="#delta-grids"></a>
 </h2>
-<p>Standardized option surfaces are usually delivered on a
-(call-equivalent) delta grid rather than in strikes.
-<code><a href="../reference/ec_delta_to_k.html">ec_delta_to_k()</a></code> maps the grid into log-forward moneyness,
-node by node, using the node’s own total dispersion — so no forward
-reconstruction is needed:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p>Standardized option surfaces are usually delivered on a delta grid
+instead of strikes: a call delta of 0.1 is a far out-of-the-money call,
+0.5 roughly at the money, 0.9 deep in the money (equivalently, a far
+out-of-the-money put). <code><a href="../reference/ec_delta_to_k.html">ec_delta_to_k()</a></code> maps each node into
+log moneyness using that node’s own total dispersion — no forward
+reconstruction needed. It assumes the undiscounted forward delta <span class="math inline">\(N(d_1)\)</span> of the Black model; vendor spot or
+discounted deltas differ slightly.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.32</span>, <span class="fl">0.29</span>, <span class="fl">0.27</span>, <span class="fl">0.26</span>, <span class="fl">0.27</span><span class="op">)</span>   <span class="co"># annualized, 30 days to expiry</span></span>
 <span><span class="va">tau</span> <span class="op">&lt;-</span> <span class="fl">30</span> <span class="op">/</span> <span class="fl">365</span></span>
-<span><span class="va">node</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.7</span>, <span class="fl">0.9</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/ec_delta_to_k.html">ec_delta_to_k</a></span><span class="op">(</span><span class="va">node</span>, s <span class="op">=</span> <span class="va">iv</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tau</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">node</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.7</span>, <span class="fl">0.9</span><span class="op">)</span>      <span class="co"># call deltas</span></span>
+<span><span class="fu"><a href="../reference/ec_delta_to_k.html">ec_delta_to_k</a></span><span class="op">(</span><span class="va">node</span>, s <span class="op">=</span> <span class="va">iv</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tau</span><span class="op">)</span><span class="op">)</span> <span class="co"># s = total dispersion</span></span>
 <span><span class="co">#&gt; [1]  0.12177923  0.04705504  0.00299589 -0.03631057 -0.09620465</span></span></code></pre></div>
-<p>Put deltas enter as call-equivalent deltas,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mo>=</mo><mn>1</mn><mo>+</mo><msub><mi>δ</mi><mrow><mi>p</mi><mi>u</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\Delta = 1 +
-\delta_{put}</annotation></semantics></math>, so a standard OTM
-composite smile (calls below 0.5, puts above) becomes one monotone
-grid.</p>
+<p>Put deltas enter as call-equivalent deltas, <span class="math inline">\(1 + \delta_{put}\)</span>, so a standard
+out-of-the-money composite smile (calls below 0.5, puts above) becomes
+one grid.</p>
 </div>
 <div class="section level2">
-<h2 id="estimating-a-common-exposure-from-spanning-surfaces">Estimating a common exposure from spanning surfaces<a class="anchor" aria-label="anchor" href="#estimating-a-common-exposure-from-spanning-surfaces"></a>
+<h2 id="estimating-one-log-exposure-from-many-smiles">Estimating one log exposure from many smiles<a class="anchor" aria-label="anchor" href="#estimating-one-log-exposure-from-many-smiles"></a>
 </h2>
-<p>The working paper’s design gives every surface (one valuation date,
-one event-spanning expiry) its own conditional dispersions, while the
-exposure
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
-is restricted to be <strong>common across all surfaces</strong>; the
-objective is surface balanced, so each surface counts equally.
-<code><a href="../reference/ec_theta_fit.html">ec_theta_fit()</a></code> implements exactly this. Here we simulate a
-small clean panel with a known
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><mn>0.8</mn></mrow><annotation encoding="application/x-tex">\theta = 0.8</annotation></semantics></math>
-and recover it:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p><code><a href="../reference/ec_theta_fit.html">ec_theta_fit()</a></code> gives every smile its own dispersions
+<span class="math inline">\(s_1, s_2\)</span> but asks all smiles to
+share <strong>one</strong> exposure <span class="math inline">\(\theta\)</span>; each smile counts equally,
+however many points it has. Here we simulate three clean smiles with a
+known <span class="math inline">\(\theta = 0.8\)</span> and recover
+it:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">k7</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, length.out <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span>
 <span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  surface <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"oct25_nov15"</span>, <span class="st">"oct28_nov15"</span>, <span class="st">"nov01_nov22"</span><span class="op">)</span>,</span>
@@ -218,108 +231,258 @@ and recover it:</p>
 <span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>    surface <span class="op">=</span> <span class="va">cfg</span><span class="op">$</span><span class="va">surface</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, k <span class="op">=</span> <span class="va">k7</span>, q <span class="op">=</span> <span class="va">cfg</span><span class="op">$</span><span class="va">q</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span>
-<span>    iv <span class="op">=</span> <span class="fu"><a href="../reference/ec_mix_price.html">ec_mix_iv</a></span><span class="op">(</span><span class="va">k7</span>, <span class="va">cfg</span><span class="op">$</span><span class="va">q</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, theta <span class="op">=</span> <span class="fl">0.8</span>, <span class="va">cfg</span><span class="op">$</span><span class="va">s1</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">cfg</span><span class="op">$</span><span class="va">s2</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>    iv <span class="op">=</span> <span class="fu"><a href="../reference/ec_mix_price.html">ec_mix_iv</a></span><span class="op">(</span><span class="va">k7</span>, <span class="va">cfg</span><span class="op">$</span><span class="va">q</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, theta <span class="op">=</span> <span class="fl">0.8</span>,</span>
+<span>                   s1 <span class="op">=</span> <span class="va">cfg</span><span class="op">$</span><span class="va">s1</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, s2 <span class="op">=</span> <span class="va">cfg</span><span class="op">$</span><span class="va">s2</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_theta_fit.html">ec_theta_fit</a></span><span class="op">(</span><span class="va">panel</span><span class="op">)</span></span>
 <span><span class="va">fit</span></span>
 <span><span class="co">#&gt; -- Event-spanning mixture fit (3 surfaces, 21 nodes)</span></span>
-<span><span class="co">#&gt; Common event exposure theta = 0.8000 (conditional-mean ratio m1/m2 = 2.226)</span></span>
-<span><span class="co">#&gt; Surface-balanced RMSE = 0.0000 (IV units of the input)</span></span></code></pre></div>
-<p>The per-surface table reports the fitted conditional dispersions and
-per-surface fit quality:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit</span><span class="op">$</span><span class="va">surfaces</span></span>
+<span><span class="co">#&gt; Common log exposure theta = 0.8000 (conditional-mean ratio eta1/eta2 = 2.226)</span></span>
+<span><span class="co">#&gt; Surface-balanced RMSE = 0.0000 (IV units of the input)</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">surfaces</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 7</span></span></span>
 <span><span class="co">#&gt;   surface         q     n theta    s1    s2       rmse</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> oct25_nov15  0.4      7 0.800 0.280 0.350 0.000<span style="text-decoration: underline;">001</span>76</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> oct28_nov15  0.45     7 0.800 0.270 0.330 0.000<span style="text-decoration: underline;">002</span>48</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> nov01_nov22  0.42     7 0.800 0.300 0.380 0.000<span style="text-decoration: underline;">001</span>56</span></span></code></pre></div>
-<p>Supply annualized IVs together with a <code>tau</code> column (years
-to expiry) to work in annualized units, and a <code>w</code> column (for
-instance the number of quotes behind each node) to weight nodes within a
-surface.</p>
-<p><code>common = FALSE</code> is the free-ratio diagnostic: every
-surface picks its own
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>,
-and the comparison with the common fit shows how much the cross-surface
-restriction costs — in the working paper’s 2024 application the
-deterioration is modest while the common ratio is stable across
-maturities, which is what makes the exposure credible.</p>
-<p><strong>Sign identification.</strong> At
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>1</mn><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">q = 1/2</annotation></semantics></math>
-the mixture is observationally symmetric in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo>,</mo><msub><mi>s</mi><mn>1</mn></msub><mo>,</mo><msub><mi>s</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>↦</mo><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi>θ</mi><mo>,</mo><msub><mi>s</mi><mn>2</mn></msub><mo>,</mo><msub><mi>s</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\theta, s_1, s_2) \mapsto (-\theta, s_2, s_1)</annotation></semantics></math>:
-option prices alone cannot say which outcome the asset favors. When
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
-is close to one half, fix the sign externally — the returns-based
-<code><a href="../reference/event_beta.html">event_beta()</a></code> against the same event-probability series is
-the natural source.</p>
+<p>The per-smile table shows the fitted dispersions and fit quality.
+With a <code>tau</code> column, <code>iv</code> is read as annualized;
+<code>fit$nodes</code> holds the fitted value of every point, and with
+<code>iv_bid</code>/<code>iv_ask</code> columns
+<code>fit$inside_share</code> reports how many fitted values fall inside
+the quotes. <code>boot_reps</code> together with <code>block</code> —
+the name of a column holding the valuation date,
+e.g. <code>boot_reps = 200, block = "obs_date"</code> for
+<code>us2016_surfaces_sim</code> (keep that column in the data you pass)
+— adds a bootstrap confidence interval that resamples whole valuation
+dates.</p>
+<p><strong>Is one exposure enough?</strong> <code>common = FALSE</code>
+lets every smile choose its own <span class="math inline">\(\theta\)</span>; if those estimates scatter around
+the common one, the restriction is supported. <strong>Which outcome does
+the asset favor?</strong> At <span class="math inline">\(q =
+1/2\)</span> the mixture is symmetric — swapping the outcomes (and their
+dispersions) gives the same prices — so options alone cannot tell the
+sign. When <span class="math inline">\(q\)</span> is close to one half,
+take the sign from returns (<code><a href="../reference/event_beta.html">event_beta()</a></code>).</p>
+</div>
+<div class="section level2">
+<h2 id="a-realistic-example-the-sp-500-and-the-2016-u-s--election">A realistic example: the S&amp;P 500 and the 2016 U.S. election<a class="anchor" aria-label="anchor" href="#a-realistic-example-the-sp-500-and-the-2016-u-s--election"></a>
+</h2>
+<p><code>us2016_surfaces_sim</code> holds 47 simulated smiles (valuation
+dates over the last four weeks before the 2016 U.S. presidential
+election, three expiries after it, nine delta nodes each) that match the
+profile of S&amp;P 500 index options at the time. They were generated
+from the mixture model, with parameters estimated on index options as
+calibration targets, so the numbers are realistic but synthetic. Outcome
+1 is a Trump win; <code>q</code> is the betting-market probability of it
+(between 0.15 and 0.29).</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">s16</span> <span class="op">&lt;-</span> <span class="va">us2016_surfaces_sim</span></span>
+<span><span class="va">s16</span><span class="op">$</span><span class="va">tau</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">s16</span><span class="op">$</span><span class="va">expiry_date</span> <span class="op">-</span> <span class="va">s16</span><span class="op">$</span><span class="va">obs_date</span><span class="op">)</span> <span class="op">/</span> <span class="fl">365</span></span>
+<span><span class="va">s16</span><span class="op">$</span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_delta_to_k.html">ec_delta_to_k</a></span><span class="op">(</span><span class="va">s16</span><span class="op">$</span><span class="va">node</span>, <span class="va">s16</span><span class="op">$</span><span class="va">iv</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">s16</span><span class="op">$</span><span class="va">tau</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">s16</span><span class="op">$</span><span class="va">surface</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">s16</span><span class="op">$</span><span class="va">obs_date</span>, <span class="va">s16</span><span class="op">$</span><span class="va">expiry_date</span><span class="op">)</span></span>
+<span><span class="va">fit16</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_theta_fit.html">ec_theta_fit</a></span><span class="op">(</span><span class="va">s16</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"surface"</span>, <span class="st">"k"</span>, <span class="st">"iv"</span>, <span class="st">"q"</span>, <span class="st">"tau"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">fit16</span></span>
+<span><span class="co">#&gt; -- Event-spanning mixture fit (47 surfaces, 423 nodes)</span></span>
+<span><span class="co">#&gt; Common log exposure theta = -0.0781 (conditional-mean ratio eta1/eta2 = 0.925)</span></span>
+<span><span class="co">#&gt; Surface-balanced RMSE = 0.0035 (IV units of the input)</span></span></code></pre></div>
+<p>The common log exposure is <span class="math inline">\(\theta
+\approx\)</span> -0.078: conditional on a Trump win, the index was
+priced about 7.5% lower than conditional on a Clinton win. How precise
+is that? Letting each smile choose its own exposure shows how tightly
+the 47 smiles agree:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">free16</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_theta_fit.html">ec_theta_fit</a></span><span class="op">(</span><span class="va">s16</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"surface"</span>, <span class="st">"k"</span>, <span class="st">"iv"</span>, <span class="st">"q"</span>, <span class="st">"tau"</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>                       common <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">free16</span><span class="op">$</span><span class="va">surfaces</span><span class="op">$</span><span class="va">theta</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. </span></span>
+<span><span class="co">#&gt; -0.09030 -0.07965 -0.07775 -0.07781 -0.07649 -0.06665</span></span></code></pre></div>
+<p>With <span class="math inline">\(q\)</span> far from one half, the
+sign is identified from the smiles’ tilt, and it agrees with how index
+futures actually moved on election night. The fitted dispersions add a
+second finding:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit16</span><span class="op">$</span><span class="va">surfaces</span><span class="op">$</span><span class="va">s1</span> <span class="op">-</span> <span class="va">fit16</span><span class="op">$</span><span class="va">surfaces</span><span class="op">$</span><span class="va">s2</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. </span></span>
+<span><span class="co">#&gt; -0.01021  0.01320  0.01919  0.02216  0.02921  0.05632</span></span></code></pre></div>
+<p><span class="math inline">\(s_1 &gt; s_2\)</span> almost everywhere:
+options priced more volatility after a Trump win than after a Clinton
+win.</p>
 </div>
 <div class="section level2">
 <h2 id="the-quick-estimator-the-variance-hump">The quick estimator: the variance hump<a class="anchor" aria-label="anchor" href="#the-quick-estimator-the-variance-hump"></a>
 </h2>
-<p>Often an existing pipeline already computes a <em>maturity hump</em>
-— how much higher the event-spanning expiry’s volatility is than its
-neighbors’. Worked in <strong>total variance</strong> units (not
-annualized volatilities), that hump is the event’s variance contribution
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msup><mi>θ</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">q(1-q)\,\theta^2</annotation></semantics></math>,
-and <code><a href="../reference/ec_theta_hump.html">ec_theta_hump()</a></code> inverts it:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p>Many pipelines already compute a <em>maturity hump</em> — how much
+higher the implied volatility of the expiry that spans the event is than
+its neighbors’. Expressed in <strong>total variance</strong> (annualized
+variance times <span class="math inline">\(\tau\)</span>), not in
+annualized volatility, the hump is the event’s contribution <span class="math inline">\(q(1-q)\,\theta^2\)</span>, and
+<code><a href="../reference/ec_theta_hump.html">ec_theta_hump()</a></code> inverts it. The no-event baseline at the
+same maturity can be interpolated from the total variances of the
+neighboring expiries that do not span the event:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tau_b</span> <span class="op">&lt;-</span> <span class="fl">35</span> <span class="op">/</span> <span class="fl">365</span></span>
-<span><span class="va">iv_spanning</span> <span class="op">&lt;-</span> <span class="fl">0.21</span>   <span class="co"># event-spanning ATM, annualized</span></span>
+<span><span class="va">iv_spanning</span> <span class="op">&lt;-</span> <span class="fl">0.21</span>   <span class="co"># expiry spanning the event, at the money, annualized</span></span>
 <span><span class="va">iv_baseline</span> <span class="op">&lt;-</span> <span class="fl">0.15</span>   <span class="co"># no-event baseline at the same maturity</span></span>
 <span><span class="va">dvar</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">iv_spanning</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="va">iv_baseline</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="va">tau_b</span></span>
 <span><span class="fu"><a href="../reference/ec_theta_hump.html">ec_theta_hump</a></span><span class="op">(</span><span class="va">dvar</span>, q <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.09289853</span></span></code></pre></div>
-<p>This is a first-order magnitude estimate — it needs no optimization
-and no wing data, which makes it the natural first pass over a large
-cross-section before running the full surface fit on the assets that
-matter. It identifies
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>θ</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|\theta|</annotation></semantics></math>
-only; the sign again comes from <code><a href="../reference/event_beta.html">event_beta()</a></code>.</p>
+<p>A hump of six volatility points over five weeks corresponds to <span class="math inline">\(|\theta| \approx\)</span> 0.09: the asset is worth
+about 9–10% more under one outcome than under the other. No optimization
+and no smile wings are needed, which makes this the natural first pass
+over a large cross-section; it gives the size of <span class="math inline">\(\theta\)</span> only, and the sign again comes
+from returns.</p>
 </div>
 <div class="section level2">
-<h2 id="clock-sensitivity-partial-recovery">Clock sensitivity: partial recovery<a class="anchor" aria-label="anchor" href="#clock-sensitivity-partial-recovery"></a>
+<h2 id="pricing-options-that-expire-before-the-event">Pricing options that expire before the event<a class="anchor" aria-label="anchor" href="#pricing-options-that-expire-before-the-event"></a>
 </h2>
-<p>The spanning estimation uses only the <em>level</em>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mi>t</mi></msub><annotation encoding="application/x-tex">q_t</annotation></semantics></math>.
-As soon as the estimated exposure feeds a pre-resolution learning
-exercise, the event clock enters, and the measured log-odds variation
-identifies the physical clock only under the exact-recovery restriction.
-The working paper’s sensitivity grid replaces the point clock with the
-sharp partial-recovery interval, which <code><a href="../reference/ec_recovery_set.html">ec_recovery_set()</a></code>
-tabulates:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/ec_recovery_set.html">ec_recovery_set</a></span><span class="op">(</span><span class="fl">0.511</span><span class="op">)</span>   <span class="co"># the Brexit one-month clock</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 4</span></span></span>
-<span><span class="co">#&gt;       A   eps lower upper</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.511  0    0.511 0.511</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.511  0.1  0.414 0.618</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.511  0.25 0.287 0.798</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0.511  0.5  0.128 1.15</span></span></code></pre></div>
-<p>At <code>eps = 0</code> (exact recovery) the interval degenerates to
-the measured value; wider bounds propagate economically motivated
-uncertainty about state-dependent valuation into everything
-downstream.</p>
+<p>With <span class="math inline">\(\theta\)</span> in hand, the next
+question is what it implies for the options that were <em>not</em> used
+in the estimation: those expiring before the event. While such an option
+is alive, the event probability keeps moving with the news, and the
+asset moves with it. <code><a href="../reference/ec_mix_price_pre.html">ec_mix_price_pre()</a></code> and
+<code><a href="../reference/ec_mix_price_pre.html">ec_mix_iv_pre()</a></code> price this exactly under the package’s
+model of how the probability evolves
+(<code><a href="../reference/ec_transition_density.html">ec_transition_density()</a></code>). Their inputs: <code>A</code>,
+the Event Clock time expected over the option’s remaining life (for
+instance from <code><a href="../reference/event_clock_forecast.html">event_clock_forecast()</a></code>), and
+<code>s_cf</code>, the asset’s ordinary total dispersion without the
+event (“cf” for counterfactual):</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pre</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.5</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pre</span><span class="op">$</span><span class="va">iv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_mix_price_pre.html">ec_mix_iv_pre</a></span><span class="op">(</span><span class="fl">0</span>, q <span class="op">=</span> <span class="fl">0.45</span>, theta <span class="op">=</span> <span class="fl">0.8</span>, A <span class="op">=</span> <span class="va">pre</span><span class="op">$</span><span class="va">A</span>, s_cf <span class="op">=</span> <span class="fl">0.20</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pre</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">A</span>, <span class="va">iv</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0.20</span>, linetype <span class="op">=</span> <span class="fl">2</span>, color <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"#2c3e50"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"#2c3e50"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Event Clock time A over the option's life"</span>,</span>
+<span>       y <span class="op">=</span> <span class="st">"at-the-money total implied dispersion"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
+<p><img src="eventclock-event-spanning_files/figure-html/prelearning-1.png" class="r-plt" alt="Pre-resolution ATM implied dispersion as a function of the clock over the option's life" width="672"></p>
+<p><code>A = 0</code> is the <strong>no-learning benchmark</strong>
+(dashed line): if no news arrives before expiry, the option is priced
+off ordinary risk alone. The more news is expected, the more the option
+is worth.</p>
+<div class="section level3">
+<h3 id="the-held-out-test-step-by-step">The held-out test, step by step<a class="anchor" aria-label="anchor" href="#the-held-out-test-step-by-step"></a>
+</h3>
+<p>Do options expiring before the event actually carry the learning
+value that <span class="math inline">\(\theta\)</span>, <span class="math inline">\(q\)</span>, and the clock imply? Compare their
+observed smile with two predictions — no learning (<span class="math inline">\(A = 0\)</span>) and learning with a forecast clock
+— and see which prices them better. A simulated example with a known
+truth (<span class="math inline">\(\theta = 1\)</span>, <span class="math inline">\(q = 0.55\)</span>, a one-week option, true clock
+0.15 over its life):</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">k_pre</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.3</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="va">tau_pre</span> <span class="op">&lt;-</span> <span class="fl">7</span> <span class="op">/</span> <span class="fl">365</span></span>
+<span><span class="va">s_cf</span> <span class="op">&lt;-</span> <span class="fl">0.9</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tau_pre</span><span class="op">)</span>          <span class="co"># ordinary volatility 90%, one week</span></span>
+<span><span class="va">iv_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_mix_price_pre.html">ec_mix_iv_pre</a></span><span class="op">(</span><span class="va">k_pre</span>, q <span class="op">=</span> <span class="fl">0.55</span>, theta <span class="op">=</span> <span class="fl">1</span>, A <span class="op">=</span> <span class="fl">0.15</span>, s_cf <span class="op">=</span> <span class="va">s_cf</span><span class="op">)</span> <span class="op">/</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tau_pre</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">k_pre</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span>   <span class="co"># observed, annualized</span></span>
+<span></span>
+<span><span class="va">A_fc</span> <span class="op">&lt;-</span> <span class="fl">0.12</span>                          <span class="co"># real-time forecast of the clock</span></span>
+<span><span class="va">A_low</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_recovery_set.html">ec_recovery_set</a></span><span class="op">(</span><span class="va">A_fc</span>, delta <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">$</span><span class="va">lower</span>   <span class="co"># conservative low end</span></span>
+<span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">A</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/ec_mix_price_pre.html">ec_mix_iv_pre</a></span><span class="op">(</span><span class="va">k_pre</span>, q <span class="op">=</span> <span class="fl">0.55</span>, theta <span class="op">=</span> <span class="fl">1</span>, A <span class="op">=</span> <span class="va">A</span>, s_cf <span class="op">=</span> <span class="va">s_cf</span><span class="op">)</span> <span class="op">/</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tau_pre</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">rmse</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">A</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu">pred</span><span class="op">(</span><span class="va">A</span><span class="op">)</span> <span class="op">-</span> <span class="va">iv_obs</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  prediction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"no learning (A = 0)"</span>, <span class="st">"forecast clock"</span>,</span>
+<span>                 <span class="st">"conservative low end"</span><span class="op">)</span>,</span>
+<span>  A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">A_fc</span>, <span class="va">A_low</span><span class="op">)</span>,</span>
+<span>  rmse_iv_points <span class="op">=</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu">rmse</span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>, <span class="fu">rmse</span><span class="op">(</span><span class="va">A_fc</span><span class="op">)</span>, <span class="fu">rmse</span><span class="op">(</span><span class="va">A_low</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt;             prediction    A rmse_iv_points</span></span>
+<span><span class="co">#&gt; 1  no learning (A = 0) 0.00      18.130976</span></span>
+<span><span class="co">#&gt; 2       forecast clock 0.12       3.109574</span></span>
+<span><span class="co">#&gt; 3 conservative low end 0.03      14.092634</span></span></code></pre></div>
+<p>With the forecast clock, the pricing error falls from 18 to 3
+volatility points; even the conservative low end of the clock improves
+on no learning, if by less (14 points). On real data, three choices keep
+the test honest, and all three avoid looking at the options being
+tested:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>The clock is forecast, not measured after the fact</strong>
+— with <code><a href="../reference/event_clock_forecast.html">event_clock_forecast()</a></code> and a rule picked by
+<code><a href="../reference/ec_forecast_select.html">ec_forecast_select()</a></code> on earlier option lives
+(<code><a href="../articles/eventclock-measurement.html">vignette("eventclock-measurement")</a></code>).</li>
+<li>
+<strong>The ordinary smile <code>s_cf</code> comes from “quiet”
+weeks:</strong> earlier options whose own lives saw almost no movement
+in the event probability (a tiny clock; a cut-off such as <span class="math inline">\(A \le 0.04\)</span> is a judgment call) show the
+smile without event learning. Smiles from after the event are a poor
+substitute — they already know the outcome.</li>
+<li><strong>The exposure is estimated with data available on the
+valuation date only.</strong></li>
+</ol>
+<p>In the authors’ application — options on Trump Media expiring the
+Friday before the 2024 election — adding learning lowers the
+root-mean-square pricing error of the held-out <em>calls</em> by about
+4.6% relative to no learning, and still by 1.2% at the conservative low
+end, while the <em>puts</em> do not improve. (The simulation above uses
+the true <span class="math inline">\(\theta\)</span>, <span class="math inline">\(q\)</span>, and ordinary smile, so its much larger
+gain is an upper bound for what real data can show.) A one-sided result
+like this is informative in itself: it points to frictions (a
+hard-to-borrow stock with American-style options) rather than to a
+failure of the probability input.</p>
+<p>Back-of-the-envelope (first-order) versions of the same channel are
+<code><a href="../reference/ec_iv_rule.html">ec_iv_rule()</a></code>, <code><a href="../reference/ec_variance_share.html">ec_variance_share()</a></code>, and
+<code><a href="../reference/ec_sigma_eff.html">ec_sigma_eff()</a></code>; see their help pages and the relevance
+screen in <code><a href="../articles/eventclock-event-betas.html">vignette("eventclock-event-betas")</a></code>.</p>
+</div>
 </div>
 <div class="section level2">
-<h2 id="what-this-vignette-did-not-do">What this vignette did not do<a class="anchor" aria-label="anchor" href="#what-this-vignette-did-not-do"></a>
+<h2 id="how-sure-are-we-about-the-clock">How sure are we about the clock?<a class="anchor" aria-label="anchor" href="#how-sure-are-we-about-the-clock"></a>
 </h2>
-<p>The package deliberately ships <strong>no proprietary option
-data</strong>: the estimation functions take your surfaces in the long
-format shown above. The full sequential design — counterfactual shape
-from post-resolution surfaces, held-out pre-resolution wing tests, and
-dependence between ordinary asset news and event-probability innovations
-— lives in the accompanying working paper (Hanke, Schadner, Stöckl, and
-Weissensteiner, Working Paper, “Learning Before Scheduled Events:
-Prediction Markets, State Prices, and Option Valuation”); the transition
-machinery needed to price pre-resolution claims under learning is
-already available via <code><a href="../reference/ec_transition_density.html">ec_transition_density()</a></code>,
-<code><a href="../reference/ec_simulate.html">ec_simulate()</a></code>, and the formula-book calculators
-(<code><a href="../reference/ec_atm_event_call.html">ec_atm_event_call()</a></code>, <code><a href="../reference/ec_iv_rule.html">ec_iv_rule()</a></code>).</p>
+<p>The clock measures news only if the market does not also keep
+re-weighing how much it values the two outcomes. If at most a fraction
+<span class="math inline">\(\delta^2\)</span> of the measured clock came
+from such re-valuation, the true news clock lies between <span class="math inline">\((1-\delta)^2\)</span> and <span class="math inline">\((1+\delta)^2\)</span> times the measured one.
+<code><a href="../reference/ec_recovery_set.html">ec_recovery_set()</a></code> tabulates this range — here for the
+forecast clock of the example above:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/ec_recovery_set.html">ec_recovery_set</a></span><span class="op">(</span><span class="va">A_fc</span>, delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 4</span></span></span>
+<span><span class="co">#&gt;       A delta  lower upper</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  0.12  0    0.12   0.12 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  0.12  0.25 0.067<span style="text-decoration: underline;">5</span> 0.188</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  0.12  0.5  0.03   0.27</span></span></code></pre></div>
+<p><span class="math inline">\(\delta = 0\)</span> takes the measured
+clock at face value; <span class="math inline">\(\delta = 0.5\)</span>
+allows a quarter of the measured variation to be re-valuation and gives
+the conservative low end used above.</p>
+</div>
+<div class="section level2">
+<h2 id="scope-and-further-reading">Scope and further reading<a class="anchor" aria-label="anchor" href="#scope-and-further-reading"></a>
+</h2>
+<p>The package ships <strong>no proprietary option data</strong>: the
+estimation and pricing functions take your smiles in the format
+described above. The full empirical design — choosing quiet-week smiles
+by rules fixed in advance, running the held-out comparison across clock
+constructions, venues, and recovery bounds, and allowing ordinary asset
+news to be correlated with event news — is developed in the accompanying
+working paper (Hanke, Schadner, Stöckl, and Weissensteiner, Working
+Paper, “Learning Before Scheduled Events: Prediction Markets, State
+Prices, and Option Valuation”).</p>
+</div>
+<div class="section level2">
+<h2 id="where-next">Where next<a class="anchor" aria-label="anchor" href="#where-next"></a>
+</h2>
+<ul>
+<li>
+<code><a href="../articles/eventclock-brexit.html">vignette("eventclock-brexit")</a></code> — the Event Clock
+itself;</li>
+<li>
+<code><a href="../articles/eventclock-measurement.html">vignette("eventclock-measurement")</a></code> — forecasting the
+clock and comparing venues;</li>
+<li>
+<code><a href="../articles/eventclock-event-betas.html">vignette("eventclock-event-betas")</a></code> — the exposure from
+stock returns.</li>
+</ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -1,4 +1,4 @@
-# Clock plot: the cumulative event clock
+# Clock plot: the cumulative Event Clock
 
 Plots cumulative event-clock time \\\widehat A_t\\ against calendar time
 — the "clock plot": how much of the window's information had arrived by
