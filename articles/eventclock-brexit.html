@@ -5,17 +5,23 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket • eventclock</title>
+<title>Getting started: the Event Clock for Brexit, the 2016 U.S. election, and Polymarket • eventclock</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started: the Event Clock for Brexit, the 2016 U.S. election, and Polymarket">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -25,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">eventclock</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,10 +44,11 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/eventclock-brexit.html">Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket</a></li>
-    <li><a class="dropdown-item" href="../articles/eventclock-event-betas.html">Event betas: assets on the event clock</a></li>
-    <li><a class="dropdown-item" href="../articles/eventclock-event-spanning.html">Event-spanning options: estimating the event exposure</a></li>
-    <li><a class="dropdown-item" href="../articles/eventclock-validation.html">Validating the event-clock estimator</a></li>
+<li><a class="dropdown-item" href="../articles/eventclock-brexit.html">Getting started: the Event Clock for Brexit, the 2016 U.S. election, and Polymarket</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-measurement.html">Measuring the Event Clock in practice: sampling, forecasts, and two venues</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-validation.html">Does the estimator work? Validation on simulated data</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-event-betas.html">Event betas: which assets move with the event probability?</a></li>
+    <li><a class="dropdown-item" href="../articles/eventclock-event-spanning.html">Event-spanning options: estimating an asset's exposure to an event</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -63,7 +70,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Getting started: the Event Clock for Brexit, the 2016 U.S. election, and Polymarket</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/sstoeckl/eventclock/blob/master/vignettes/eventclock-brexit.Rmd" class="external-link"><code>vignettes/eventclock-brexit.Rmd</code></a></small>
@@ -75,37 +82,62 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/sstoeckl/eventclock" class="external-link">eventclock</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="the-event-clock-in-one-paragraph">The event clock in one paragraph<a class="anchor" aria-label="anchor" href="#the-event-clock-in-one-paragraph"></a>
+<h2 id="what-this-package-measures">What this package measures<a class="anchor" aria-label="anchor" href="#what-this-package-measures"></a>
 </h2>
-<p>Ahead of a scheduled event — a referendum, an election, a
-central-bank decision — markets learn. The <em>event clock</em> measures
-how much outcome-relevant information has arrived and when: event-clock
-time
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>A</mi><mrow><mi>t</mi><mo>,</mo><mi>T</mi></mrow></msub><annotation encoding="application/x-tex">A_{t,T}</annotation></semantics></math>
-is the quadratic variation of the log-odds
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>t</mi></msub><mo>=</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><mi>t</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">L_t = \mathrm{logit}(q_t)</annotation></semantics></math>
-of the state-price-implied event probability
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mi>t</mi></msub><annotation encoding="application/x-tex">q_t</annotation></semantics></math>,</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>A</mi><mo accent="true">̂</mo></mover><mrow><mi>t</mi><mo>,</mo><mi>T</mi></mrow></msub><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><munder><mo>∑</mo><mrow><msub><mi>t</mi><mi>i</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>,</mo><mi>T</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">[</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><msub><mi>t</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><msub><mi>t</mi><mi>i</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">]</mo><mn>2</mn></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">\widehat A_{t,T} \;=\; \sum_{t_i \in [t,T)}
-  \bigl[\mathrm{logit}(q_{t_{i+1}}) - \mathrm{logit}(q_{t_i})\bigr]^2 .</annotation></semantics></math></p>
-<p>Because quadratic variation ignores drift and is invariant under
-equivalent measure changes,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>A</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\widehat A</annotation></semantics></math>
-needs no assumption about risk premia, and any constant level distortion
-of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
-(discounting, a constant state-price tilt) drops out. The concept,
-identification results, and the empirical applications reproduced below
-are developed in Hanke, Schadner, Stöckl, and Weissensteiner (Working
-Paper), <em>Learning Before Scheduled Events: Prediction Markets, State
-Prices, and Option Valuation</em>.</p>
+<p>Before a scheduled event — a referendum, an election, a central-bank
+decision, a court ruling — markets learn. Polls come out, news breaks,
+and the price of a contract that pays out if the event happens moves up
+and down. The <strong>Event Clock</strong> measures <em>how much</em>
+outcome-relevant news arrived over any period, and <em>when</em>. A week
+of big, frequent revisions is a week of lots of news; a flat week is a
+week of none. Measuring this matters whenever something is priced before
+the event: an option that expires before an election is exposed to the
+news that will arrive while it is alive, not to the election result
+itself.</p>
+<p><strong>What you need:</strong> a time series of an event probability
+between 0 and 1 — a prediction-market price, a betting quote, a
+probability implied by fed funds futures or a merger spread — with a
+date or timestamp.</p>
+<p><strong>What you get:</strong> how much news arrived over any window
+and when, robust variants that separate big news days from steady flow,
+real-time forecasts of the news still to come, and closed-form
+calculators for option and risk questions.</p>
+<div class="section level3">
+<h3 id="key-terms">Key terms<a class="anchor" aria-label="anchor" href="#key-terms"></a>
+</h3>
+<ul>
+<li>
+<strong>Event probability <span class="math inline">\(q_t\)</span>.</strong> The traded price of a
+contract paying 1 if the event happens. After removing discounting it is
+a probability as priced by the market — which may include risk premia,
+so it need not equal anyone’s belief. (In the papers: the
+<em>state-price-implied event probability</em>.)</li>
+<li>
+<strong>Log odds <span class="math inline">\(L_t =
+\log\{q_t/(1-q_t)\}\)</span>.</strong> The probability on a scale where
+a move from 50% to 60% and a move from 89% to 92% count about the
+same.</li>
+<li>
+<strong>Event Clock <span class="math inline">\(A_{t,T}\)</span>.</strong> The amount of news
+between <span class="math inline">\(t\)</span> and <span class="math inline">\(T\)</span>, also called <em>event-clock time</em>.
+The package estimates it as the sum of squared log-odds changes, <span class="math display">\[\widehat A_{t,T} \;=\; \sum_{t_i \in [t,T)}
+  \bigl[L_{t_{i+1}} - L_{t_i}\bigr]^2 ;\]</span> technically, the
+quadratic variation of the log odds. Below, <span class="math inline">\(A\)</span> denotes both the clock and its estimate
+when no confusion arises.</li>
+</ul>
+</div>
 </div>
 <div class="section level2">
 <h2 id="two-classic-event-windows-brexit-and-the-2016-u-s--election">Two classic event windows: Brexit and the 2016 U.S. election<a class="anchor" aria-label="anchor" href="#two-classic-event-windows-brexit-and-the-2016-u-s--election"></a>
 </h2>
-<p>The package ships the two daily event-probability series used in the
-working paper, both derived from betting quotes (see
-<code><a href="../reference/brexit2016.html">?brexit2016</a></code>):</p>
+<p>The package ships two daily event-probability series derived from
+betting quotes: the 2016 Brexit referendum and the 2016 U.S.
+presidential election (see <code><a href="../reference/brexit2016.html">?brexit2016</a></code>).
+<code><a href="../reference/as_event_prices.html">as_event_prices()</a></code> turns any data frame with a time column
+and a probability column into the package’s standard format;
+<code>event_date</code> records when the event resolves (used for plots
+and windows). Before taking log odds, probabilities are clipped to
+[0.01, 0.99] by default, because log odds explode near 0 and 1.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">brexit2016</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">us2016</span><span class="op">)</span></span>
@@ -124,14 +156,86 @@ working paper, both derived from betting quotes (see
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_q.html">plot_q</a></span><span class="op">(</span><span class="va">ep_us</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-2-2.png" class="r-plt" alt="" width="672"></p>
+<p>What to look at: Leave hovered between 20% and 40% and lurched in
+June; Trump spent most of 2016 between 15% and 35% — markets were
+surprised by both outcomes.</p>
+<div class="section level3">
+<h3 id="screening-the-series-first">Screening the series first<a class="anchor" aria-label="anchor" href="#screening-the-series-first"></a>
+</h3>
+<p><code><a href="../reference/ec_validate.html">ec_validate()</a></code> reports coverage, stale stretches, the
+smallest price move (tick), gaps, and the largest moves. It changes
+nothing — it only flags:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/ec_validate.html">ec_validate</a></span><span class="op">(</span><span class="va">ep_gb</span><span class="op">)</span></span>
+<span><span class="co">#&gt; -- Event-price data-quality report: Brexit: Leave</span></span>
+<span><span class="co">#&gt; Coverage:  119 obs, 2016-02-26 to 2016-06-23, median spacing 1 days, 0 NA</span></span>
+<span><span class="co">#&gt; Clipping:  0.0% of observations outside the clipping bounds</span></span>
+<span><span class="co">#&gt; Staleness: 11.0% zero increments, longest stale run 2 obs</span></span>
+<span><span class="co">#&gt; Tick:      smallest non-zero move 0.001</span></span>
+<span><span class="co">#&gt; Gaps:      0 gap increment(s), largest 1 days</span></span>
+<span><span class="co">#&gt; Outliers:  max |dL| = 0.292 (5.5 robust SDs)</span></span></code></pre></div>
+<p>The largest log-odds move is far out in the tails relative to a
+typical day — but it is genuine news (the June 10–14 Leave poll wave,
+see below), which is why the package flags rather than drops. (The
+“robust SDs” here are measured over the full sample; the truncated
+estimator below measures them within each window, where big days are
+more common.)</p>
+</div>
+<div class="section level3">
+<h3 id="other-sources-of-event-probabilities">Other sources of event probabilities<a class="anchor" aria-label="anchor" href="#other-sources-of-event-probabilities"></a>
+</h3>
+<p>Any traded event price can feed the clock. Three converters ship with
+the package:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># a contract price, discounted to a probability (here: 0.5% discount)</span></span>
+<span><span class="fu"><a href="../reference/q_from_price.html">q_from_price</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.45</span>, <span class="fl">0.52</span><span class="op">)</span>, discount <span class="op">=</span> <span class="fl">0.995</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.4522613 0.5226131</span></span>
+<span></span>
+<span><span class="co"># fed funds futures: the September 2024 FOMC meeting, pre-meeting rate</span></span>
+<span><span class="co"># 5.33%, a hypothetical futures price of 94.74, probability of a 25bp cut</span></span>
+<span><span class="fu"><a href="../reference/q_from_ffutures.html">q_from_ffutures</a></span><span class="op">(</span><span class="fl">94.74</span>, pre_rate <span class="op">=</span> <span class="fl">5.33</span>,</span>
+<span>                meeting_date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2024-09-18"</span><span class="op">)</span>, step <span class="op">=</span> <span class="op">-</span><span class="fl">0.25</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 5</span></span></span>
+<span><span class="co">#&gt;   meeting_date implied_avg implied_post delta_rate     q</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2024-09-18          5.26         5.16     -<span style="color: #BB0000;">0.175</span> 0.700</span></span>
+<span></span>
+<span><span class="co"># merger arbitrage: probability that a deal at 50 closes, if the stock</span></span>
+<span><span class="co"># would fall back to 35 without it</span></span>
+<span><span class="fu"><a href="../reference/q_from_deal_spread.html">q_from_deal_spread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">44</span>, <span class="fl">48.5</span><span class="op">)</span>, offer <span class="op">=</span> <span class="fl">50</span>, fallback <span class="op">=</span> <span class="fl">35</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.3333333 0.6000000 0.9000000</span></span></code></pre></div>
+<p>The fed funds converter uses the standard month-average extraction
+(the future settles on the average rate over the month, so the price
+mixes the rate before and after the meeting day); the merger converter
+is <span class="math inline">\(q = (\text{price} -
+\text{fallback})/(\text{offer} -
+\text{fallback})\)</span>. Meeting dates are in
+<code>fomc_meetings</code>.</p>
+</div>
 </div>
 <div class="section level2">
-<h2 id="reproducing-the-headline-information-time-table">Reproducing the headline information-time table<a class="anchor" aria-label="anchor" href="#reproducing-the-headline-information-time-table"></a>
+<h2 id="how-much-news-arrived">How much news arrived?<a class="anchor" aria-label="anchor" href="#how-much-news-arrived"></a>
 </h2>
-<p>The working paper evaluates the clock from the one-month valuation
-date (May 24 / October 10, 2016) over one-week, two-week, and one-month
-horizons, with a battery of robustness variants:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>Pick a <em>valuation date</em> — the day you stand on and look
+forward from; here one month before each vote (May 24 and October 10,
+2016) — and add up the clock to one week, two weeks, and the event.
+Besides the plain sum, the package reports robust variants that show how
+much came from a few big news days:</p>
+<ul>
+<li>
+<code>rv</code> — the plain sum of squared log-odds changes (the
+baseline);</li>
+<li>
+<code>truncated</code> — drops changes larger than 3 robust standard
+deviations (median absolute deviation, within the window);</li>
+<li>
+<code>bipower</code> — uses products of neighboring absolute
+changes, which an isolated jump barely affects;</li>
+<li>
+<code>largest1</code>, <code>largest2</code> — the plain sum without
+the one or two largest changes.</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/event_clock.html">event_clock</a></span><span class="op">(</span><span class="va">ep_gb</span>,</span>
 <span>  from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2016-05-24"</span><span class="op">)</span>,</span>
 <span>  to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`1W` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2016-05-31"</span><span class="op">)</span>, `2W` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2016-06-07"</span><span class="op">)</span>,</span>
@@ -151,23 +255,21 @@ horizons, with a battery of robustness variants:</p>
 <span>  <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/reshape.html" class="external-link">reshape</a></span><span class="op">(</span><span class="va">tab</span>,</span>
 <span>    idvar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"case"</span>, <span class="st">"horizon"</span><span class="op">)</span>, timevar <span class="op">=</span> <span class="st">"method"</span>, direction <span class="op">=</span> <span class="st">"wide"</span></span>
 <span>  <span class="op">)</span>,</span>
-<span>  digits <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  digits <span class="op">=</span> <span class="fl">3</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Case"</span>, <span class="st">"Horizon"</span>, <span class="st">"RV"</span>, <span class="st">"Truncated"</span>, <span class="st">"Bipower"</span>,</span>
 <span>                <span class="st">"Largest-1"</span>, <span class="st">"Largest-2"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<table style="width:100%;" class="table">
+<table class="table">
 <colgroup>
-<col width="4%">
-<col width="20%">
-<col width="11%">
-<col width="8%">
-<col width="14%">
-<col width="11%">
-<col width="14%">
-<col width="14%">
+<col width="21%">
+<col width="12%">
+<col width="9%">
+<col width="15%">
+<col width="12%">
+<col width="15%">
+<col width="15%">
 </colgroup>
 <thead><tr class="header">
-<th align="left"></th>
 <th align="left">Case</th>
 <th align="left">Horizon</th>
 <th align="right">RV</th>
@@ -178,7 +280,6 @@ horizons, with a battery of robustness variants:</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">1</td>
 <td align="left">Brexit</td>
 <td align="left">1W</td>
 <td align="right">0.064</td>
@@ -188,7 +289,6 @@ horizons, with a battery of robustness variants:</p>
 <td align="right">0.009</td>
 </tr>
 <tr class="even">
-<td align="left">6</td>
 <td align="left">Brexit</td>
 <td align="left">2W</td>
 <td align="right">0.166</td>
@@ -198,7 +298,6 @@ horizons, with a battery of robustness variants:</p>
 <td align="right">0.062</td>
 </tr>
 <tr class="odd">
-<td align="left">11</td>
 <td align="left">Brexit</td>
 <td align="left">1M</td>
 <td align="right">0.510</td>
@@ -208,7 +307,6 @@ horizons, with a battery of robustness variants:</p>
 <td align="right">0.341</td>
 </tr>
 <tr class="even">
-<td align="left">16</td>
 <td align="left">U.S. election</td>
 <td align="left">1W</td>
 <td align="right">0.015</td>
@@ -218,7 +316,6 @@ horizons, with a battery of robustness variants:</p>
 <td align="right">0.005</td>
 </tr>
 <tr class="odd">
-<td align="left">21</td>
 <td align="left">U.S. election</td>
 <td align="left">2W</td>
 <td align="right">0.046</td>
@@ -228,7 +325,6 @@ horizons, with a battery of robustness variants:</p>
 <td align="right">0.016</td>
 </tr>
 <tr class="even">
-<td align="left">26</td>
 <td align="left">U.S. election</td>
 <td align="left">1M</td>
 <td align="right">0.370</td>
@@ -239,52 +335,28 @@ horizons, with a battery of robustness variants:</p>
 </tr>
 </tbody>
 </table>
-<p>This reproduces the published table: Brexit
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>A</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\widehat A</annotation></semantics></math>
-of 0.064 (1W), 0.166 (2W), and 0.511 (1M) with bipower 0.375; U.S.
-election 0.015, 0.046, and 0.370 with bipower 0.386 and truncated
-0.259.</p>
-<p>Two details worth noting:</p>
-<ul>
-<li>
-<strong>Truncation vs. largest-move exclusion.</strong> The
-truncation rule (drop increments beyond 3 robust standard deviations)
-binds for the U.S. window — where it removes exactly the largest move
-and matches the published 0.259 — but not for the Brexit window, whose
-largest move stays inside the threshold. The published Brexit
-“truncated” value (0.426) corresponds to <code>largest1</code>. With
-daily data and short windows, always compare both columns.</li>
-<li>
-<strong>Windows are anchored, not trailing.</strong> “1M” runs from
-the valuation date to the event date; observations are calendar-daily
-including weekends.</li>
-</ul>
+<p>Reading the table: over the final month, the Brexit clock reached
+0.510, against 0.370 for the U.S. election, and 68% of the Brexit
+month’s news arrived after June 7, in the last two and a half weeks.
+Dropping the single largest day removes 17% of the Brexit month: news
+arrived in a few big bursts. For the U.S. month the truncation rule
+removes exactly the largest move, so <code>truncated</code> equals
+<code>largest1</code>; for Brexit, where big days were common in June,
+the largest move stays inside the 3-SD threshold. With daily data and
+short windows, compare both.</p>
+<p>Windows are <em>anchored</em> (from the valuation date to each
+horizon), and observations are calendar-daily including weekends.</p>
 </div>
 <div class="section level2">
 <h2 id="the-clock-over-time">The clock over time<a class="anchor" aria-label="anchor" href="#the-clock-over-time"></a>
 </h2>
-<p>The most instructive object is not the point estimate but the
-<em>path</em> of the clock — when did the information actually arrive?
-The jumps of the cumulative clock have names: they are the campaign’s
-news days. (The attributions below were found by ranking the days by
-their contribution <code>dA</code> to the clock —
-<code><a href="../reference/event_clock_path.html">event_clock_path()</a></code> returns exactly that column.)</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># tiny helper used throughout: dotted line + label per event</span></span>
-<span><span class="co"># (labels alternate between two heights so that close-by events stay legible)</span></span>
-<span><span class="va">mark_events</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span>, <span class="va">events</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">drop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.05</span>, <span class="fl">1.55</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">events</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="va">p</span> <span class="op">+</span></span>
-<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span></span>
-<span>      xintercept <span class="op">=</span> <span class="va">events</span><span class="op">$</span><span class="va">date</span>, linetype <span class="op">=</span> <span class="fl">3</span>, color <span class="op">=</span> <span class="st">"grey40"</span></span>
-<span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotate.html" class="external-link">annotate</a></span><span class="op">(</span><span class="st">"text"</span>,</span>
-<span>      x <span class="op">=</span> <span class="va">events</span><span class="op">$</span><span class="va">date</span>, y <span class="op">=</span> <span class="cn">Inf</span>, label <span class="op">=</span> <span class="va">events</span><span class="op">$</span><span class="va">label</span>,</span>
-<span>      angle <span class="op">=</span> <span class="fl">90</span>, vjust <span class="op">=</span> <span class="op">-</span><span class="fl">0.35</span>, hjust <span class="op">=</span> <span class="va">drop</span>, size <span class="op">=</span> <span class="fl">2.9</span>, color <span class="op">=</span> <span class="st">"grey30"</span></span>
-<span>    <span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">events_gb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<p>The most instructive object is not a single number but the
+<em>path</em> — when did the news actually arrive?
+<code><a href="../reference/event_clock_path.html">event_clock_path()</a></code> returns the cumulative clock and each
+day’s contribution <code>dA</code>; ranking the days by <code>dA</code>
+finds the news days.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">events_gb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="st">"2016-03-23"</span>, <span class="st">"2016-04-23"</span>, <span class="st">"2016-05-23"</span>, <span class="st">"2016-06-01"</span>,</span>
 <span>    <span class="st">"2016-06-14"</span>, <span class="st">"2016-06-16"</span>, <span class="st">"2016-06-19"</span></span>
@@ -297,13 +369,28 @@ their contribution <code>dA</code> to the clock —
 <span></span>
 <span><span class="va">path_gb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/event_clock_path.html">event_clock_path</a></span><span class="op">(</span><span class="va">ep_gb</span><span class="op">)</span></span>
 <span><span class="fu">mark_events</span><span class="op">(</span><span class="fu"><a href="../reference/plot_q.html">plot_q</a></span><span class="op">(</span><span class="va">ep_gb</span><span class="op">)</span>, <span class="va">events_gb</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="672"></p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="672"></p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">mark_events</span><span class="op">(</span><span class="fu"><a href="../reference/plot_clock.html">plot_clock</a></span><span class="op">(</span><span class="va">path_gb</span><span class="op">)</span>, <span class="va">events_gb</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-4-2.png" class="r-plt" alt="" width="672"></p>
-<p>The largest ticks of the Brexit clock, matched to the news of the day
-(<code>dL</code> is the log-odds move of the <em>Leave</em>
-probability):</p>
+<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-8-2.png" class="r-plt" alt="" width="672"></p>
+<p>(<code>mark_events()</code> is a small plotting helper defined in
+this vignette’s source, not a package function.) The biggest single-day
+contributions:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">path_gb</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">path_gb</span><span class="op">$</span><span class="va">dA</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"dL"</span>, <span class="st">"dA"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">7</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 3</span></span></span>
+<span><span class="co">#&gt;   time           dL     dA</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2016-06-14  0.292 0.085<span style="text-decoration: underline;">0</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2016-06-19 -<span style="color: #BB0000;">0.291</span> 0.084<span style="text-decoration: underline;">7</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2016-06-01  0.263 0.069<span style="text-decoration: underline;">3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2016-06-11  0.236 0.055<span style="text-decoration: underline;">7</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2016-06-16 -<span style="color: #BB0000;">0.196</span> 0.038<span style="text-decoration: underline;">4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 2016-03-23  0.188 0.035<span style="text-decoration: underline;">5</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 2016-05-20 -<span style="color: #BB0000;">0.187</span> 0.034<span style="text-decoration: underline;">9</span></span></span></code></pre></div>
+<p>The steps of the cumulative clock have names — they are the
+campaign’s news days (<code>dL</code> is the log-odds move of the
+<em>Leave</em> probability; some news spans two adjacent days):</p>
 <ul>
 <li>
 <strong>Mar 22–23</strong> — Brussels terror attacks; Leave odds
@@ -321,7 +408,7 @@ Leave ahead: the campaign’s turning point (<code>dL = +0.26</code>, 8%
 of the full-sample clock).</li>
 <li>
 <strong>Jun 10–14</strong> — the Leave poll wave plus The Sun’s
-endorsement — the single largest tick (<code>dL = +0.29</code>,
+endorsement — the single largest step (<code>dL = +0.29</code>,
 10%).</li>
 <li>
 <strong>Jun 16</strong> — the murder of Jo Cox; campaigning is
@@ -330,47 +417,65 @@ suspended (<code>dL = -0.20</code>).</li>
 <strong>Jun 19–20</strong> — campaigning resumes, Remain recovers in
 the weekend polls (<code>dL = -0.29</code>, 10%).</li>
 </ul>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_clock_vs_calendar.html">plot_clock_vs_calendar</a></span><span class="op">(</span><span class="va">path_gb</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="672"></p>
-<p>A path below the 45-degree line means information is back-loaded — it
-waits for the deadline; the June cluster of poll shocks is clearly
-visible as the late steep segment.</p>
+<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="672"></p>
+<p>This plot sets the share of the clock elapsed against the share of
+calendar time elapsed. A path below the 45-degree line means information
+is back-loaded — it waits for the deadline; the June cluster of poll
+shocks is the late steep segment.</p>
 </div>
 <div class="section level2">
-<h2 id="real-time-versus-ex-post">Real time versus ex post<a class="anchor" aria-label="anchor" href="#real-time-versus-ex-post"></a>
+<h2 id="real-time-versus-after-the-fact">Real time versus after the fact<a class="anchor" aria-label="anchor" href="#real-time-versus-after-the-fact"></a>
 </h2>
-<p>Ex post, we know how much information arrived while an option was
-alive. In real time we do not; the paper’s benchmark annualizes the
-trailing 40-observation realized variation and scales it to the
-horizon:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/event_clock_forecast.html">event_clock_forecast</a></span><span class="op">(</span><span class="va">ep_us</span>,</span>
+<p>Looking back, we know how much news arrived while an option was
+alive. On the day the option is priced we do not, so we need a forecast:
+measure how fast the clock has been ticking recently and scale that
+speed to the horizon, using only prices observed up to that day. How far
+back “recently” reaches is chosen by forecast accuracy on
+<em>earlier</em> periods. Here, every one-week window starting between
+May 15 and October 3 serves as a test case (all end before the October
+10 valuation date), and three window lengths compete; <code>obs</code>
+counts observations, so 61 observations are the last 60 daily
+changes:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">starts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2016-05-15"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2016-10-03"</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">"day"</span><span class="op">)</span></span>
+<span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_forecast_select.html">ec_forecast_select</a></span><span class="op">(</span><span class="va">ep_us</span>,</span>
+<span>  intervals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>start <span class="op">=</span> <span class="va">starts</span>, end <span class="op">=</span> <span class="va">starts</span> <span class="op">+</span> <span class="fl">7</span><span class="op">)</span>,</span>
+<span>  rules <span class="op">=</span> <span class="fu"><a href="../reference/ec_forecast_rules.html">ec_forecast_rules</a></span><span class="op">(</span>obs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">21</span>, <span class="fl">41</span>, <span class="fl">61</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">sel</span><span class="op">$</span><span class="va">best</span><span class="op">$</span><span class="va">rule</span></span>
+<span><span class="co">#&gt; [1] "trailing 61 obs / rv"</span></span>
+<span></span>
+<span><span class="va">fc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/event_clock_forecast.html">event_clock_forecast</a></span><span class="op">(</span><span class="va">ep_us</span>,</span>
 <span>  at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2016-10-10"</span><span class="op">)</span>,</span>
-<span>  horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`1W` <span class="op">=</span> <span class="fl">7</span>, `2W` <span class="op">=</span> <span class="fl">14</span><span class="op">)</span></span>
+<span>  horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`1W` <span class="op">=</span> <span class="fl">7</span>, `2W` <span class="op">=</span> <span class="fl">14</span><span class="op">)</span>,</span>
+<span>  trailing <span class="op">=</span> <span class="fl">61</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 9</span></span></span>
-<span><span class="co">#&gt;   market_id  at         horizon horizon_days trailing n_incr n_gaps max_gap_days</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> US 2016: … 2016-10-10 1W                 7       40     39      0            1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> US 2016: … 2016-10-10 2W                14       40     39      0            1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: A_forecast &lt;dbl&gt;</span></span></span></code></pre></div>
-<p>This reproduces the published real-time values of 0.068 (1W) and
-0.135 (2W) for the U.S. election — the market expected far more learning
-than the 0.015/0.046 that actually materialized before election
-week.</p>
+<span><span class="va">fc</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"horizon"</span>, <span class="st">"rate_per_day"</span>, <span class="st">"A_forecast"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 3</span></span></span>
+<span><span class="co">#&gt;   horizon rate_per_day A_forecast</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 1W           0.006<span style="text-decoration: underline;">82</span>     0.047<span style="text-decoration: underline;">8</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2W           0.006<span style="text-decoration: underline;">82</span>     0.095<span style="text-decoration: underline;">5</span></span></span></code></pre></div>
+<p>Extrapolating the speed of the last 60 days gave 0.048 of clock time
+for the next week — about 3 times the 0.015 that actually arrived; the
+news came in the final two weeks instead. Sampling frequency, forecast
+selection, and comparisons across trading venues are covered in
+<code><a href="../articles/eventclock-measurement.html">vignette("eventclock-measurement")</a></code>.</p>
 </div>
 <div class="section level2">
-<h2 id="why-levels-do-not-matter-the-wedge-property">Why levels do not matter: the wedge property<a class="anchor" aria-label="anchor" href="#why-levels-do-not-matter-the-wedge-property"></a>
+<h2 id="why-levels-and-risk-premia-do-not-matter">Why levels and risk premia do not matter<a class="anchor" aria-label="anchor" href="#why-levels-and-risk-premia-do-not-matter"></a>
 </h2>
-<p>On the paper’s valuation date, the raw betting-quote probability of
-<em>Leave</em> is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>0.202</mn></mrow><annotation encoding="application/x-tex">q = 0.202</annotation></semantics></math>,
-while the paper works with the U.S.-dollar-numeraire state price
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>0.195</mn></mrow><annotation encoding="application/x-tex">q = 0.195</annotation></semantics></math>).
-The levels differ — but the clock is identical, because an
-(approximately) constant logit wedge has zero quadratic variation:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p>Discounting and risk premia shift the <em>level</em> of a traded
+probability, but such shifts change slowly; the clock adds up squared
+<em>changes</em>, so a slowly varying shift contributes almost nothing.
+On May 24 the raw betting probability of Leave was 0.202. The working
+paper re-expresses it as the price of a contract paying one U.S. dollar
+if Leave wins (betting stakes are in pounds, and the pound itself
+depends on the vote), which gives 0.195. The two differ by an almost
+constant shift in log odds — and a constant shift has no changes, so it
+adds nothing to the clock:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">shifted</span> <span class="op">&lt;-</span> <span class="va">brexit2016</span></span>
 <span><span class="va">shifted</span><span class="op">$</span><span class="va">q_leave</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_logit.html">ec_ilogit</a></span><span class="op">(</span><span class="fu"><a href="../reference/ec_logit.html">ec_logit</a></span><span class="op">(</span><span class="va">brexit2016</span><span class="op">$</span><span class="va">q_leave</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="va">ep_shift</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_event_prices.html">as_event_prices</a></span><span class="op">(</span><span class="va">shifted</span>, time <span class="op">=</span> <span class="st">"date"</span>, price <span class="op">=</span> <span class="st">"q_leave"</span><span class="op">)</span></span>
@@ -383,68 +488,151 @@ The levels differ — but the clock is identical, because an
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; original  shifted </span></span>
 <span><span class="co">#&gt; 0.510469 0.510469</span></span></code></pre></div>
+<p>What the clock cannot rule out is that the market’s <em>relative</em>
+valuation of the two outcomes fluctuates on its own, day to day. If at
+most a fraction <span class="math inline">\(\delta^2\)</span> of the
+measured clock came from such re-valuation, the true news clock lies
+between <span class="math inline">\((1-\delta)^2\)</span> and <span class="math inline">\((1+\delta)^2\)</span> times the measured one;
+<code><a href="../reference/ec_recovery_set.html">ec_recovery_set()</a></code> tabulates this range (<span class="math inline">\(\delta = 0\)</span> means the measured clock is
+all news):</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">A_1m</span> <span class="op">&lt;-</span> <span class="va">gb</span><span class="op">$</span><span class="va">A</span><span class="op">[</span><span class="va">gb</span><span class="op">$</span><span class="va">horizon</span> <span class="op">==</span> <span class="st">"1M"</span> <span class="op">&amp;</span> <span class="va">gb</span><span class="op">$</span><span class="va">method</span> <span class="op">==</span> <span class="st">"rv"</span><span class="op">]</span></span>
+<span><span class="fu"><a href="../reference/ec_recovery_set.html">ec_recovery_set</a></span><span class="op">(</span><span class="va">A_1m</span>, delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 4</span></span></span>
+<span><span class="co">#&gt;       A delta lower upper</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.510  0    0.510 0.510</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0.510  0.25 0.287 0.798</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0.510  0.5  0.128 1.15</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="the-formula-book">The formula book<a class="anchor" aria-label="anchor" href="#the-formula-book"></a>
 </h2>
-<p>Once
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
-are measured, a family of closed-form objects follows from the exact
-logistic-normal transition law
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>T</mi></msub><mo>=</mo><msub><mi>L</mi><mi>t</mi></msub><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>𝟏</mn><mo stretchy="false" form="prefix">{</mo><mi>J</mi><mo>=</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo><mo>−</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>2</mn></mfrac></mstyle><mo stretchy="false" form="postfix">)</mo><mi>A</mi><mo>+</mo><msqrt><mi>A</mi></msqrt><mspace width="0.167em"></mspace><mi>ζ</mi></mrow><annotation encoding="application/x-tex">L_T = L_t + (\mathbf{1}\{J=1\} - \tfrac12) A + \sqrt{A}\,\zeta</annotation></semantics></math>.
-The worked Brexit example
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>0.195</mn></mrow><annotation encoding="application/x-tex">q = 0.195</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>=</mo><mn>0.166</mn></mrow><annotation encoding="application/x-tex">A = 0.166</annotation></semantics></math>):</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/ec_moments.html">ec_moments</a></span><span class="op">(</span>q <span class="op">=</span> <span class="fl">0.195</span>, A <span class="op">=</span> <span class="fl">0.166</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 10</span></span></span>
-<span><span class="co">#&gt;       q     A     L  E_qT  E_LT var_LT sd_LT    m3_LT  var_qT var_qT_bound</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.195 0.166 -<span style="color: #BB0000;">1.42</span> 0.195 -<span style="color: #BB0000;">1.47</span>  0.170 0.413 0.000<span style="text-decoration: underline;">438</span> 0.004<span style="text-decoration: underline;">09</span>       0.010<span style="text-decoration: underline;">4</span></span></span>
+<p>Once <span class="math inline">\(q\)</span> and <span class="math inline">\(A\)</span> are known, many questions have
+closed-form answers. They all follow from one transition law for the log
+odds at a later date <span class="math inline">\(T\)</span>, <span class="math display">\[L_T = L_t + \bigl(J - \tfrac12\bigr) A +
+\sqrt{A}\,\zeta ,\]</span> where <span class="math inline">\(J =
+1\)</span> if the event happens and <span class="math inline">\(0\)</span> otherwise, <span class="math inline">\(\zeta\)</span> is a standard normal shock, and
+<span class="math inline">\(A\)</span> is the clock time between <span class="math inline">\(t\)</span> and <span class="math inline">\(T\)</span>: given the eventual outcome, the log
+odds drift toward it by <span class="math inline">\(A/2\)</span> and
+fluctuate with variance <span class="math inline">\(A\)</span>. The
+worked Brexit example uses the two-week window from May 24 with the
+working paper’s inputs: <span class="math inline">\(q = 0.195\)</span>
+(the dollar-based Leave probability; the shipped betting series gives
+0.202) and <span class="math inline">\(A = 0.166\)</span>.</p>
+<p>Units used by the calculators:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Input</th>
+<th>Meaning</th>
+<th>Unit</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>q</code></td>
+<td>event probability today</td>
+<td>0–1</td>
+</tr>
+<tr class="even">
+<td><code>A</code></td>
+<td>clock time between today and the horizon</td>
+<td>log-odds variance</td>
+</tr>
+<tr class="odd">
+<td>
+<code>sigma</code>, <code>tenor</code>
+</td>
+<td>ordinary (no-event) volatility and time to expiry, in
+<code><a href="../reference/ec_iv_rule.html">ec_iv_rule()</a></code>, <code><a href="../reference/ec_relevance.html">ec_relevance()</a></code> and friends</td>
+<td>annualized; years</td>
+</tr>
+<tr class="even">
+<td>
+<code>s_cf</code>, <code>s1</code>, <code>s2</code>
+</td>
+<td>dispersions in the option functions of
+<code><a href="../articles/eventclock-event-spanning.html">vignette("eventclock-event-spanning")</a></code>
+</td>
+<td>total: volatility × <span class="math inline">\(\sqrt{\text{years}}\)</span>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Pass arguments by name: the calculators do not all take them in the
+same order.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># distribution of the probability and the log odds at June 7:</span></span>
+<span><span class="co"># E_qT = expected probability (always today's q), sd_LT = spread of</span></span>
+<span><span class="co"># the log odds, var_qT = variance of the probability</span></span>
+<span><span class="fu"><a href="../reference/ec_moments.html">ec_moments</a></span><span class="op">(</span>q <span class="op">=</span> <span class="fl">0.195</span>, A <span class="op">=</span> <span class="fl">0.166</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"q"</span>, <span class="st">"A"</span>, <span class="st">"E_qT"</span>, <span class="st">"sd_LT"</span>, <span class="st">"var_qT"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 5</span></span></span>
+<span><span class="co">#&gt;       q     A  E_qT sd_LT  var_qT</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.195 0.166 0.195 0.413 0.004<span style="text-decoration: underline;">09</span></span></span>
 <span></span>
-<span><span class="co"># typical revision over the window: about 5 probability points</span></span>
+<span><span class="co"># typical size of the revision by June 7: about 5 probability points</span></span>
 <span><span class="fu"><a href="../reference/ec_revision.html">ec_revision</a></span><span class="op">(</span>q <span class="op">=</span> <span class="fl">0.195</span>, A <span class="op">=</span> <span class="fl">0.166</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.05102989</span></span>
 <span></span>
-<span><span class="co"># probability of ending above 50% by resolution</span></span>
+<span><span class="co"># probability that Leave is above 50% on June 7</span></span>
 <span><span class="fu"><a href="../reference/ec_exceedance.html">ec_exceedance</a></span><span class="op">(</span><span class="fl">0.5</span>, q <span class="op">=</span> <span class="fl">0.195</span>, A <span class="op">=</span> <span class="fl">0.166</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.0001951016</span></span>
 <span></span>
-<span><span class="co"># clock time needed to move from 19.5% to "90% sure": about 40x</span></span>
+<span><span class="co"># clock time needed to move from 19.5% to "90% sure", in multiples of</span></span>
 <span><span class="co"># the two-week clock</span></span>
 <span><span class="fu"><a href="../reference/ec_target_clock.html">ec_target_clock</a></span><span class="op">(</span>q <span class="op">=</span> <span class="fl">0.195</span>, target <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span> <span class="op">/</span> <span class="fl">0.166</span></span>
 <span><span class="co">#&gt; [1] 43.55503</span></span></code></pre></div>
-<p>A first-order expansion of implied volatility gives the contribution
-of event learning,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mrow><mi mathvariant="normal">I</mi><mi mathvariant="normal">V</mi></mrow><mo>≈</mo><mo stretchy="false" form="prefix">[</mo><mi mathvariant="normal">Δ</mi><mi>η</mi><mspace width="0.167em"></mspace><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">]</mo><mn>2</mn></msup><mi>A</mi><mspace width="0.167em"></mspace><mi>/</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>σ</mi><mo stretchy="false" form="prefix">(</mo><mi>T</mi><mo>−</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Delta\mathrm{IV} \approx [\Delta\eta\, q(1-q)]^2 A \,/\, (2\sigma(T-t))</annotation></semantics></math>,
-which reproduces the paper’s headline decomposition (in annualized IV
-percentage points, using the tenor-specific no-learning ATM volatility
-and the event exposures
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>η</mi></mrow><annotation encoding="application/x-tex">\Delta\eta</annotation></semantics></math>
-estimated in the paper):</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  brexit_2w <span class="op">=</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="../reference/ec_iv_rule.html">ec_iv_rule</a></span><span class="op">(</span>deta <span class="op">=</span> <span class="op">-</span><span class="fl">0.012</span>, q <span class="op">=</span> <span class="fl">0.195</span>, A <span class="op">=</span> <span class="fl">0.166</span>,</span>
-<span>                               sigma <span class="op">=</span> <span class="fl">0.10590</span>, tenor <span class="op">=</span> <span class="fl">14</span> <span class="op">/</span> <span class="fl">365</span><span class="op">)</span>,</span>
-<span>  us_2w     <span class="op">=</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="../reference/ec_iv_rule.html">ec_iv_rule</a></span><span class="op">(</span>deta <span class="op">=</span> <span class="op">-</span><span class="fl">0.099</span>, q <span class="op">=</span> <span class="fl">0.172</span>, A <span class="op">=</span> <span class="fl">0.046</span>,</span>
-<span>                               sigma <span class="op">=</span> <span class="fl">0.19326</span>, tenor <span class="op">=</span> <span class="fl">14</span> <span class="op">/</span> <span class="fl">365</span><span class="op">)</span></span>
+<p>Even if Leave was going to win, its log odds drift up by only <span class="math inline">\(A/2\)</span> per unit of clock time, so reaching
+90% takes <span class="math inline">\(A \approx\)</span> 7.2 — about 44
+times the news of those two weeks, a reminder of how far markets were
+from certainty.</p>
+<p><strong>How much does learning add to option prices?</strong> An
+asset whose value differs between the outcomes moves with the
+probability. If its value would be a fraction <span class="math inline">\(\Delta\eta\)</span> of today’s value higher if the
+event happens than if it does not (the <em>exposure</em>, negative when
+the event hurts the asset; see
+<code><a href="../articles/eventclock-event-betas.html">vignette("eventclock-event-betas")</a></code>), learning adds roughly
+<span class="math inline">\([\Delta\eta\, q(1-q)]^2 A /
+(2\sigma\tau)\)</span> to the implied volatility of an option with <span class="math inline">\(\tau\)</span> years to expiry, where <span class="math inline">\(\sigma\)</span> is the asset’s annualized
+volatility without the event. <code><a href="../reference/ec_iv_rule.html">ec_iv_rule()</a></code> computes this
+screen (the exact value is <code><a href="../reference/ec_mix_price_pre.html">ec_mix_iv_pre()</a></code>, see
+<code><a href="../articles/eventclock-event-spanning.html">vignette("eventclock-event-spanning")</a></code>). The inputs below
+are the working paper’s option-implied values. For the British pound,
+options priced its expected value only about 1.2% lower under Leave than
+under Remain (exposure <span class="math inline">\(-0.012\)</span>) —
+far less than the 8% fall that followed the vote; volatility without the
+event was 9.3%. For the Mexican peso around the 2016 U.S. election, the
+exposure to a Trump win was <span class="math inline">\(-0.099\)</span>,
+with <span class="math inline">\(q = 0.172\)</span> on October 10 (the
+shipped series gives 0.174) and volatility 19.3%. Over two weeks, in
+annualized percentage points:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">iv_pts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  pound_brexit_2w <span class="op">=</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="../reference/ec_iv_rule.html">ec_iv_rule</a></span><span class="op">(</span>deta <span class="op">=</span> <span class="op">-</span><span class="fl">0.012</span>, q <span class="op">=</span> <span class="fl">0.195</span>, A <span class="op">=</span> <span class="fl">0.166</span>,</span>
+<span>                                     sigma <span class="op">=</span> <span class="fl">0.09325</span>, tenor <span class="op">=</span> <span class="fl">14</span> <span class="op">/</span> <span class="fl">365</span><span class="op">)</span>,</span>
+<span>  peso_us2016_2w  <span class="op">=</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="../reference/ec_iv_rule.html">ec_iv_rule</a></span><span class="op">(</span>deta <span class="op">=</span> <span class="op">-</span><span class="fl">0.099</span>, q <span class="op">=</span> <span class="fl">0.172</span>, A <span class="op">=</span> <span class="fl">0.046</span>,</span>
+<span>                                     sigma <span class="op">=</span> <span class="fl">0.19326</span>, tenor <span class="op">=</span> <span class="fl">14</span> <span class="op">/</span> <span class="fl">365</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;   brexit_2w       us_2w </span></span>
-<span><span class="co">#&gt; 0.007250541 0.061679188</span></span></code></pre></div>
-<p>Learning was priced at well under a tenth of a volatility point for
-Brexit but an order of magnitude more for the U.S. election — the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Δ</mi><mi>η</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">(\Delta\eta)^2</annotation></semantics></math>
-lever dominates.</p>
+<span><span class="va">iv_pts</span></span>
+<span><span class="co">#&gt; pound_brexit_2w  peso_us2016_2w </span></span>
+<span><span class="co">#&gt;     0.008234127     0.061679188</span></span></code></pre></div>
+<p>Learning was worth well under a tenth of a volatility point for the
+pound; for the peso it was about 7 times larger — the squared exposure
+dominates.</p>
 </div>
 <div class="section level2">
-<h2 id="the-event-clock-on-live-polymarket-data">The event clock on live Polymarket data<a class="anchor" aria-label="anchor" href="#the-event-clock-on-live-polymarket-data"></a>
+<h2 id="the-event-clock-on-live-polymarket-data">The Event Clock on live Polymarket data<a class="anchor" aria-label="anchor" href="#the-event-clock-on-live-polymarket-data"></a>
 </h2>
-<p>The package connects to the public, keyless Polymarket APIs. The
+<p>The package connects to the public, keyless Polymarket APIs (and to
+Kalshi, see <code><a href="../articles/eventclock-measurement.html">vignette("eventclock-measurement")</a></code>). The
 shipped <code>polymarket2024</code> dataset was downloaded with exactly
 this code:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 1. find the event and the "Yes" token</span></span>
 <span><span class="fu"><a href="../reference/pm_search.html">pm_search</a></span><span class="op">(</span><span class="st">"presidential election winner 2024"</span><span class="op">)</span></span>
 <span><span class="va">mkts</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pm_markets.html">pm_markets</a></span><span class="op">(</span><span class="st">"presidential-election-winner-2024"</span><span class="op">)</span></span>
@@ -454,7 +642,7 @@ this code:</p>
 <span><span class="va">ep24</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pm_prices.html">pm_prices</a></span><span class="op">(</span><span class="va">tok</span>, from <span class="op">=</span> <span class="st">"2024-06-01"</span>, to <span class="op">=</span> <span class="st">"2024-11-06"</span>,</span>
 <span>                  market_id <span class="op">=</span> <span class="st">"Polymarket: Trump wins 2024"</span>,</span>
 <span>                  event_date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="st">"2024-11-05"</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">polymarket2024</span><span class="op">)</span></span>
 <span><span class="va">ep24</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_event_prices.html">as_event_prices</a></span><span class="op">(</span><span class="va">polymarket2024</span>,</span>
 <span>  market_id <span class="op">=</span> <span class="st">"Polymarket: Trump wins 2024"</span>,</span>
@@ -473,12 +661,13 @@ this code:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">mark_events</span><span class="op">(</span><span class="fu"><a href="../reference/plot_q.html">plot_q</a></span><span class="op">(</span><span class="va">ep24</span><span class="op">)</span>, <span class="va">events_24</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="672"></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="672"></p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">mark_events</span><span class="op">(</span><span class="fu"><a href="../reference/plot_clock.html">plot_clock</a></span><span class="op">(</span><span class="fu"><a href="../reference/event_clock_path.html">event_clock_path</a></span><span class="op">(</span><span class="va">ep24</span><span class="op">)</span><span class="op">)</span>, <span class="va">events_24</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-11-2.png" class="r-plt" alt="" width="672"></p>
-<p>The jumps of the 2024 clock, again matched by ranking the daily
-contributions (<code>dL</code> on the Trump-Yes log-odds):</p>
+<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-17-2.png" class="r-plt" alt="" width="672"></p>
+<p>The jumps of the 2024 clock, matched by ranking the daily
+contributions (<code>dL</code> on the Trump-Yes log odds; percentages
+relative to the daily-sampled clock):</p>
 <ul>
 <li>
 <strong>Jun 27–28</strong> — the Biden–Trump TV debate: the largest
@@ -486,11 +675,11 @@ contributions (<code>dL</code> on the Trump-Yes log-odds):</p>
 while the debate was still on air.</li>
 <li>
 <strong>Jul 13–14</strong> — the assassination attempt: the largest
-tick overall (<code>dL = +0.42</code>) — <strong>22% of the entire
-five-month clock in one day</strong>.</li>
+daily move (<code>dL = +0.42</code>) — <strong>22% of the five-month
+daily clock in one day</strong>.</li>
 <li>
 <strong>Jul 17–21</strong> — Biden’s withdrawal: mostly priced in by
-the July 17 reports; the announcement itself is a modest tick.</li>
+the July 17 reports; the announcement itself is a modest step.</li>
 <li>
 <strong>Aug 1–10</strong> — Harris secures the nomination, picks
 Walz, and surges (<code>dL = -0.20</code> and <code>-0.14</code>).</li>
@@ -504,30 +693,36 @@ sharp intraday reversal on Oct 23.</li>
 night.</li>
 </ul>
 <p>Conspicuously absent: the <strong>September 10 Harris–Trump
-debate</strong> does not rank among the top ticks — the market priced it
+debate</strong> does not rank among the top moves — the market priced it
 as barely informative, which is exactly what the long September plateau
 of the clock shows.</p>
-<p>With intraday data, mind the sampling frequency: microstructure noise
-(bid-ask bounce on a coarse tick grid) inflates measured variation.
-Collapsing to one daily snapshot (last price at or before 16:00 New York
-time) is a robust default:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<p>With intraday data the sampling frequency matters: hourly prices pick
+up trading noise (prices bouncing between bid and ask) as well as news.
+<code><a href="../reference/pm_daily.html">pm_daily()</a></code> keeps one price per day — by default the last
+one at or before 16:00 New York time, the stock-market close; use
+<code>snapshot_hour = 15.75</code> (15:45) to match end-of-day option
+quotes:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  hourly <span class="op">=</span> <span class="fu"><a href="../reference/event_clock.html">event_clock</a></span><span class="op">(</span><span class="va">ep24</span>, methods <span class="op">=</span> <span class="st">"rv"</span><span class="op">)</span><span class="op">$</span><span class="va">A</span>,</span>
 <span>  daily  <span class="op">=</span> <span class="fu"><a href="../reference/event_clock.html">event_clock</a></span><span class="op">(</span><span class="fu"><a href="../reference/pm_daily.html">pm_daily</a></span><span class="op">(</span><span class="va">ep24</span><span class="op">)</span>, methods <span class="op">=</span> <span class="st">"rv"</span><span class="op">)</span><span class="op">$</span><span class="va">A</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    hourly     daily </span></span>
 <span><span class="co">#&gt; 1.2631246 0.7756132</span></span></code></pre></div>
+<p>The hourly clock is about 60% larger. Part of the gap is noise and
+part is intraday news a daily snapshot misses — so report both;
+<code><a href="../articles/eventclock-measurement.html">vignette("eventclock-measurement")</a></code> shows how to tell them
+apart.</p>
 </div>
 <div class="section level2">
 <h2 id="simulating-clock-consistent-paths">Simulating clock-consistent paths<a class="anchor" aria-label="anchor" href="#simulating-clock-consistent-paths"></a>
 </h2>
-<p>For teaching and testing, <code><a href="../reference/ec_simulate_path.html">ec_simulate_path()</a></code> composes
-the exact transition law into full probability paths whose realized
-clock matches the input
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
-and whose probabilities are martingales by construction:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<p>For teaching and testing, <code><a href="../reference/ec_simulate_path.html">ec_simulate_path()</a></code> draws full
+probability paths from the transition law: their measured clock matches
+the input <span class="math inline">\(A\)</span>, and on average the
+future probability equals today’s (the expected value of tomorrow’s
+price is today’s price):</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">paths</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_simulate_path.html">ec_simulate_path</a></span><span class="op">(</span>n_paths <span class="op">=</span> <span class="fl">20</span>, n_steps <span class="op">=</span> <span class="fl">200</span>, q <span class="op">=</span> <span class="fl">0.3</span>, A <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
@@ -539,17 +734,56 @@ and whose probabilities are martingales by construction:</p>
 <span>                     name <span class="op">=</span> <span class="st">"Outcome J"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Fraction of clock time elapsed"</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">q</span><span class="op">[</span><span class="va">t</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="eventclock-brexit_files/figure-html/unnamed-chunk-19-1.png" class="r-plt" alt="" width="672"></p>
+<p>Paths that end at 1 (the event happens, dark) and at 0 (grey) spread
+out gradually as clock time accumulates.</p>
+</div>
+<div class="section level2">
+<h2 id="notes-for-replicators">Notes for replicators<a class="anchor" aria-label="anchor" href="#notes-for-replicators"></a>
+</h2>
+<p>The Brexit numbers above reproduce the working paper’s main-text
+clock: 0.064 (1W), 0.166 (2W), and 0.510 (1M; the paper reports 0.511).
+The 2016 U.S. series is the paper’s robustness application (0.015 and
+0.046 over one and two weeks; real-time forecasts 0.0476 and 0.0951 from
+trailing-60 realized variation, which this vignette reproduces to within
+half a percent). The robustness columns match reference values reported
+in earlier versions of the paper; its “truncated” Brexit value
+corresponds to <code>largest1</code> here. The paper’s pound and peso
+volatility inputs are the tenor-specific no-learning at-the-money
+volatilities.</p>
+</div>
+<div class="section level2">
+<h2 id="where-next">Where next<a class="anchor" aria-label="anchor" href="#where-next"></a>
+</h2>
+<ul>
+<li>
+<code><a href="../articles/eventclock-measurement.html">vignette("eventclock-measurement")</a></code> — sampling
+frequency, real-time forecasts, and two trading venues;</li>
+<li>
+<code><a href="../articles/eventclock-validation.html">vignette("eventclock-validation")</a></code> — does the estimator
+work? Simulations with a known true clock;</li>
+<li>
+<code><a href="../articles/eventclock-event-betas.html">vignette("eventclock-event-betas")</a></code> — which assets move
+with the event probability, and by how much;</li>
+<li>
+<code><a href="../articles/eventclock-event-spanning.html">vignette("eventclock-event-spanning")</a></code> — the exposure
+from options, and pricing options that expire before the event.</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>If you use the package or the event-clock methodology, please
+<p>If you use the package or the Event Clock methodology, please
 cite:</p>
 <blockquote>
 <p>Hanke, M., Schadner, W., Stöckl, S., and Weissensteiner, A. (2026).
 <em>Learning Before Scheduled Events: Prediction Markets, State Prices,
 and Option Valuation.</em> Working Paper.</p>
+</blockquote>
+<blockquote>
+<p>Hanke, M., Schadner, W., Stöckl, S., and Weissensteiner, A. (2026).
+<em>The Event Clock: What State Prices Identify About Physical
+Information.</em> Working Paper. <a href="https://papers.ssrn.com/abstract=7420838" class="external-link uri">https://papers.ssrn.com/abstract=7420838</a></p>
 </blockquote>
 <p>See <code>citation("eventclock")</code>.</p>
 </div>

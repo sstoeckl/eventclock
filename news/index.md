@@ -1,5 +1,123 @@
 # Changelog
 
+## eventclock 0.5.0
+
+### Bug fix
+
+- [`event_beta()`](https://www.sebastianstoeckl.com/eventclock/reference/event_beta.md)
+  now takes the probability *level* at each asset date (the last
+  observation on or before it) and differences it between consecutive
+  asset dates. Previously probability changes were computed on the
+  calendar-daily series before matching, so moves over weekends and
+  holidays were lost: a Monday return was paired with the
+  Sunday-to-Monday change only. On the shipped DJT/Polymarket example
+  the exposure estimate rises from 1.28 (t = 2.6) to 1.47 (t = 3.9).
+
+### Synchronization with the current working paper
+
+- [`ec_recovery_set()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_recovery_set.md)
+  now uses the paper’s notation: the partial-recovery bound is `delta`
+  (the old argument `eps` still works with a deprecation warning; the
+  output column is now `delta`). The documentation states the bound
+  exactly as in the paper — valuation variation at most `delta^2` times
+  the *measured* log-odds variation — and explains the low-clock
+  endpoint `(1 - delta)^2`.
+- The companion working paper *The Event Clock: What State Prices
+  Identify About Physical Information* (SSRN 7420838) is now cited in
+  `citation("eventclock")`, the README, and the vignettes; the package
+  version in the citation is read from `DESCRIPTION`.
+- “Event Clock” is capitalized throughout, as in the papers
+  (“event-clock time” stays lower case).
+- [`ec_iv_rule()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_iv_rule.md)
+  is documented as the first-order screening formula; the exact
+  pre-resolution value is
+  [`ec_mix_iv_pre()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_mix_price_pre.md),
+  which reproduces the paper’s Brexit two-week learning contribution
+  (0.0083 IV points).
+- Golden tests relabeled: Brexit 1W/2W/1M clocks are the paper’s
+  main-text numbers; robustness variants are pinned against earlier
+  versions’ reference values; the trailing-60 real-time forecast
+  reproduces the paper’s 2016 values (0.0476 / 0.0951) to within 1%.
+
+### Measuring the clock in practice
+
+- [`event_clock_forecast()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_forecast.md)
+  is rebuilt around the paper’s no-look-ahead forecast: estimation
+  windows in trailing observations (default, unchanged results),
+  trailing calendar days (`days = 3` with hourly data), or the whole
+  history (`expanding = TRUE`); any estimator (`method`); optional
+  staggered sampling (`interval`). New output columns `rule` and
+  `rate_per_day`.
+- [`ec_forecast_rules()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_forecast_rules.md)
+  and
+  [`ec_forecast_select()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_forecast_select.md)
+  choose the forecasting rule by out-of-sample RMSE on earlier option
+  lives only. On the shipped data they reproduce the working paper’s
+  choices: trailing-60 realized variation for the 2016 daily series, and
+  a trailing three-day window for hourly Polymarket prices with weekly
+  option lives in 2024.
+- [`event_clock_staggered()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_staggered.md)
+  — clocks on staggered time grids (e.g. 30-, 60-, 120-minute sampling
+  averaged over all grid offsets), with the estimator applied within
+  each grid.
+- [`event_clock_venues()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_venues.md)
+  /
+  [`event_clock_venues_path()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_venues_path.md)
+  — clocks from two venues: each venue’s own clock, the equal-weight
+  composite, and the cross-venue clock that filters venue-specific
+  noise; reports increment correlation and each venue’s noise share.
+
+### Option-implied exposure and a second venue
+
+- [`ec_theta_fit()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_theta_fit.md)
+  gains a date-block (moving-block) bootstrap for the common exposure
+  (`boot_reps`, `block`, `block_length`, `conf`), the working paper’s
+  inference for the conditional-mean ratio; per-node fitted values and
+  residuals (`$nodes`); and, when bid and ask implied volatilities are
+  supplied, the share of fitted values inside the quotes
+  (`$inside_share`).
+- Kalshi connector:
+  [`ks_events()`](https://www.sebastianstoeckl.com/eventclock/reference/ks_markets.md),
+  [`ks_markets()`](https://www.sebastianstoeckl.com/eventclock/reference/ks_markets.md),
+  [`ks_prices()`](https://www.sebastianstoeckl.com/eventclock/reference/ks_prices.md)
+  on the public, keyless trade API (live and settled markets, chunked
+  candlesticks, last-trade or mid prices), returning `event_prices`
+  objects.
+- New dataset `kalshi2024`: daily 15:45 New York snapshot of the Kalshi
+  Trump-win contract, October 4 to November 5, 2024 — the second venue
+  for
+  [`event_clock_venues()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_venues.md).
+
+### Pricing, data, and documentation
+
+- [`ec_mix_price_pre()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_mix_price_pre.md)
+  /
+  [`ec_mix_iv_pre()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_mix_price_pre.md)
+  — exact pre-resolution option prices under event learning: the future
+  event probability follows the maintained two-component logistic-normal
+  transition, ordinary risk is an independent lognormal, and `A = 0`
+  collapses to the fixed-probability (no-learning) Black benchmark.
+  Completes the pricing side of the framework; the first-order
+  formula-book versions
+  ([`ec_sigma_eff()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_sigma_eff.md),
+  [`ec_iv_rule()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_iv_rule.md))
+  remain as back-of-the-envelope checks.
+- The event-spanning vignette was rewritten for general readers:
+  motivation without paper context, an explicit “what you need” section,
+  and a new pre-resolution pricing section.
+- README gains a workflow section mapping the paper’s sequential
+  architecture (probability -\> clock -\> validation -\> returns-based
+  exposure -\> option-implied exposure -\> learning test) to functions
+  and vignettes.
+- pkgdown now renders help-page math via MathJax (previously raw LaTeX
+  appeared on reference pages).
+- New dataset `us2016_surfaces_sim`: simulated event-spanning delta-grid
+  surfaces matching the S&P 500 profile over the last four weeks before
+  the 2016 U.S. election (47 surfaces, common exposure theta = -0.077).
+  Fully synthetic — generated from the event mixture with fitted
+  parameters as calibration targets — and the worked real-scale example
+  of the event-spanning vignette.
+
 ## eventclock 0.4.0
 
 ### Event-spanning options

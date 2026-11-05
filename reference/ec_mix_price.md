@@ -6,7 +6,7 @@ of the accompanying working paper: with probability \\q\\ (outcome 1)
 the gross event multiplier is lognormal with conditional mean \\m_1\\
 and total dispersion \\s_1\\, with probability \\1-q\\ (outcome 2)
 lognormal with mean \\m_2\\ and dispersion \\s_2\\. The
-outcome-conditional means are parametrized by the event exposure
+outcome-conditional means are parametrized by the log exposure
 \$\$\theta = \log(m_1 / m_2)\$\$ and pinned down by the pricing-measure
 adding-up (scale) normalization \\q\\m_1 + (1-q)\\m_2 = 1\\, so that the
 mixture has forward value one.
@@ -57,6 +57,14 @@ the price is at an arbitrage bound).
 prices). `ec_mix_iv()` returns the Black *total* implied dispersion of
 the mixture price; divide by \\\sqrt{\tau}\\ (time to expiry in years)
 for an annualized implied volatility.
+
+**Notation.** The conditional means \\m_1, m_2\\ are the event
+multipliers \\\eta_1, \eta_2\\ of the working paper (and of
+[`event_beta()`](https://www.sebastianstoeckl.com/eventclock/reference/event_beta.md));
+the paper reports the scale-free *conditional-mean ratio* \\r =
+\eta_1/\eta_2 = e^{\theta}\\. For example, the paper's 2024 estimate for
+Trump Media & Technology Group, a Trump/non-Trump ratio of 2.71,
+corresponds to \\\theta = \log 2.71 \approx 1.0\\.
 
 **Sign identification.** At \\q = 1/2\\ the mixture is observationally
 symmetric in \\(\theta, s_1, s_2) \mapsto (-\theta, s_2, s_1)\\: option

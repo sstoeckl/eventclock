@@ -1,100 +1,128 @@
-# Validating the event-clock estimator
+# Does the estimator work? Validation on simulated data
 
 ``` r
 
 library(eventclock)
+set.seed(42)
 ```
 
-This vignette stress-tests the estimator
-$`\widehat A = \sum (\Delta L)^2`$ against data simulated from the
-*exact* transition law of the model
-([`ec_simulate_path()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_simulate_path.md)),
-so every deviation is attributable to the estimator, not to model error.
-Helper to turn simulated paths into `event_prices`:
+## Why validate
+
+Before trusting the Event Clock on real data, a user should know: is it
+biased when only about 30 daily prices are available? Are its confidence
+intervals right? What do the robust variants measure when news arrives
+in one big jump? How much does trading noise inflate it?
+
+Real data cannot answer these questions because the true clock is
+unknown. Simulated data can.
+[`ec_simulate_path()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_simulate_path.md)
+draws probability paths from the package’s model (the transition law in
+the formula book of
+[`vignette("eventclock-brexit")`](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-brexit.md))
+with a *known* clock \\A\\, so any gap between estimate and truth is the
+estimator’s doing. Throughout, \\L = \log\\q/(1-q)\\\\ are the log odds
+of the event probability \\q\\, and the estimate is \\\widehat A = \sum
+(\Delta L)^2\\, the sum of squared log-odds changes (`method = "rv"` in
+[`event_clock()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock.md)).
+
+A small helper turns a simulated path into the package’s input format:
 
 ``` r
 
 path_to_ep <- function(p) {
   as_event_prices(
     tibble::tibble(time = as.Date("2020-01-01") + p$step, q = p$q),
-    clip = c(1e-8, 1 - 1e-8)
+    clip = c(1e-8, 1 - 1e-8)   # switch off the default [0.01, 0.99] clipping
   )
-}
-
-estimate_A <- function(n_steps, A, q = 0.4, reps = 200, ...) {
-  vapply(seq_len(reps), function(i) {
-    p <- ec_simulate_path(1, n_steps, q = q, A = A, ...)
-    event_clock(path_to_ep(p), methods = "rv")$A
-  }, numeric(1))
 }
 ```
 
-## Consistency and finite-sample precision
+## Bias and precision with few observations
 
-The estimator is unbiased at every sampling frequency (up to the tiny
-$`\sum a_i^2/4`$ drift term) and its dispersion shrinks with the number
-of observations:
+For each window length we simulate 1000 paths with true clock \\A =
+0.5\\ — a typical one-month value — and compute \\\widehat A\\ on each.
+(The vectorized sum below is exactly what `event_clock(method = "rv")`
+computes.)
 
 ``` r
 
+A <- 0.5
+reps <- 1000
 grid <- c(15, 30, 60, 120, 250)
-sims <- lapply(grid, estimate_A, A = 0.5)
+sims <- lapply(grid, function(n) {
+  p <- ec_simulate_path(n_paths = reps, n_steps = n, q = 0.4, A = A)
+  vapply(split(p$L, p$path), function(L) sum(diff(L)^2), numeric(1))
+})
 tab <- data.frame(
   n_obs = grid,
   mean = sapply(sims, mean),
-  bias_pct = 100 * (sapply(sims, mean) / 0.5 - 1),
-  sd = sapply(sims, sd),
-  rmse = sapply(sims, function(s) sqrt(mean((s - 0.5)^2)))
+  bias_pct = 100 * (sapply(sims, mean) / A - 1),
+  theory_bias_pct = 100 * A / (4 * grid),
+  mc_error_pct = 100 * sapply(sims, sd) / sqrt(reps) / A,
+  sd = sapply(sims, sd)
 )
 knitr::kable(tab, digits = 3)
 ```
 
-| n_obs |  mean | bias_pct |    sd |  rmse |
-|------:|------:|---------:|------:|------:|
-|    15 | 0.520 |    3.986 | 0.202 | 0.203 |
-|    30 | 0.522 |    4.468 | 0.132 | 0.134 |
-|    60 | 0.505 |    0.964 | 0.088 | 0.088 |
-|   120 | 0.502 |    0.427 | 0.070 | 0.070 |
-|   250 | 0.501 |    0.289 | 0.043 | 0.043 |
+| n_obs |  mean | bias_pct | theory_bias_pct | mc_error_pct |    sd |
+|------:|------:|---------:|----------------:|-------------:|------:|
+|    15 | 0.514 |    2.718 |           0.833 |        1.195 | 0.189 |
+|    30 | 0.506 |    1.162 |           0.417 |        0.834 | 0.132 |
+|    60 | 0.501 |    0.151 |           0.208 |        0.562 | 0.089 |
+|   120 | 0.500 |   -0.009 |           0.104 |        0.404 | 0.064 |
+|   250 | 0.499 |   -0.132 |           0.050 |        0.287 | 0.045 |
 
-Even the paper-sized windows (a one-month window has about 30 daily
-observations) are unbiased; the price of short windows is dispersion,
-not bias — which is why interval estimates matter.
+The only systematic bias is tiny and known: given the outcome, the log
+odds also drift a little toward it, which adds \\A^2/(4n)\\ to the
+expected sum — under 1% here (`theory_bias_pct`). The measured bias lies
+within about two simulation errors (`mc_error_pct`) of it. What short
+windows cost is *dispersion* (`sd`): with 30 daily observations the
+estimate typically misses by about a quarter of its value, which is why
+interval estimates matter.
 
-## Confidence-interval coverage
+## Confidence intervals
 
-`event_clock(se = TRUE)` reports quarticity-based standard errors with
-log-scale intervals. Their coverage is close to nominal:
+`event_clock(se = TRUE)` adds a standard error, estimated from the sum
+of fourth powers of the log-odds changes, and a confidence interval
+built for \\\log A\\ and transformed back (so it stays positive and is
+asymmetric). Do the intervals cover the truth as often as they claim?
 
 ``` r
 
-coverage <- function(conf, reps = 300, n_steps = 60, A = 0.5) {
+coverage <- function(conf, n_steps, reps = 500, A = 0.5) {
   hits <- vapply(seq_len(reps), function(i) {
-    p <- ec_simulate_path(1, n_steps, q = 0.4, A = A)
+    p <- ec_simulate_path(n_paths = 1, n_steps = n_steps, q = 0.4, A = A)
     r <- event_clock(path_to_ep(p), methods = "rv", se = TRUE, conf = conf)
     r$ci_lo <= A && A <= r$ci_hi
   }, logical(1))
   mean(hits)
 }
-data.frame(
-  nominal = c(0.90, 0.95),
-  empirical = c(coverage(0.90), coverage(0.95))
-)
-#>   nominal empirical
-#> 1    0.90 0.8833333
-#> 2    0.95 0.9500000
+cov <- expand.grid(nominal = c(0.90, 0.95), n_obs = c(30, 60))
+cov$empirical <- mapply(coverage, cov$nominal, cov$n_obs)
+cov$mc_error <- 1.96 * sqrt(cov$nominal * (1 - cov$nominal) / 500)
+cov
+#>   nominal n_obs empirical   mc_error
+#> 1    0.90    30     0.848 0.02629616
+#> 2    0.95    30     0.918 0.01910372
+#> 3    0.90    60     0.864 0.02629616
+#> 4    0.95    60     0.950 0.01910372
 ```
 
-## Outcome independence: the measure-robustness property in action
+Coverage is close to the nominal level, and in the shortest windows
+somewhat below it: with 30 observations, the 95% interval covered the
+truth in 91.8% of the replications, with 60 observations in 95%
+(`mc_error` is the 95% simulation band around the nominal level). In
+short windows, treat the intervals as slightly optimistic.
 
-Quadratic variation does not care which outcome eventually realizes —
-this is the observable footprint of measure robustness (a change of
-measure reweights outcomes; it cannot change the estimate computed from
-a given path):
+## The clock does not depend on the outcome
+
+The clock measures *how much* was learned, not in which direction. Paths
+that end with the event happening (\\J = 1\\) and paths that end without
+it (\\J = 0\\) carry the same expected clock:
 
 ``` r
 
-p <- ec_simulate_path(400, 60, q = 0.4, A = 0.5)
+p <- ec_simulate_path(n_paths = 400, n_steps = 60, q = 0.4, A = 0.5)
 qv <- vapply(split(p$L, p$path), function(L) sum(diff(L)^2), numeric(1))
 J <- vapply(split(p$J, p$path), function(j) j[1], numeric(1))
 data.frame(
@@ -103,24 +131,29 @@ data.frame(
   n_paths = c(sum(J == 1), sum(J == 0))
 )
 #>   outcome mean_A_hat n_paths
-#> 1   J = 1  0.4935467     169
-#> 2   J = 0  0.5079064     231
+#> 1   J = 1  0.5048287     152
+#> 2   J = 0  0.5027828     248
 ```
 
-Both conditional means sit at the same true $`A = 0.5`$: the clock
-measures *how much* was learned, not *what* was learned.
+Both averages sit at the true \\A = 0.5\\. Constant or slowly moving
+risk premia therefore do not bias the clock: they change how much weight
+the market puts on each outcome, not how much the price moves along a
+given path. Premia that fluctuate day to day can add to the measured
+clock;
+[`ec_recovery_set()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_recovery_set.md)
+bounds that effect.
 
-## Lumpy information: what the robustness variants actually do
+## Lumpy news: what the robust variants measure
 
-Real event clocks are lumpy — debates and verdicts, not a smooth flow.
-With `jump_share`, the simulator concentrates part of $`A`$ in a few
-jump steps, and the estimator battery reacts exactly as the theory says
-it should:
+Real news is lumpy — a debate or a verdict can move the price more in
+one day than a month of polls. With `jump_share`, the simulator puts
+part of \\A\\ into a few jump steps. Here half of the true clock (0.25)
+arrives in a single jump and the other half (0.25) as a smooth flow:
 
 ``` r
 
 lumpy <- lapply(seq_len(200), function(i) {
-  p <- ec_simulate_path(1, 60, q = 0.4, A = 0.5,
+  p <- ec_simulate_path(n_paths = 1, n_steps = 60, q = 0.4, A = 0.5,
                         jump_share = 0.5, n_jumps = 1)
   event_clock(path_to_ep(p))[, c("method", "A")]
 })
@@ -128,82 +161,67 @@ agg <- do.call(rbind, lumpy)
 knitr::kable(
   aggregate(A ~ method, data = agg, FUN = mean),
   digits = 3,
-  caption = "Mean estimate across 200 lumpy paths (true A = 0.5, half of it in one jump)"
+  caption = "Mean estimate across 200 lumpy paths (true A = 0.5: 0.25 smooth + 0.25 in one jump)"
 )
 ```
 
 | method    |     A |
 |:----------|------:|
-| bipower   | 0.301 |
-| largest1  | 0.240 |
-| largest2  | 0.214 |
-| rv        | 0.502 |
+| bipower   | 0.298 |
+| largest1  | 0.239 |
+| largest2  | 0.213 |
+| rv        | 0.527 |
 | truncated | 0.236 |
 
-Mean estimate across 200 lumpy paths (true A = 0.5, half of it in one
-jump) {.table}
+Mean estimate across 200 lumpy paths (true A = 0.5: 0.25 smooth + 0.25
+in one jump) {.table}
 
-`rv` recovers total clock time including the jump; `bipower`,
-`truncated`, and `largest1` estimate (roughly) the *smooth* component
-only — the gap between `rv` and `bipower` is the jumpiness index. None
-of these is “wrong”; they answer different questions, and comparing them
-is the point.
+`rv` recovers the total clock including the jump. `truncated` and
+`largest1` land close to the smooth part (0.25): they drop the jump.
+`bipower` dampens the jump without removing it entirely and sits in
+between (0.298). `largest2` drops one ordinary move on top of the jump
+and so sits a little lower than `largest1`. The ratio \\1 -
+\text{bipower}/\text{rv}\\ is a simple *jumpiness index*, the share of
+the clock that came in bursts — here 0.43, against a true jump share of
+one half. None of the variants is wrong; they answer different
+questions, and comparing them is the point.
 
-## Microstructure noise and the snapshot rule
+## Trading noise and the sampling interval
 
-Traded quotes bounce between bid and ask on a coarse tick grid. Additive
-noise inflates measured variation at fine sampling — the classic
-signature-plot diagnostic, here on simulated data with known truth:
+Traded prices bounce between bid and ask on a coarse price grid. Such
+noise adds about twice its variance to every measured change, so the
+finer you sample, the more noise you add up. Here we add noise with a
+standard deviation of 0.04 in log odds — roughly a one-cent bounce at a
+price of 0.50 — to an hourly path with true clock \\A = 1\\:
 
 ``` r
 
-p <- ec_simulate_path(1, 2000, q = 0.4, A = 1)
+p <- ec_simulate_path(n_paths = 1, n_steps = 2000, q = 0.4, A = 1)
 noisy <- ec_ilogit(p$L + rnorm(nrow(p), sd = 0.04))
 ep_noisy <- as_event_prices(
   tibble::tibble(time = as.POSIXct("2024-01-01", tz = "UTC") +
                    3600 * p$step, q = noisy),
   clip = c(1e-8, 1 - 1e-8)
 )
-plot_signature(ec_signature(ep_noisy, max_every = 24))
-```
-
-![](eventclock-validation_files/figure-html/unnamed-chunk-7-1.png)
-
-The finest grid overstates the clock (noise variance is counted once per
-increment); sparse sampling converges toward the true $`A = 1`$. On real
-data the same pattern appears — this is the hourly-vs-daily gap of the
-2024 Polymarket series:
-
-``` r
-
-data(polymarket2024)
-plot_signature(ec_signature(as_event_prices(polymarket2024), max_every = 24))
+plot_signature(ec_signature(ep_noisy, max_every = 24)) +
+  ggplot2::geom_hline(yintercept = 1, linetype = 2)
 ```
 
 ![](eventclock-validation_files/figure-html/unnamed-chunk-8-1.png)
 
-which is why the one-snapshot-per-day rule of
-[`pm_daily()`](https://www.sebastianstoeckl.com/eventclock/reference/pm_daily.md)
-is the robust default for daily-horizon work.
+At the finest spacing the measured clock is several times the truth
+(dashed line); as the spacing grows it falls toward \\A = 1\\. Real data
+show the same pattern — the hourly-versus-daily gap of the 2024
+Polymarket series in
+[`vignette("eventclock-measurement")`](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-measurement.md).
+A daily snapshot
+([`pm_daily()`](https://www.sebastianstoeckl.com/eventclock/reference/pm_daily.md))
+is therefore a conservative default, but it also misses genuine intraday
+news: report more than one sampling interval.
 
-## Data-quality screening
+## Where next
 
-Before estimating anything, screen the input series:
-
-``` r
-
-ec_validate(as_event_prices(brexit2016, time = "date", price = "q_leave",
-                            market_id = "Brexit: Leave"))
-#> -- Event-price data-quality report: Brexit: Leave
-#> Coverage:  119 obs, 2016-02-26 to 2016-06-23, median spacing 1 days, 0 NA
-#> Clipping:  0.0% of observations outside the clipping bounds
-#> Staleness: 11.0% zero increments, longest stale run 2 obs
-#> Tick:      smallest non-zero move 0.001
-#> Gaps:      0 gap increment(s), largest 1 days
-#> Outliers:  max |dL| = 0.292 (5.5 robust SDs)
-```
-
-[`ec_validate()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_validate.md)
-reports coverage, staleness, tick size, gaps, and outliers — in the
-package’s flag-don’t-drop spirit: nothing is altered, everything is
-visible.
+- [`vignette("eventclock-measurement")`](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-measurement.md)
+  — sampling, real-time forecasts, and two venues on real data;
+- [`vignette("eventclock-event-betas")`](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-betas.md)
+  — which assets move with the event probability.

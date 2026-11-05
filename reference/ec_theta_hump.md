@@ -1,4 +1,4 @@
-# First-order event exposure from the spanning variance hump
+# First-order log exposure from the spanning variance hump
 
 For the two-point event mixture, the event contributes exactly
 \\q(1-q)\\\theta\_{\log}^2\\ to the *total* variance of the terminal log

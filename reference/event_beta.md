@@ -27,8 +27,12 @@ print(x, ...)
 - x:
 
   An `event_prices` object (or coercible); its probability innovations
-  \\\Delta q_t\\ are the regressor. Observations are matched on the
-  calendar date.
+  \\\Delta q_t\\ are the regressor. The probability level is taken at
+  each asset date (the last observation on or before it) and differenced
+  between consecutive asset dates, so probability moves over weekends
+  and holidays enter the next trading day's return. Collapse intraday
+  prices to a daily snapshot first (see
+  [`pm_daily()`](https://www.sebastianstoeckl.com/eventclock/reference/pm_daily.md)).
 
 - deta:
 
@@ -111,7 +115,7 @@ data(polymarket2024)
 ep <- pm_daily(as_event_prices(polymarket2024))
 event_beta(djt2024, ep)
 #> -- Event-beta regression (Newey-West, 4 lags)
-#> Event exposure deta_hat = 1.2765 (se 0.4838, t = 2.64), n = 108, R^2 = 0.064
-#> Model-implied levels at mean q = 0.554: eta1 = 1.5699, eta2 = 0.2934
+#> Event exposure deta_hat = 1.4669 (se 0.3728, t = 3.93), n = 125, R^2 = 0.106
+#> Model-implied levels at mean q = 0.554: eta1 = 1.6549, eta2 = 0.1881
 #> (No external deta supplied: levels/loading test not identified from returns alone.)
 ```

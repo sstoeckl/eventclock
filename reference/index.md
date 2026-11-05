@@ -35,17 +35,35 @@ Estimate information time A from log-odds variation.
 - [`event_clock_path()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_path.md)
   [`plot(`*`<event_clock_path>`*`)`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_path.md)
   : Cumulative event-clock path
-- [`event_clock_forecast()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_forecast.md)
-  : Real-time event-clock forecast
-- [`ec_signature()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_signature.md)
-  [`plot(`*`<ec_signature>`*`)`](https://www.sebastianstoeckl.com/eventclock/reference/ec_signature.md)
-  : Sampling-frequency signature of the event clock
-- [`plot_signature()`](https://www.sebastianstoeckl.com/eventclock/reference/plot_signature.md)
-  : Plot the sampling-frequency signature
 - [`ec_recovery_set()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_recovery_set.md)
-  : Partial-recovery interval for the event clock
+  : Partial-recovery interval for the Event Clock
 - [`ec_default_params()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_default_params.md)
   : Default parameters of the eventclock package
+
+## Measuring the clock in practice
+
+Sampling frequency, real-time forecasts, and multiple venues.
+
+- [`event_clock_staggered()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_staggered.md)
+  : Event Clock on staggered time grids
+- [`ec_signature()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_signature.md)
+  [`plot(`*`<ec_signature>`*`)`](https://www.sebastianstoeckl.com/eventclock/reference/ec_signature.md)
+  : Sampling-frequency signature of the Event Clock
+- [`plot_signature()`](https://www.sebastianstoeckl.com/eventclock/reference/plot_signature.md)
+  : Plot the sampling-frequency signature
+- [`event_clock_forecast()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_forecast.md)
+  : Real-time Event Clock forecast
+- [`ec_forecast_rules()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_forecast_rules.md)
+  : Candidate rules for real-time clock forecasts
+- [`ec_forecast_select()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_forecast_select.md)
+  [`print(`*`<ec_forecast_select>`*`)`](https://www.sebastianstoeckl.com/eventclock/reference/ec_forecast_select.md)
+  : Choose the real-time forecasting rule by out-of-sample accuracy
+- [`event_clock_venues()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_venues.md)
+  : Event Clocks from two venues: separating common news from venue
+  noise
+- [`event_clock_venues_path()`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_venues_path.md)
+  [`plot(`*`<event_clock_venues_path>`*`)`](https://www.sebastianstoeckl.com/eventclock/reference/event_clock_venues_path.md)
+  : Cumulative Event Clocks from two venues
 
 ## Event-spanning options
 
@@ -56,12 +74,14 @@ The lognormal event mixture and the event exposure theta.
   : Option prices and implied volatility under the event mixture
 - [`ec_theta_fit()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_theta_fit.md)
   [`print(`*`<ec_theta_fit>`*`)`](https://www.sebastianstoeckl.com/eventclock/reference/ec_theta_fit.md)
-  : Estimate the event exposure theta from event-spanning option
-  surfaces
+  : Estimate the log exposure theta from event-spanning option surfaces
 - [`ec_theta_hump()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_theta_hump.md)
-  : First-order event exposure from the spanning variance hump
+  : First-order log exposure from the spanning variance hump
 - [`ec_delta_to_k()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_delta_to_k.md)
   : Convert a call-equivalent delta grid to log-moneyness
+- [`ec_mix_price_pre()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_mix_price_pre.md)
+  [`ec_mix_iv_pre()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_mix_price_pre.md)
+  : Pre-resolution option prices under event learning
 
 ## Assets & finance
 
@@ -112,11 +132,13 @@ Closed-form calculators in (q, A).
 - [`plot_q()`](https://www.sebastianstoeckl.com/eventclock/reference/plot_q.md)
   : Plot the event-probability path
 - [`plot_clock()`](https://www.sebastianstoeckl.com/eventclock/reference/plot_clock.md)
-  : Clock plot: the cumulative event clock
+  : Clock plot: the cumulative Event Clock
 - [`plot_clock_vs_calendar()`](https://www.sebastianstoeckl.com/eventclock/reference/plot_clock_vs_calendar.md)
   : Event-clock time versus calendar time
 
-## Polymarket connector
+## Prediction-market connectors
+
+Public, keyless price histories from Polymarket and Kalshi.
 
 - [`pm_daily()`](https://www.sebastianstoeckl.com/eventclock/reference/pm_daily.md)
   : Collapse intraday event prices to one daily snapshot
@@ -126,6 +148,11 @@ Closed-form calculators in (q, A).
   : Download Polymarket price history for one outcome token
 - [`pm_search()`](https://www.sebastianstoeckl.com/eventclock/reference/pm_search.md)
   : Search Polymarket events
+- [`ks_markets()`](https://www.sebastianstoeckl.com/eventclock/reference/ks_markets.md)
+  [`ks_events()`](https://www.sebastianstoeckl.com/eventclock/reference/ks_markets.md)
+  : List the markets of a Kalshi event
+- [`ks_prices()`](https://www.sebastianstoeckl.com/eventclock/reference/ks_prices.md)
+  : Download Kalshi price history for one market
 
 ## Data
 
@@ -133,8 +160,12 @@ Closed-form calculators in (q, A).
   : Brexit 2016 event probabilities
 - [`us2016`](https://www.sebastianstoeckl.com/eventclock/reference/us2016.md)
   : U.S. presidential election 2016 event probabilities
+- [`us2016_surfaces_sim`](https://www.sebastianstoeckl.com/eventclock/reference/us2016_surfaces_sim.md)
+  : Simulated event-spanning option surfaces, 2016 U.S. election profile
 - [`polymarket2024`](https://www.sebastianstoeckl.com/eventclock/reference/polymarket2024.md)
   : Polymarket 2024 U.S. presidential election prices (hourly)
+- [`kalshi2024`](https://www.sebastianstoeckl.com/eventclock/reference/kalshi2024.md)
+  : Kalshi 2024 U.S. presidential election prices (daily 15:45 snapshot)
 - [`fomc_meetings`](https://www.sebastianstoeckl.com/eventclock/reference/fomc_meetings.md)
   : Scheduled FOMC meetings 2021-2027
 - [`djt2024`](https://www.sebastianstoeckl.com/eventclock/reference/djt2024.md)
