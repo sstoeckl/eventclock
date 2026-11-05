@@ -262,13 +262,38 @@ abline(h = 0.20, lty = 2)
 `A = 0` is the **no-learning benchmark** — the fixed-probability
 scheduled-jump model, where the pre-event option is plain Black with
 `s_cf` (dashed line). Learning adds value to convex payoffs
-(the option value is nondecreasing in `A`), and the comparison of
-observed pre-event smiles with these two predictions is precisely the
-held-out test of the working paper: the pre-event options either do or
-do not carry the learning variance implied by \(\theta\), \(q_t\), and
-the measured clock. The first-order (back-of-the-envelope) version of
-the same channel is in the formula book: `ec_sigma_eff()`,
-`ec_variance_share()`, and `ec_iv_rule()`.
+(the option value is nondecreasing in `A`). Comparing observed
+pre-event smiles with these two predictions is the held-out test of the
+working paper: do options expiring *before* the event carry the
+learning variance implied by \(\theta\), \(q_t\), and the clock?
+
+Three choices make that test honest, and all three avoid looking at the
+options being tested:
+
+1. **The clock is forecast, not measured after the fact.** Use
+   `event_clock_forecast()` with the rule picked by
+   `ec_forecast_select()` on earlier option lives (see
+   `vignette("eventclock-measurement")`).
+2. **The ordinary (no-event) smile shape comes from "quiet-clock"
+   options.** Earlier options whose own lives saw almost no movement in
+   the event probability (a tiny clock, e.g. \(A \le 0.04\)) show what
+   the smile looks like without election learning. Post-event smiles are
+   a poor substitute: they already condition on the realized outcome.
+3. **The exposure is re-estimated with data available at the valuation
+   date only** (event-spanning surfaces up to that day).
+
+With this design the working paper finds, for Trump Media options
+expiring the Friday before the 2024 election, that **calls support the
+learning channel** — adding learning lowers the pricing errors of the
+held-out call wings by about 4.6%, and still by 1.2% at the
+conservative low-clock endpoint of `ec_recovery_set()` — while puts do
+not. A one-sided result like this is informative in itself: it points
+to frictions (here, a hard-to-borrow stock with American options)
+rather than to a failure of the probability input.
+
+The first-order (back-of-the-envelope) version of the same channel is
+in the formula book: `ec_sigma_eff()`, `ec_variance_share()`, and
+`ec_iv_rule()`.
 
 ## Clock sensitivity: partial recovery
 
@@ -293,15 +318,16 @@ The working paper's most conservative check uses the low end at
 
 The package deliberately ships **no proprietary option data**: the
 estimation and pricing functions take your surfaces in the long
-format shown above. The complete empirical architecture — choosing
-the counterfactual shape from post-resolution surfaces, running the
-held-out wing comparison across clock constructions and recovery
-sets, and allowing dependence between ordinary asset news and
+format shown above. The complete empirical architecture — selecting
+quiet-clock ordinary-risk smiles by pre-registered rules, running the
+held-out wing comparison across clock constructions, venues, and
+recovery sets, and allowing dependence between ordinary asset news and
 event-probability innovations — is developed in the accompanying
 working paper (Hanke, Schadner, Stöckl, and Weissensteiner, Working
 Paper, "Learning Before Scheduled Events: Prediction Markets, State
 Prices, and Option Valuation"). The other vignettes cover the inputs
-used here: measuring the clock
-(`vignette("eventclock-brexit")`), validating the estimator
+used here: measuring the clock (`vignette("eventclock-brexit")`),
+measuring it in practice — sampling, real-time forecasts, and two
+venues (`vignette("eventclock-measurement")`), validating the estimator
 (`vignette("eventclock-validation")`), and returns-based exposures
 (`vignette("eventclock-event-betas")`).

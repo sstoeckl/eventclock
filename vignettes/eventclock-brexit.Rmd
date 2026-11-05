@@ -190,19 +190,32 @@ visible as the late steep segment.
 ## Real time versus ex post
 
 Ex post, we know how much information arrived while an option was alive.
-In real time we do not; the paper's benchmark annualizes the trailing
-40-observation realized variation and scales it to the horizon:
+In real time we do not: a forecast measures how fast the clock has been
+ticking recently and scales that speed to the horizon, using only prices
+observed up to the valuation date. Which window to use is chosen on
+*earlier* periods by forecast accuracy — for this series, the trailing
+60 daily changes:
 
 ```{r}
+starts <- seq(as.Date("2016-05-15"), as.Date("2016-10-03"), by = "day")
+sel <- ec_forecast_select(ep_us,
+  intervals = data.frame(start = starts, end = starts + 7),
+  rules = ec_forecast_rules(obs = c(21, 41, 61)))
+sel$best$rule
+
 event_clock_forecast(ep_us,
   at = as.Date("2016-10-10"),
-  horizon = c(`1W` = 7, `2W` = 14)
+  horizon = c(`1W` = 7, `2W` = 14),
+  trailing = 61
 )
 ```
 
-This reproduces the published real-time values of 0.068 (1W) and 0.135
-(2W) for the U.S. election — the market expected far more learning than
-the 0.015/0.046 that actually materialized before election week.
+These reproduce the working paper's real-time values (0.0476 and
+0.0951) to within half a percent: the market expected far more learning
+than the 0.015 and 0.046 that actually materialized before election
+week. Sampling, forecast
+selection, and multi-venue checks are covered in
+`vignette("eventclock-measurement")`.
 
 ## Why levels do not matter: the wedge property
 
