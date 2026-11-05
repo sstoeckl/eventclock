@@ -228,6 +228,93 @@ ec_recovery_set <- function(A, eps = c(0, 0.10, 0.25, 0.50)) {
   )
 }
 
+#' Pre-resolution option prices under event learning
+#'
+#' Prices a European option that expires *before* the event is resolved.
+#' The option never sees the outcome, but it is exposed to *learning*:
+#' while it is alive, the state-price-implied event probability moves by
+#' the elapsed event-clock time `A`, and with it the event component of
+#' the asset value. `ec_mix_price_pre()` evaluates this exactly under the
+#' package's maintained transition: the future probability follows the
+#' two-component logistic-normal law of [ec_transition_density()], the
+#' event component is \eqn{E = q' m_1 + (1-q') m_2} with the means of
+#' [ec_mix_price()], and ordinary (non-event) risk is lognormal with
+#' total dispersion `s_cf`, independent of event learning.
+#'
+#' `A = 0` is the **no-learning benchmark**: the price collapses to the
+#' plain Black price with dispersion `s_cf` — the fixed-probability
+#' scheduled-jump special case. For convex payoffs the price is
+#' nondecreasing in elapsed clock time (the convex-order effect of
+#' learning), which is what makes held-out pre-resolution options a
+#' *test* of the learning channel rather than a calibration input.
+#'
+#' @param k Log-forward moneyness \eqn{\log(K/F)} (vector).
+#' @param q Current state-price-implied probability of outcome 1.
+#' @param theta Event exposure \eqn{\log(m_1/m_2)}, e.g. from
+#'   [ec_theta_fit()] on event-spanning surfaces.
+#' @param A Event-clock time expected to elapse over the option's
+#'   remaining life, e.g. from [event_clock_forecast()].
+#' @param s_cf Total dispersion of the counterfactual (ordinary,
+#'   no-event) asset risk over the option's life.
+#' @param type `"call"` or `"put"`.
+#'
+#' @return `ec_mix_price_pre()`: forward-normalized undiscounted prices;
+#'   `ec_mix_iv_pre()`: the corresponding Black total implied
+#'   dispersions.
+#'
+#' @references Hanke, Schadner, Stöckl, and Weissensteiner (Working
+#'   Paper), "Learning Before Scheduled Events: Prediction Markets,
+#'   State Prices, and Option Valuation".
+#'
+#' @examples
+#' # learning raises the pre-event ATM value relative to no learning
+#' ec_mix_price_pre(0, q = 0.4, theta = 0.8, A = c(0, 0.25, 1), s_cf = 0.2)
+#' # ... and the effect vanishes without exposure
+#' ec_mix_price_pre(0, q = 0.4, theta = 0, A = c(0, 1), s_cf = 0.2)
+#' @seealso [ec_sigma_eff()] and [ec_iv_rule()] for the first-order
+#'   (formula-book) versions of the same channel.
+#' @export
+ec_mix_price_pre <- function(k, q, theta, A, s_cf, type = c("call", "put")) {
+  type <- match.arg(type)
+  r <- ec_recycle(k = k, q = q, theta = theta, A = A, s_cf = s_cf)
+  check_prob(r$q)
+  check_nonneg(r$A, "A")
+  check_nonneg(r$s_cf, "s_cf")
+  K <- exp(r$k)
+  n <- length(K)
+  out <- numeric(n)
+  for (i in seq_len(n)) {
+    m <- mix_means(r$q[i], r$theta[i])
+    if (r$A[i] < 1e-12 || abs(r$theta[i]) < 1e-12) {
+      out[i] <- black_call(1, K[i], r$s_cf[i])
+      next
+    }
+    lam <- ec_logit(r$q[i])
+    sA <- sqrt(r$A[i])
+    f <- function(eps, tilt) {
+      qq <- ec_ilogit(lam + tilt + sA * eps)
+      stats::dnorm(eps) *
+        black_call(qq * m$m1 + (1 - qq) * m$m2,
+                   rep(K[i], length(eps)), rep(r$s_cf[i], length(eps)))
+    }
+    up <- stats::integrate(f, -Inf, Inf, tilt = r$A[i] / 2,
+                           rel.tol = 1e-9, abs.tol = 1e-11)$value
+    dn <- stats::integrate(f, -Inf, Inf, tilt = -r$A[i] / 2,
+                           rel.tol = 1e-9, abs.tol = 1e-11)$value
+    out[i] <- r$q[i] * up + (1 - r$q[i]) * dn
+  }
+  if (type == "put") out <- out - 1 + K
+  out
+}
+
+#' @rdname ec_mix_price_pre
+#' @export
+ec_mix_iv_pre <- function(k, q, theta, A, s_cf) {
+  r <- ec_recycle(k = k, q = q, theta = theta, A = A, s_cf = s_cf)
+  price <- ec_mix_price_pre(r$k, r$q, r$theta, r$A, r$s_cf, type = "call")
+  black_iv_total(price, exp(r$k))
+}
+
 # Per-surface inner fit: dispersions (log-parametrized) given theta.
 # obs: list with k, iv (in input units), w, scale (total = iv_units * scale,
 # i.e. scale = sqrt(tau) when iv is annualized, 1 otherwise), q (scalar),

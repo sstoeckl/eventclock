@@ -20,31 +20,46 @@ knitr::opts_chunk$set(
 library(eventclock)
 ```
 
-## Two kinds of options around a scheduled event
+## How much does an asset care about an event?
 
-An option that expires *after* a scheduled event is exposed to the
-realized outcome itself: its price depends on how the asset is
-distributed conditional on each outcome. An option that expires
-*before* resolution is exposed only to *learning* — revisions in the
-event probability while the option is alive. The working paper's
-sequential design keeps these roles strictly separate:
-
-1. the traded event market supplies the state-price-implied event
-   probability \(q_t\) and, via the event clock, the information-flow
-   input (`q_from_price()`, `event_clock()`);
-2. **event-spanning options identify the outcome-conditional asset
-   distributions** — this vignette;
-3. pre-resolution options and the underlying are *held out* and used as
-   overidentifying restrictions, not as calibration instruments.
-
-This vignette covers step 2: the lognormal event mixture, the **event
-exposure**
+Scheduled binary events — elections, referendums, central-bank or
+court decisions, merger votes, drug approvals — move asset prices
+through a simple question: *how different would this asset be worth
+under outcome 1 versus outcome 2?* This vignette is about measuring
+that quantity from option prices. We call it the **event exposure**,
 \[
   \theta \;=\; \log\!\big(m_1 / m_2\big),
 \]
-the log ratio of the outcome-conditional risk-neutral means of the
-event multiplier, and how to estimate a common \(\theta\) from a panel
-of event-spanning option surfaces.
+the log ratio of the asset's outcome-conditional (risk-neutral) mean
+values. A stock worth 10% more under outcome 1 than under outcome 2
+has \(\theta \approx 0.10\); an index that barely cares has
+\(\theta \approx 0\). The sign says *which* outcome the asset favors,
+the magnitude says *how much* is at stake.
+
+The key idea is **which options to use**. An option that expires
+*after* the event is exposed to the realized outcome itself — its
+smile mixes the two conditional distributions, and that is exactly
+what identifies \(\theta\). An option that expires *before*
+resolution never sees the outcome; it is exposed only to *learning*
+(revisions in the event probability while it is alive). Estimating
+\(\theta\) from event-spanning options **only**, and leaving the
+shorter options out, keeps the shorter options available as a genuine
+out-of-sample test of the learning channel — the sequential design of
+the accompanying working paper.
+
+**What you need.** Two ingredients, both in long format:
+
+1. a **traded event probability** \(q_t\) for the event — a
+   prediction-market or betting price after discount normalization
+   (`q_from_price()`, or directly from Polymarket via `pm_prices()`);
+2. **option smiles for expiries after the event date**: implied
+   volatilities at a handful of strikes or deltas, per valuation date
+   and expiry, together with time to expiry. Standardized vendor
+   surfaces on a delta grid work as-is (see `ec_delta_to_k()`); five
+   or more nodes per smile are enough.
+
+No proprietary data ships with the package; the examples below are
+fully simulated.
 
 ## The lognormal event mixture
 
@@ -186,6 +201,72 @@ cross-section before running the full surface fit on the assets that
 matter. It identifies \(|\theta|\) only; the sign again comes from
 `event_beta()`.
 
+## A realistic example: the 2016 U.S. election
+
+The package ships `us2016_surfaces_sim`: 47 simulated event-spanning
+surfaces (valuation dates over the last four pre-election weeks, three
+post-election expiries, nine delta nodes) that match the empirical
+profile of S&P 500 index options ahead of the 2016 U.S. presidential
+election — generated from the event mixture with fitted parameters as
+calibration targets, so the numbers are realistic but fully synthetic.
+Together with the traded probabilities in `us2016` this is the whole
+workflow on real-world scales:
+
+```{r us2016fit}
+data(us2016_surfaces_sim)
+s16 <- us2016_surfaces_sim
+s16$tau <- as.numeric(s16$expiry_date - s16$obs_date) / 365
+s16$k <- ec_delta_to_k(s16$node, s16$iv * sqrt(s16$tau))
+s16$surface <- paste(s16$obs_date, s16$expiry_date)
+fit16 <- ec_theta_fit(s16[, c("surface", "k", "iv", "q", "tau")])
+fit16
+```
+
+The common exposure is \(\theta \approx -0.077\): conditional on a
+Trump win, the index was priced about
+`r round(100 * (1 - exp(fit16$theta)), 1)`% lower than conditional
+on a Clinton win — a small number per node, yet pinned down sharply
+because 47 surfaces share one ratio. At \(q\) around 0.15-0.30 the
+sign *is* identified here (the smile asymmetry does the work), and it
+agrees with how index futures actually moved on election night.
+
+```{r}
+summary(fit16$surfaces$s1 - fit16$surfaces$s2)
+```
+
+## Pricing pre-resolution options under learning
+
+With \(\theta\) in hand, the natural next question is what it implies
+for the options that were *not* used in the estimation: those expiring
+before the event. While such an option is alive, the event probability
+drifts and diffuses in event-clock time, and with it the event
+component of the asset value. `ec_mix_price_pre()` prices this
+exactly under the package's maintained transition
+(`ec_transition_density()`): `A` is the event-clock time expected to
+elapse over the option's remaining life (for instance from
+`event_clock_forecast()`), and `s_cf` is the ordinary, no-event
+dispersion:
+
+```{r prelearning, fig.alt = "Pre-resolution ATM implied dispersion as a function of elapsed event-clock time"}
+Agrid <- seq(0, 1.5, by = 0.1)
+ivp <- ec_mix_iv_pre(0, q = 0.45, theta = 0.8, A = Agrid, s_cf = 0.20)
+plot(Agrid, ivp, type = "b", pch = 16,
+     xlab = "elapsed event-clock time A over the option's life",
+     ylab = "ATM total implied dispersion")
+abline(h = 0.20, lty = 2)
+```
+
+`A = 0` is the **no-learning benchmark** — the fixed-probability
+scheduled-jump model, where the pre-event option is plain Black with
+`s_cf` (dashed line). Learning adds value to convex payoffs
+(the option value is nondecreasing in `A`), and the comparison of
+observed pre-event smiles with these two predictions is precisely the
+held-out test of the working paper: the pre-event options either do or
+do not carry the learning variance implied by \(\theta\), \(q_t\), and
+the measured clock. The first-order (back-of-the-envelope) version of
+the same channel is in the formula book: `ec_sigma_eff()`,
+`ec_variance_share()`, and `ec_iv_rule()`.
+
 ## Clock sensitivity: partial recovery
 
 The spanning estimation uses only the *level* \(q_t\). As soon as the
@@ -203,17 +284,19 @@ At `eps = 0` (exact recovery) the interval degenerates to the measured
 value; wider bounds propagate economically motivated uncertainty about
 state-dependent valuation into everything downstream.
 
-## What this vignette did not do
+## Scope and further reading
 
 The package deliberately ships **no proprietary option data**: the
-estimation functions take your surfaces in the long format shown
-above. The full sequential design — counterfactual shape from
-post-resolution surfaces, held-out pre-resolution wing tests, and
-dependence between ordinary asset news and event-probability
-innovations — lives in the accompanying working paper (Hanke,
-Schadner, Stöckl, and Weissensteiner, Working Paper, "Learning Before
-Scheduled Events: Prediction Markets, State Prices, and Option
-Valuation"); the transition machinery needed to price pre-resolution
-claims under learning is already available via
-`ec_transition_density()`, `ec_simulate()`, and the formula-book
-calculators (`ec_atm_event_call()`, `ec_iv_rule()`).
+estimation and pricing functions take your surfaces in the long
+format shown above. The complete empirical architecture — choosing
+the counterfactual shape from post-resolution surfaces, running the
+held-out wing comparison across clock constructions and recovery
+sets, and allowing dependence between ordinary asset news and
+event-probability innovations — is developed in the accompanying
+working paper (Hanke, Schadner, Stöckl, and Weissensteiner, Working
+Paper, "Learning Before Scheduled Events: Prediction Markets, State
+Prices, and Option Valuation"). The other vignettes cover the inputs
+used here: measuring the clock
+(`vignette("eventclock-brexit")`), validating the estimator
+(`vignette("eventclock-validation")`), and returns-based exposures
+(`vignette("eventclock-event-betas")`).

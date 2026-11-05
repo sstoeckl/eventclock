@@ -22,7 +22,26 @@ datasets of the working paper
 > *Learning Before Scheduled Events: Prediction Markets, State Prices,
 > and Option Valuation.* Working Paper.
 
-A Python port is available at [cgebe/eventclock-py](https://github.com/cgebe/eventclock-py).
+A Python port is available at
+[cgebe/eventclock-py](https://github.com/cgebe/eventclock-py).
+
+## The workflow
+
+The package implements the paper’s architecture end to end. The logic is
+sequential: event-market prices supply the probability and the clock;
+event-spanning options identify the asset’s outcome-conditional
+distributions; options expiring *before* the event are deliberately left
+out of the estimation, so that they remain available as an out-of-sample
+test of the learning channel.
+
+| Step | Object | Functions | Vignette |
+|----|----|----|----|
+| 1\. Standardize event prices | state-price-implied event probability $q_t$ | `as_event_prices()`, `q_from_price()`, `q_from_ffutures()`, `q_from_deal_spread()`, `ec_validate()`, `pm_*()` | [Brexit tour](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-brexit.html) |
+| 2\. Measure the clock | $A_{t,T}$ = log-odds quadratic variation, with robustness and inference | `event_clock()`, `event_clock_path()`, `event_clock_forecast()`, `ec_signature()`, `ec_recovery_set()` | [Brexit tour](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-brexit.html) |
+| 3\. Validate the estimator | Monte Carlo: consistency, CI coverage, jumps, microstructure | `ec_simulate_path()`, `ec_simulate()` | [Validation](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-validation.html) |
+| 4\. Exposure from returns | $\widehat{\Delta\eta}$ from $r_t \approx \Delta\eta\,\Delta q_t$ | `event_beta()`, `ec_relevance()` | [Event betas](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-betas.html) |
+| 5\. Exposure from event-spanning options | $\theta = \log(m_1/m_2)$ via the lognormal event mixture | `ec_mix_price()`, `ec_mix_iv()`, `ec_theta_fit()`, `ec_theta_hump()`, `ec_delta_to_k()` | [Event-spanning options](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html) |
+| 6\. Pre-resolution pricing and the learning test | held-out options vs. the no-learning benchmark | `ec_mix_price_pre()`, `ec_mix_iv_pre()`; first order: `ec_sigma_eff()`, `ec_variance_share()`, `ec_iv_rule()` | [Event-spanning options](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html) |
 
 ## Features
 
@@ -43,6 +62,14 @@ A Python port is available at [cgebe/eventclock-py](https://github.com/cgebe/eve
   $\widehat{\Delta\eta}$ from returns with Newey-West errors and the
   $\beta = 1$ loading test against an external exposure;
   `ec_relevance()`: the sufficient statistic for pricing relevance.
+- **Event-spanning options** — the lognormal event mixture
+  (`ec_mix_price()`, `ec_mix_iv()`); `ec_theta_fit()`: the common
+  conditional-mean-ratio surface fit for the event exposure
+  $\theta = \log(m_1/m_2)$; `ec_theta_hump()`: the first-order
+  variance-hump estimator; `ec_delta_to_k()` for standardized delta
+  grids; `ec_mix_price_pre()` / `ec_mix_iv_pre()`: exact pre-resolution
+  option prices under event learning (the no-learning benchmark is the
+  $A = 0$ special case).
 - **Formula book** — closed-form calculators in $(q, A)$:
   `ec_moments()`, `ec_exceedance()`, `ec_revision()`,
   `ec_atm_event_call()`, `ec_sigma_eff()`, `ec_variance_share()`,
@@ -120,7 +147,8 @@ event_clock(pm_daily(ep24))
 (An alternative community client for the same APIs is
 [polymarketR](https://github.com/clintmckenna/polymarketR).)
 
-See the vignette for the full tour:
+See the workflow table above for which vignette covers which step; the
+full tour starts at
 `vignette("eventclock-brexit", package = "eventclock")`.
 
 ## Citation

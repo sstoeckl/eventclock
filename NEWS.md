@@ -1,3 +1,29 @@
+# eventclock 0.4.1
+
+* `ec_mix_price_pre()` / `ec_mix_iv_pre()` — exact pre-resolution
+  option prices under event learning: the future event probability
+  follows the maintained two-component logistic-normal transition,
+  ordinary risk is an independent lognormal, and `A = 0` collapses to
+  the fixed-probability (no-learning) Black benchmark. Completes the
+  pricing side of the framework; the first-order formula-book versions
+  (`ec_sigma_eff()`, `ec_iv_rule()`) remain as back-of-the-envelope
+  checks.
+* The event-spanning vignette was rewritten for general readers:
+  motivation without paper context, an explicit "what you need"
+  section, and a new pre-resolution pricing section.
+* README gains a workflow section mapping the paper's sequential
+  architecture (probability -> clock -> validation -> returns-based
+  exposure -> option-implied exposure -> learning test) to functions
+  and vignettes.
+* pkgdown now renders help-page math via MathJax (previously raw
+  LaTeX appeared on reference pages).
+* New dataset `us2016_surfaces_sim`: simulated event-spanning
+  delta-grid surfaces matching the S&P 500 profile over the last four
+  weeks before the 2016 U.S. election (47 surfaces, common exposure
+  theta = -0.077). Fully synthetic — generated from the event mixture
+  with fitted parameters as calibration targets — and the worked
+  real-scale example of the event-spanning vignette.
+
 # eventclock 0.4.0
 
 ## Event-spanning options

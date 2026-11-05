@@ -2,8 +2,17 @@ url: https://www.sebastianstoeckl.com/eventclock/
 template:
   bootstrap: 5
   bootswatch: spacelab
+  math-rendering: mathjax
 navbar:
   bg: primary
+articles:
+- title: The workflow, step by step
+  navbar: ~
+  contents:
+  - eventclock-brexit
+  - eventclock-validation
+  - eventclock-event-betas
+  - eventclock-event-spanning
 reference:
 - title: Event prices
   desc: Standardize and screen traded event probabilities.
@@ -30,6 +39,7 @@ reference:
   - ec_theta_fit
   - ec_theta_hump
   - ec_delta_to_k
+  - ec_mix_price_pre
 - title: Assets & finance
   desc: Event exposures and pricing relevance.
   contents:
@@ -64,6 +74,7 @@ reference:
   contents:
   - brexit2016
   - us2016
+  - us2016_surfaces_sim
   - polymarket2024
   - fomc_meetings
   - djt2024

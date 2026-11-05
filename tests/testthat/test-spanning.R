@@ -117,6 +117,56 @@ test_that("ec_theta_fit handles annualized IVs via tau and node weights", {
   expect_output(print(fit), "Free per-surface exposures")
 })
 
+test_that("pre-resolution pricer: A = 0 and theta = 0 collapse to Black", {
+  k <- c(-0.3, 0, 0.25)
+  bl <- ec_mix_price(k, q = 0.4, theta = 0, s1 = 0.2, s2 = 0.2)
+  expect_equal(ec_mix_price_pre(k, 0.4, theta = 0.9, A = 0, s_cf = 0.2),
+               bl, tolerance = 1e-12)
+  expect_equal(ec_mix_price_pre(k, 0.4, theta = 0, A = 0.8, s_cf = 0.2),
+               bl, tolerance = 1e-12)
+})
+
+test_that("pre-resolution value is nondecreasing in elapsed clock time", {
+  # Corollary: learning generates a mean-preserving spread in q'
+  v <- ec_mix_price_pre(0, q = 0.45, theta = 0.8,
+                        A = c(0, 0.1, 0.4, 1, 2), s_cf = 0.2)
+  expect_true(all(diff(v) > 0))
+})
+
+test_that("pre-resolution prices satisfy parity and the forward bound", {
+  k <- c(-0.4, 0.1)
+  cc <- ec_mix_price_pre(k, 0.35, 0.7, A = 0.5, s_cf = 0.25, type = "call")
+  pp <- ec_mix_price_pre(k, 0.35, 0.7, A = 0.5, s_cf = 0.25, type = "put")
+  expect_equal(cc - pp, 1 - exp(k), tolerance = 1e-7)
+  # deep-ITM call ~ forward minus strike (martingale event component)
+  expect_equal(ec_mix_price_pre(-6, 0.35, 0.7, A = 0.5, s_cf = 0.25),
+               1 - exp(-6), tolerance = 1e-6)
+})
+
+test_that("small-A pre-resolution IV matches the first-order variance add-on", {
+  q <- 0.4; theta <- 0.5; A <- 0.01; s_cf <- 0.3
+  m <- exp(theta); m1 <- m / (q * m + 1 - q); m2 <- 1 / (q * m + 1 - q)
+  # d log E / d lambda = q(1-q)(m1 - m2) at E = 1
+  extra <- (q * (1 - q) * (m1 - m2))^2 * A
+  iv <- ec_mix_iv_pre(0, q, theta, A, s_cf)
+  expect_equal(iv^2, s_cf^2 + extra, tolerance = 0.02)
+})
+
+test_that("us2016_surfaces_sim reproduces its calibration exposure", {
+  data(us2016_surfaces_sim)
+  s <- us2016_surfaces_sim
+  expect_equal(nrow(s), 423L)
+  expect_true(all(s$expiry_date > s$event_date))  # event-spanning only
+  s$tau <- as.numeric(s$expiry_date - s$obs_date) / 365
+  s$k <- ec_delta_to_k(s$node, s$iv * sqrt(s$tau))
+  s$surface <- paste(s$obs_date, s$expiry_date)
+  fit <- ec_theta_fit(s[, c("surface", "k", "iv", "q", "tau")])
+  # golden: the simulation's calibration target (US-2016 SPX profile)
+  expect_equal(fit$theta, -0.0774, tolerance = 0.01)
+  expect_equal(fit$n_surfaces, 47L)
+  expect_lt(fit$rmse, 0.01)
+})
+
 test_that("ec_theta_fit input validation works", {
   expect_error(ec_theta_fit(data.frame(k = 1)), "missing column")
   surf <- data.frame(surface = "a", k = c(-0.1, 0, 0.1), q = 0.5, iv = 0.3)
