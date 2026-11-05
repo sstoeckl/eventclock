@@ -211,6 +211,31 @@ test_that("ratio shapes measure errors in volatility units", {
   expect_equal(sr$best$rmse, sd$best$rmse, tolerance = 1e-10)
 })
 
+test_that("pseudo_min_dte filters pseudo-targets only, not templates", {
+  A <- c(0.01, 0.30, 0.02, 0.20, 0.01, 0.50, 0.03, 0.02, 0.01, 0.02)
+  dte <- c(2, 4, 4, 2, 4, 4, 2, 4, 2, 4)
+  lib <- ec_quiet_library(make_nodes(A, dte = dte))
+  rules <- ec_quiet_rules(c(0.04, 0.06), "absolute", aggregation = "all")
+  sel <- ec_quiet_select(lib, rules, pseudo_quiet = 0.02, pseudo_min_dte = 3)
+  ids <- lib$surface[lib$A <= 0.02 & lib$dte >= 3]
+  expect_setequal(sel$pseudo, ids)
+  expect_false(any(c("s01", "s09") %in% sel$pseudo))
+  expect_equal(sel$settings$pseudo_min_dte, 3)
+  # same as handing over the filtered identifiers
+  manual <- ec_quiet_select(lib, rules, pseudo = ids)
+  expect_equal(sel$scores, manual$scores)
+  expect_equal(sel$detail, manual$detail)
+  # s03's only quiet template available on its date is s01 (2 days to expiry)
+  scored <- unique(sel$detail$surface[is.finite(sel$detail$error)])
+  expect_true("s03" %in% scored)
+  # filter also applies to explicit identifiers
+  sel_id <- ec_quiet_select(lib, rules, pseudo = c("s01", "s03"), pseudo_min_dte = 3)
+  expect_equal(sel_id$pseudo, "s03")
+  expect_error(ec_quiet_select(lib, rules, pseudo_min_dte = 10), "No pseudo-targets")
+  expect_error(ec_quiet_select(lib, rules, pseudo_min_dte = -1), "non-negative")
+  expect_error(ec_quiet_select(lib, rules, pseudo_min_dte = c(1, 2)), "non-negative")
+})
+
 test_that("standardized moneyness lines up maturities and volatility levels", {
   # smile shape identical in z = k / (atm * sqrt(tau)): shape = 0.01 * z^2
   mk <- function(id, date, dte, atm, A) {

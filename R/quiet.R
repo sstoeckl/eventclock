@@ -449,6 +449,9 @@ ec_quiet_shape <- function(library, date, expiry, atm_iv, k,
 #' @param pseudo_quiet Optional clock threshold: surfaces with
 #'   \eqn{A} at or below it are pseudo-targets (used when `pseudo` is
 #'   `NULL`; default: all surfaces with a known clock).
+#' @param pseudo_min_dte Optional minimum calendar days to expiry of a
+#'   pseudo-target (applied on top of `pseudo` or `pseudo_quiet`). Shorter
+#'   surfaces still serve as templates.
 #' @param cutoff Optional real-target valuation date: the library is first
 #'   restricted to surfaces that expired at or before it.
 #' @param available_only Logical; restrict each pseudo-target's templates
@@ -491,11 +494,16 @@ ec_quiet_shape <- function(library, date, expiry, atm_iv, k,
 #' @seealso [ec_quiet_rules()], [ec_quiet_shape()].
 #' @export
 ec_quiet_select <- function(library, rules = ec_quiet_rules(), pseudo = NULL,
-                            pseudo_quiet = NULL, cutoff = NULL,
-                            available_only = TRUE, wing = NULL,
+                            pseudo_quiet = NULL, pseudo_min_dte = NULL,
+                            cutoff = NULL, available_only = TRUE, wing = NULL,
                             common = TRUE, target = NULL) {
   check_library(library)
   check_rules(rules)
+  if (!is.null(pseudo_min_dte) &&
+      !(is.numeric(pseudo_min_dte) && length(pseudo_min_dte) == 1 &&
+        is.finite(pseudo_min_dte) && pseudo_min_dte >= 0)) {
+    cli::cli_abort("{.arg pseudo_min_dte} must be a single non-negative number of days.")
+  }
   tz <- attr(library, "tz") %||% "UTC"
   shape_type <- attr(library, "shape") %||% "difference"
   standardized <- identical(attr(library, "moneyness"), "standardized")
@@ -512,6 +520,9 @@ ec_quiet_select <- function(library, rules = ec_quiet_rules(), pseudo = NULL,
     cand <- cand[cand$surface %in% as.character(pseudo), , drop = FALSE]
   } else if (!is.null(pseudo_quiet)) {
     cand <- cand[cand$A <= pseudo_quiet + 1e-12, , drop = FALSE]
+  }
+  if (!is.null(pseudo_min_dte)) {
+    cand <- cand[cand$dte >= pseudo_min_dte - 1e-9, , drop = FALSE]
   }
   if (nrow(cand) == 0) cli::cli_abort("No pseudo-targets with a known clock and ATM volatility.")
 
@@ -568,6 +579,7 @@ ec_quiet_select <- function(library, rules = ec_quiet_rules(), pseudo = NULL,
               pseudo = cand$surface, rules = rules,
               settings = list(available_only = available_only, wing = wing,
                               common = common, cutoff = cutoff,
+                              pseudo_min_dte = pseudo_min_dte,
                               shape = shape_type,
                               moneyness = if (standardized) "standardized" else "log"))
   if (!is.null(target)) {

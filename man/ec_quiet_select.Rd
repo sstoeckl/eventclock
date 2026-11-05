@@ -9,6 +9,7 @@ ec_quiet_select(
   rules = ec_quiet_rules(),
   pseudo = NULL,
   pseudo_quiet = NULL,
+  pseudo_min_dte = NULL,
   cutoff = NULL,
   available_only = TRUE,
   wing = NULL,
@@ -26,6 +27,10 @@ ec_quiet_select(
 \item{pseudo_quiet}{Optional clock threshold: surfaces with
 \eqn{A} at or below it are pseudo-targets (used when \code{pseudo} is
 \code{NULL}; default: all surfaces with a known clock).}
+
+\item{pseudo_min_dte}{Optional minimum calendar days to expiry of a
+pseudo-target (applied on top of \code{pseudo} or \code{pseudo_quiet}). Shorter
+surfaces still serve as templates.}
 
 \item{cutoff}{Optional real-target valuation date: the library is first
 restricted to surfaces that expired at or before it.}

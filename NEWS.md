@@ -17,9 +17,11 @@
   contributes only its date, expiry, and at-the-money level.
 * `ec_quiet_select()` chooses the rule by cross-validation on earlier
   pseudo-targets (maturity block left out; optionally only templates
-  available at each pseudo-target date), with wing-shape RMSE over
-  `0.04 <= |k| <= 0.30`, a common node set across rules, and the
-  target's predicted shape under every rule.
+  available at each pseudo-target date; optionally only pseudo-targets
+  with a minimum days to expiry, `pseudo_min_dte`), with wing-shape RMSE
+  over `0.04 <= |k| <= 0.30` (or `0.5 <= |z| <= 3` in standardized
+  moneyness, `k / (ATM volatility × sqrt(tau))`), a common node set
+  across rules, and the target's predicted shape under every rule.
 
 ## Exchange option data
 
