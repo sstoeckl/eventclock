@@ -5,7 +5,16 @@
 \alias{print.ec_theta_fit}
 \title{Estimate the event exposure theta from event-spanning option surfaces}
 \usage{
-ec_theta_fit(surfaces, theta_range = c(-3, 3), common = TRUE, min_nodes = 4)
+ec_theta_fit(
+  surfaces,
+  theta_range = c(-3, 3),
+  common = TRUE,
+  min_nodes = 4,
+  boot_reps = 0,
+  block = NULL,
+  block_length = 1,
+  conf = 0.95
+)
 
 \method{print}{ec_theta_fit}(x, ...)
 }
@@ -25,6 +34,9 @@ surface's valuation date (constant within surface).}
 annualized and total units.}
 \item{\code{w}}{optional: node weight (e.g. quote count or inverse
 spread); defaults to 1.}
+\item{\code{iv_bid}, \code{iv_ask}}{optional: implied volatilities of the bid
+and ask quotes (same units as \code{iv}); enables the bid-ask
+diagnostic.}
 }}
 
 \item{theta_range}{Search interval for the common exposure.}
@@ -36,6 +48,19 @@ the \code{surfaces} table.}
 
 \item{min_nodes}{Surfaces with fewer observed nodes are dropped with a
 warning (two free dispersions need cross-sectional information).}
+
+\item{boot_reps}{Number of block-bootstrap replications for a
+confidence interval of the common exposure (default 0 = none).}
+
+\item{block}{Name of the column defining the bootstrap blocks —
+typically the valuation date, so that all maturities observed on one
+date are resampled together (the working paper's date-block
+bootstrap). Required when \code{boot_reps > 0}.}
+
+\item{block_length}{Number of consecutive blocks drawn together
+(moving-block bootstrap; default 1).}
+
+\item{conf}{Confidence level of the bootstrap interval (default 0.95).}
 
 \item{x, ...}{Print method arguments.}
 }
@@ -49,6 +74,16 @@ the \code{iv} input (annualized if \code{tau} was supplied).}
 \item{surfaces}{per-surface tibble: \code{q}, nodes, fitted \code{s1}, \code{s2}
 (total dispersions), per-surface \code{rmse}, and \code{theta} when
 \code{common = FALSE}.}
+\item{nodes}{per-node tibble: \code{surface}, \code{k}, \code{iv}, the fitted
+\code{iv_fit} and residual \code{iv_err}; with bid and ask also \code{iv_bid},
+\code{iv_ask}, and \code{inside} (fitted value within the quotes).}
+\item{inside_share}{share of nodes whose fitted implied volatility
+lies inside the bid-ask interval (\code{NA} without quotes). Because
+prices are monotone in implied volatility, this equals the share of
+model prices inside the quoted price interval.}
+\item{theta_ci, ratio_ci, theta_boot}{with \code{boot_reps > 0}: the
+percentile interval for \eqn{\theta} and \eqn{e^\theta}, and the
+bootstrap draws.}
 \item{n_surfaces, n_obs, common}{bookkeeping.}
 }
 \description{
@@ -68,6 +103,11 @@ surface carries equal weight regardless of how many quotes it has.
 the sign of \eqn{\theta} is not identified from option prices alone and
 the optimizer returns one of the two equivalent solutions. Fix the sign
 externally (e.g. \code{\link[=event_beta]{event_beta()}}).
+
+\strong{Bootstrap.} Each replication draws blocks with replacement, refits
+the common exposure on the surfaces of the drawn blocks (warm-started
+from the full-sample fit), and records \eqn{\theta}. Runtime is roughly
+\code{boot_reps} times a full fit; a few hundred replications are typical.
 }
 \section{Methods (by generic)}{
 \itemize{

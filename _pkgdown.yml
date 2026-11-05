@@ -75,14 +75,17 @@ reference:
   - plot_q
   - plot_clock
   - plot_clock_vs_calendar
-- title: Polymarket connector
+- title: Prediction-market connectors
+  desc: Public, keyless price histories from Polymarket and Kalshi.
   contents:
   - starts_with("pm_")
+  - starts_with("ks_")
 - title: Data
   contents:
   - brexit2016
   - us2016
   - us2016_surfaces_sim
   - polymarket2024
+  - kalshi2024
   - fomc_meetings
   - djt2024

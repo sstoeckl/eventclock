@@ -122,6 +122,30 @@
 #' event_beta(djt2024, pm_daily(as_event_prices(polymarket2024)))
 "djt2024"
 
+#' Kalshi 2024 U.S. presidential election prices (daily 15:45 snapshot)
+#'
+#' Daily prices of the Kalshi contract "Will Donald Trump or another
+#' Republican win the Presidency?" (market `PRES-2024-DJT`), taken as the
+#' last hourly price at or before 15:45 New York time, from the contract's
+#' listing on October 4 to election day, November 5, 2024. Together with
+#' the same snapshot of [polymarket2024] it gives two synchronized venues
+#' for the same event — the input of [event_clock_venues()].
+#'
+#' @format A tibble with 33 rows and 2 columns:
+#' \describe{
+#'   \item{date}{Calendar date (`Date`).}
+#'   \item{q}{Traded price of the "Yes" contract (0-1).}
+#' }
+#' @source Kalshi public trade API (v2), downloaded with [ks_prices()];
+#'   see `data-raw/kalshi2024.R`.
+#' @examples
+#' data(kalshi2024)
+#' data(polymarket2024)
+#' pm <- pm_daily(as_event_prices(polymarket2024), snapshot_hour = 15.75)
+#' ks <- as_event_prices(kalshi2024, time = "date", price = "q")
+#' event_clock_venues(pm, ks, labels = c("Polymarket", "Kalshi"))
+"kalshi2024"
+
 #' Simulated event-spanning option surfaces, 2016 U.S. election profile
 #'
 #' **Simulated** implied-volatility surfaces for event-spanning options

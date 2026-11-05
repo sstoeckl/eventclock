@@ -399,6 +399,9 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
 #'       annualized and total units.}
 #'     \item{`w`}{optional: node weight (e.g. quote count or inverse
 #'       spread); defaults to 1.}
+#'     \item{`iv_bid`, `iv_ask`}{optional: implied volatilities of the bid
+#'       and ask quotes (same units as `iv`); enables the bid-ask
+#'       diagnostic.}
 #'   }
 #' @param theta_range Search interval for the common exposure.
 #' @param common If `FALSE`, every surface gets its own \eqn{\theta}
@@ -407,6 +410,15 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
 #'   the `surfaces` table.
 #' @param min_nodes Surfaces with fewer observed nodes are dropped with a
 #'   warning (two free dispersions need cross-sectional information).
+#' @param boot_reps Number of block-bootstrap replications for a
+#'   confidence interval of the common exposure (default 0 = none).
+#' @param block Name of the column defining the bootstrap blocks —
+#'   typically the valuation date, so that all maturities observed on one
+#'   date are resampled together (the working paper's date-block
+#'   bootstrap). Required when `boot_reps > 0`.
+#' @param block_length Number of consecutive blocks drawn together
+#'   (moving-block bootstrap; default 1).
+#' @param conf Confidence level of the bootstrap interval (default 0.95).
 #'
 #' @return An object of class `ec_theta_fit`: a list with
 #'   \item{theta, ratio}{the common event exposure and
@@ -417,6 +429,16 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
 #'   \item{surfaces}{per-surface tibble: `q`, nodes, fitted `s1`, `s2`
 #'     (total dispersions), per-surface `rmse`, and `theta` when
 #'     `common = FALSE`.}
+#'   \item{nodes}{per-node tibble: `surface`, `k`, `iv`, the fitted
+#'     `iv_fit` and residual `iv_err`; with bid and ask also `iv_bid`,
+#'     `iv_ask`, and `inside` (fitted value within the quotes).}
+#'   \item{inside_share}{share of nodes whose fitted implied volatility
+#'     lies inside the bid-ask interval (`NA` without quotes). Because
+#'     prices are monotone in implied volatility, this equals the share of
+#'     model prices inside the quoted price interval.}
+#'   \item{theta_ci, ratio_ci, theta_boot}{with `boot_reps > 0`: the
+#'     percentile interval for \eqn{\theta} and \eqn{e^\theta}, and the
+#'     bootstrap draws.}
 #'   \item{n_surfaces, n_obs, common}{bookkeeping.}
 #'
 #' @details
@@ -424,6 +446,11 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
 #' the sign of \eqn{\theta} is not identified from option prices alone and
 #' the optimizer returns one of the two equivalent solutions. Fix the sign
 #' externally (e.g. [event_beta()]).
+#'
+#' **Bootstrap.** Each replication draws blocks with replacement, refits
+#' the common exposure on the surfaces of the drawn blocks (warm-started
+#' from the full-sample fit), and records \eqn{\theta}. Runtime is roughly
+#' `boot_reps` times a full fit; a few hundred replications are typical.
 #'
 #' @references Hanke, Schadner, Stöckl, and Weissensteiner (Working Paper),
 #'   "Learning Before Scheduled Events: Prediction Markets, State Prices,
@@ -443,16 +470,25 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
 #'   [event_beta()] for the returns-based exposure.
 #' @export
 ec_theta_fit <- function(surfaces, theta_range = c(-3, 3), common = TRUE,
-                         min_nodes = 4) {
+                         min_nodes = 4, boot_reps = 0, block = NULL,
+                         block_length = 1, conf = 0.95) {
   stopifnot(is.data.frame(surfaces))
   need <- c("surface", "k", "iv", "q")
   miss <- setdiff(need, names(surfaces))
   if (length(miss) > 0) {
     cli::cli_abort("{.arg surfaces} is missing column{?s} {.field {miss}}.")
   }
+  if (boot_reps > 0) {
+    if (!common) cli::cli_abort("The bootstrap needs {.code common = TRUE}.")
+    if (is.null(block) || !block %in% names(surfaces)) {
+      cli::cli_abort("Supply {.arg block}, the name of a column of {.arg surfaces} (e.g. the valuation date).")
+    }
+    stopifnot(block_length >= 1, conf > 0, conf < 1)
+  }
   sf <- as.data.frame(surfaces)
   sf$w <- if ("w" %in% names(sf)) as.numeric(sf$w) else 1
   sf$scale <- if ("tau" %in% names(sf)) sqrt(as.numeric(sf$tau)) else 1
+  has_quotes <- all(c("iv_bid", "iv_ask") %in% names(sf))
   if (any(!is.finite(sf$scale) | sf$scale <= 0)) {
     cli::cli_abort("{.field tau} must be positive where supplied.")
   }
@@ -485,21 +521,9 @@ ec_theta_fit <- function(surfaces, theta_range = c(-3, 3), common = TRUE,
     )
   })
 
-  warm <- vector("list", length(obs))
-  surface_mse <- function(theta) {
-    mse <- numeric(length(obs))
-    for (i in seq_along(obs)) {
-      f <- fit_dispersions(obs[[i]], theta, par0 = warm[[i]])
-      warm[[i]] <<- f$par
-      mse[i] <- f$mse
-    }
-    mse
-  }
-
   if (common) {
-    opt <- stats::optimize(function(th) mean(surface_mse(th)),
-                           interval = theta_range, tol = 1e-4)
-    theta_hat <- opt$minimum
+    cf <- common_theta(obs, theta_range, warm = vector("list", length(obs)))
+    theta_hat <- cf$theta
     fits <- lapply(obs, fit_dispersions, theta = theta_hat)
     theta_col <- rep(theta_hat, length(obs))
   } else {
@@ -523,17 +547,75 @@ ec_theta_fit <- function(surfaces, theta_range = c(-3, 3), common = TRUE,
     s2 = unname(vapply(fits, function(f) f$s2, 0)),
     rmse = sqrt(unname(vapply(fits, function(f) f$mse, 0)))
   )
+
+  nodes <- dplyr::bind_rows(lapply(seq_along(obs), function(i) {
+    o <- obs[[i]]
+    iv_fit <- ec_mix_iv(o$k, o$q, theta_col[i], fits[[i]]$s1, fits[[i]]$s2) /
+      o$scale
+    tibble::tibble(surface = names(obs)[i], k = o$k, iv = o$iv,
+                   iv_fit = iv_fit, iv_err = iv_fit - o$iv)
+  }))
+  inside_share <- NA_real_
+  if (has_quotes) {
+    qt <- do.call(rbind, lapply(pieces, function(p) p[, c("iv_bid", "iv_ask")]))
+    nodes$iv_bid <- qt$iv_bid
+    nodes$iv_ask <- qt$iv_ask
+    nodes$inside <- nodes$iv_fit >= nodes$iv_bid & nodes$iv_fit <= nodes$iv_ask
+    inside_share <- mean(nodes$inside, na.rm = TRUE)
+  }
+
   out <- list(
     theta = theta_hat,
     ratio = exp(theta_hat),
     rmse = sqrt(mean(vapply(fits, function(f) f$mse, 0))),
     surfaces = per,
+    nodes = nodes,
+    inside_share = inside_share,
     n_surfaces = length(obs),
     n_obs = sum(per$n),
     common = common
   )
+
+  if (boot_reps > 0) {
+    blk <- vapply(pieces, function(p) as.character(p[[block]][1]), "")
+    lv <- unique(blk)
+    first_val <- vapply(lv, function(b) pieces[[which(blk == b)[1]]][[block]][1],
+                        pieces[[1]][[block]][1])
+    lv <- lv[order(first_val)]
+    B <- length(lv)
+    l <- min(as.integer(block_length), B)
+    warm_full <- lapply(fits, function(f) f$par)
+    draws <- vapply(seq_len(boot_reps), function(r) {
+      starts <- sample.int(B - l + 1, ceiling(B / l), replace = TRUE)
+      pick <- unlist(lapply(starts, function(s) lv[s:(s + l - 1)]))[seq_len(B)]
+      idx <- unlist(lapply(pick, function(b) which(blk == b)))
+      common_theta(obs[idx], theta_range, warm = warm_full[idx], tol = 1e-3)$theta
+    }, numeric(1))
+    a <- (1 - conf) / 2
+    out$theta_boot <- draws
+    out$theta_ci <- stats::quantile(draws, c(a, 1 - a), names = FALSE)
+    out$ratio_ci <- exp(out$theta_ci)
+    out$boot <- list(reps = boot_reps, block = block,
+                     block_length = l, conf = conf)
+  }
   class(out) <- "ec_theta_fit"
   out
+}
+
+# Common-exposure fit on a list of prepared surfaces (warm-started).
+common_theta <- function(obs, theta_range, warm, tol = 1e-4) {
+  surface_mse <- function(theta) {
+    mse <- numeric(length(obs))
+    for (i in seq_along(obs)) {
+      f <- fit_dispersions(obs[[i]], theta, par0 = warm[[i]])
+      warm[[i]] <<- f$par
+      mse[i] <- f$mse
+    }
+    mse
+  }
+  opt <- stats::optimize(function(th) mean(surface_mse(th)),
+                         interval = theta_range, tol = tol)
+  list(theta = opt$minimum, warm = warm)
 }
 
 #' @describeIn ec_theta_fit Print method.
@@ -547,6 +629,13 @@ print.ec_theta_fit <- function(x, ...) {
       "Common event exposure theta = %.4f (conditional-mean ratio m1/m2 = %.3f)\n",
       x$theta, x$ratio
     ))
+    if (!is.null(x$ratio_ci)) {
+      cat(sprintf(
+        "%g%% block-bootstrap interval for m1/m2: [%.3f, %.3f] (%d replications, blocks: %s)\n",
+        100 * x$boot$conf, x$ratio_ci[1], x$ratio_ci[2], x$boot$reps,
+        x$boot$block
+      ))
+    }
   } else {
     cat(sprintf(
       "Free per-surface exposures: median theta = %.4f (range %.3f to %.3f)\n",
@@ -555,5 +644,9 @@ print.ec_theta_fit <- function(x, ...) {
     ))
   }
   cat(sprintf("Surface-balanced RMSE = %.4f (IV units of the input)\n", x$rmse))
+  if (is.finite(x$inside_share %||% NA_real_)) {
+    cat(sprintf("Fitted values inside the bid-ask interval: %.1f%%\n",
+                100 * x$inside_share))
+  }
   invisible(x)
 }

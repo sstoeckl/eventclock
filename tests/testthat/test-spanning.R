@@ -175,6 +175,56 @@ test_that("us2016_surfaces_sim reproduces its calibration exposure", {
   expect_lt(fit$rmse, 0.01)
 })
 
+make_panel <- function(theta = 0.6, noise = 0, seed = 1) {
+  set.seed(seed)
+  k <- seq(-0.45, 0.45, by = 0.15)
+  cfg <- expand.grid(date = as.Date("2024-10-21") + 0:3, expiry = c(1, 2))
+  cfg$q <- 0.45 + 0.03 * as.numeric(cfg$date - min(cfg$date))
+  cfg$s1 <- 0.20 + 0.04 * cfg$expiry
+  cfg$s2 <- 0.26 + 0.04 * cfg$expiry
+  do.call(rbind, lapply(seq_len(nrow(cfg)), function(i) {
+    iv <- ec_mix_iv(k, cfg$q[i], theta, cfg$s1[i], cfg$s2[i])
+    data.frame(surface = paste(cfg$date[i], cfg$expiry[i]), date = cfg$date[i],
+               k = k, q = cfg$q[i],
+               iv = iv + stats::rnorm(length(k), sd = noise))
+  }))
+}
+
+test_that("ec_theta_fit reports node fits and the bid-ask diagnostic", {
+  p <- make_panel()
+  fit <- ec_theta_fit(p)
+  expect_equal(nrow(fit$nodes), nrow(p))
+  expect_lt(max(abs(fit$nodes$iv_err)), 1e-3)
+  expect_true(is.na(fit$inside_share))
+
+  wide <- transform(p, iv_bid = iv - 0.01, iv_ask = iv + 0.01)
+  fw <- ec_theta_fit(wide)
+  expect_equal(fw$inside_share, 1)
+  expect_true(all(fw$nodes$inside))
+  expect_output(print(fw), "inside the bid-ask interval: 100.0%")
+
+  off <- transform(p, iv_bid = iv + 0.02, iv_ask = iv + 0.03)
+  expect_equal(ec_theta_fit(off)$inside_share, 0)
+})
+
+test_that("date-block bootstrap brackets the true exposure", {
+  p <- make_panel(theta = 0.6, noise = 0.003, seed = 4)
+  set.seed(10)
+  fit <- ec_theta_fit(p, boot_reps = 15, block = "date")
+  expect_length(fit$theta_boot, 15L)
+  expect_lt(fit$theta_ci[1], fit$theta_ci[2])
+  expect_true(fit$theta_ci[1] <= 0.6 + 0.05 && fit$theta_ci[2] >= 0.6 - 0.05)
+  expect_equal(fit$ratio_ci, exp(fit$theta_ci))
+  expect_output(print(fit), "block-bootstrap interval")
+  # moving blocks of two dates
+  set.seed(11)
+  f2 <- ec_theta_fit(p, boot_reps = 5, block = "date", block_length = 2)
+  expect_equal(f2$boot$block_length, 2L)
+  expect_error(ec_theta_fit(p, boot_reps = 5), "block")
+  expect_error(ec_theta_fit(p, boot_reps = 5, block = "date", common = FALSE),
+               "common")
+})
+
 test_that("ec_theta_fit input validation works", {
   expect_error(ec_theta_fit(data.frame(k = 1)), "missing column")
   surf <- data.frame(surface = "a", k = c(-0.1, 0, 0.1), q = 0.5, iv = 0.3)

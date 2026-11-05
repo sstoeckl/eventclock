@@ -43,6 +43,22 @@
   cross-venue clock that filters venue-specific noise; reports
   increment correlation and each venue's noise share.
 
+## Option-implied exposure and a second venue
+
+* `ec_theta_fit()` gains a date-block (moving-block) bootstrap for the
+  common exposure (`boot_reps`, `block`, `block_length`, `conf`), the
+  working paper's inference for the conditional-mean ratio; per-node
+  fitted values and residuals (`$nodes`); and, when bid and ask implied
+  volatilities are supplied, the share of fitted values inside the
+  quotes (`$inside_share`).
+* Kalshi connector: `ks_events()`, `ks_markets()`, `ks_prices()` on the
+  public, keyless trade API (live and settled markets, chunked
+  candlesticks, last-trade or mid prices), returning `event_prices`
+  objects.
+* New dataset `kalshi2024`: daily 15:45 New York snapshot of the Kalshi
+  Trump-win contract, October 4 to November 5, 2024 — the second venue
+  for `event_clock_venues()`.
+
 ## Pricing, data, and documentation
 
 * `ec_mix_price_pre()` / `ec_mix_iv_pre()` — exact pre-resolution

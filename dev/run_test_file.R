@@ -1,0 +1,6 @@
+args <- commandArgs(trailingOnly = TRUE)
+setwd("D:/OneDrive - University of Liechtenstein/ROOT/Packages/eventclock")
+suppressMessages(devtools::document(quiet = TRUE))
+res <- devtools::test(filter = args[1], reporter = "summary")
+df <- as.data.frame(res)
+cat(sprintf("\nTOTAL: passed %d, failed %d\n", sum(df$passed), sum(df$failed)))
