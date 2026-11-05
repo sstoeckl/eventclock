@@ -1,3 +1,41 @@
+# eventclock (development version)
+
+## Ordinary-risk benchmark from quiet-clock surfaces
+
+* `ec_quiet_library()` builds the library of earlier option surfaces:
+  at-the-money volatility, smile shape relative to at-the-money
+  (difference or ratio), calendar days to expiry, and the Event Clock
+  realized over each surface's own remaining life (from event prices,
+  optionally on staggered intraday grids, or supplied).
+* `ec_quiet_rules()` fixes the template-rule grid in advance: quietness
+  threshold (quantile of the available clocks or absolute) ×
+  days-to-expiry band × aggregation (all, most recent *n*, *n* nearest by
+  at-the-money volatility). The defaults are the 15-rule grid; the
+  30-rule variant is one call.
+* `ec_quiet_shape()` predicts a target's smile shape under each rule from
+  templates that expired at or before the target date; the target
+  contributes only its date, expiry, and at-the-money level.
+* `ec_quiet_select()` chooses the rule by cross-validation on earlier
+  pseudo-targets (maturity block left out; optionally only templates
+  available at each pseudo-target date), with wing-shape RMSE over
+  `0.04 <= |k| <= 0.30`, a common node set across rules, and the
+  target's predicted shape under every rule.
+
+## Exchange option data
+
+* `cme_definitions()`, `cme_statistics()`, `cme_option_surfaces()` turn
+  CME Globex instrument definitions and daily statistics (Databento's
+  `GLBX.MDP3` schemas, as Parquet or CSV files or data frames) into
+  option surfaces: last final settlement per trading date, futures
+  settlement as forward, time to the published expiration, Black (1976)
+  implied volatilities (both sides and out-of-the-money), vega, open
+  interest, a put-call parity diagnostic, exercise style from the CFI
+  code, inverted quotes (`invert = TRUE`), and the event probability at
+  the valuation time. Files whose columns all arrived as text read the
+  same as typed files. The output feeds `ec_theta_fit()` and
+  `ec_quiet_library()` directly. No exchange data ships with the
+  package.
+
 # eventclock 0.5.0
 
 ## Bug fix

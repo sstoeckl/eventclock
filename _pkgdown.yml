@@ -49,6 +49,23 @@ reference:
   - ec_theta_hump
   - ec_delta_to_k
   - ec_mix_price_pre
+- title: Ordinary-risk benchmark
+  desc: >
+    Smile shape of ordinary option risk from earlier quiet-clock surfaces,
+    with the template rule chosen on pseudo-targets before the target.
+  contents:
+  - ec_quiet_library
+  - ec_quiet_rules
+  - ec_quiet_shape
+  - ec_quiet_select
+- title: Exchange option data
+  desc: >
+    CME Globex instrument definitions and daily settlements to option
+    surfaces with Black (1976) implied volatilities.
+  contents:
+  - cme_definitions
+  - cme_statistics
+  - cme_option_surfaces
 - title: Assets & finance
   desc: Event exposures and pricing relevance.
   contents:

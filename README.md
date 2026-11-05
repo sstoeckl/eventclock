@@ -43,6 +43,7 @@ test of the learning channel.
 | 4\. Exposure from returns | $\widehat{\Delta\eta}$ from $r_t \approx \Delta\eta\,\Delta q_t$ | `event_beta()`, `ec_relevance()` | [Event betas](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-betas.html) |
 | 5\. Exposure from event-spanning options | log exposure $\theta = \log(\eta_1/\eta_2)$ via the lognormal event mixture | `ec_mix_price()`, `ec_mix_iv()`, `ec_theta_fit()`, `ec_theta_hump()`, `ec_delta_to_k()` | [Event-spanning options](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html) |
 | 6\. Pre-resolution pricing and the learning test | held-out options vs. the no-learning benchmark | `ec_mix_price_pre()`, `ec_mix_iv_pre()`; first order: `ec_sigma_eff()`, `ec_variance_share()`, `ec_iv_rule()` | [Event-spanning options](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html) |
+| 6b. Ordinary smile for the test | template rules fixed in advance, chosen on earlier quiet surfaces | `ec_quiet_library()`, `ec_quiet_rules()`, `ec_quiet_select()`, `ec_quiet_shape()` | [Event-spanning options](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html) |
 
 ## Features
 
@@ -71,6 +72,10 @@ test of the learning channel.
   grids; `ec_mix_price_pre()` / `ec_mix_iv_pre()`: exact pre-resolution
   option prices under event learning (the no-learning benchmark is the
   $A = 0$ special case).
+- **Ordinary-risk benchmark** — `ec_quiet_library()`,
+  `ec_quiet_rules()`, `ec_quiet_select()`, `ec_quiet_shape()`: the smile
+  without event learning, built from earlier quiet-clock surfaces with a
+  template rule chosen on pseudo-targets before the target.
 - **Formula book** — closed-form calculators in $(q, A)$:
   `ec_moments()`, `ec_exceedance()`, `ec_revision()`,
   `ec_atm_event_call()`, `ec_sigma_eff()`, `ec_variance_share()`,
@@ -85,7 +90,10 @@ test of the learning channel.
 - **Connectors** — Polymarket: `pm_search()`, `pm_markets()`,
   `pm_prices()`, `pm_daily()` on the public Gamma/CLOB APIs; Kalshi:
   `ks_events()`, `ks_markets()`, `ks_prices()` on the public trade API.
-  Both keyless.
+  Both keyless. Exchange options: `cme_definitions()`,
+  `cme_statistics()`, `cme_option_surfaces()` turn CME Globex
+  definitions and daily settlements (Databento `GLBX.MDP3` files you
+  license yourself) into option surfaces.
 - **Datasets** — `brexit2016`, `us2016` (the working paper’s event
   windows), `polymarket2024` (hourly 2024 U.S. election prices),
   `kalshi2024` (the same event on Kalshi, daily 15:45 snapshot),

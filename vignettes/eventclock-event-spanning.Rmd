@@ -323,10 +323,10 @@ at the options being tested:
    on earlier option lives (`vignette("eventclock-measurement")`).
 2. **The ordinary smile `s_cf` comes from "quiet" weeks:** earlier
    options whose own lives saw almost no movement in the event
-   probability (a tiny clock; a cut-off such as \(A \le 0.04\) is a
-   judgment call) show the smile without event learning. Smiles from
-   after the event are a poor substitute — they already know the
-   outcome.
+   probability (a tiny clock) show the smile without event learning.
+   How tiny is a judgment call; the next section shows how to make it
+   without looking at the tested options. Smiles from after the event
+   are a poor substitute — they already know the outcome.
 3. **The exposure is estimated with data available on the valuation
    date only.**
 
@@ -340,6 +340,104 @@ upper bound for what real data can show.) A one-sided
 result like this is informative in itself: it points to frictions (a
 hard-to-borrow stock with American-style options) rather than to a
 failure of the probability input.
+
+### Choosing the ordinary smile without peeking
+
+Point 2 hides a temptation: there are many reasonable ways to build an
+"ordinary" smile from quiet weeks (how quiet is quiet? use all of them
+or only the most similar?), and trying them out on the options being
+tested would quietly bias the test. The package therefore separates the
+choice from the test:
+
+1. `ec_quiet_library()` lists the earlier option smiles, each with its
+   at-the-money volatility, its *shape* (how far each strike's
+   volatility sits above or below at-the-money), and its quietness — the
+   clock realized while that option was alive.
+2. `ec_quiet_rules()` fixes a menu of construction rules in advance —
+   by default 15: three quietness cut-offs (the 25th, 50th, or 75th
+   percentile of the earlier clocks) times five ways of averaging (all
+   quiet smiles, the 5 or 10 most recent, or the 5 or 10 whose
+   at-the-money volatility is closest to the target's).
+3. `ec_quiet_select()` tries every rule on *earlier* quiet weeks treated
+   as if they were the target ("pseudo-targets"), using only smiles that
+   had already expired at that time, and keeps the rule that predicts
+   their wings best. The real target's wings are never consulted; its
+   at-the-money quote only sets the level.
+
+A simulated example with 30 weekly options: every week has the same
+ordinary smile, plus an event-driven skew that grows with how much news
+arrived during that week.
+
+```{r quiet-library}
+set.seed(11)
+n <- 30
+weeks <- data.frame(
+  surface = sprintf("week %02d", 1:n),
+  date = as.Date("2024-05-06") + 7 * (0:(n - 1)),   # Monday quotes
+  A = rexp(n, rate = 1 / 0.05),                      # clock over each life
+  atm = 0.75 + 0.10 * runif(n)
+)
+nodes <- merge(weeks, data.frame(k = round(seq(-0.3, 0.3, by = 0.05), 10)))
+nodes$expiry <- nodes$date + 4                       # Friday expiry
+nodes$iv <- nodes$atm + 0.8 * nodes$k^2 -            # ordinary smile
+  3 * nodes$A * nodes$k +                            # event-driven skew
+  rnorm(nrow(nodes), sd = 0.005)
+lib <- ec_quiet_library(nodes)
+lib
+```
+
+Now choose the rule on the quietest quarter of the earlier weeks, and
+predict the ordinary smile of a target week in December:
+
+```{r quiet-select}
+sel <- ec_quiet_select(
+  lib,
+  rules = ec_quiet_rules(),
+  pseudo_quiet = quantile(lib$A, 0.25),
+  target = list(date = as.Date("2024-12-02"), expiry = as.Date("2024-12-06"),
+                atm_iv = 0.80, k = c(-0.2, -0.1, 0.1, 0.2))
+)
+sel
+subset(sel$target_shapes, selected, c(k, shape, iv_pred))
+```
+
+The selected rule (`r sel$best$rule`) predicts the pseudo-targets' wings
+with a root-mean-square error of `r round(100 * sel$best$rmse, 2)`
+volatility points, against `r round(100 * max(sel$scores$rmse), 2)` for
+the worst rule on the menu. `iv_pred` is the ordinary smile of the target week — the
+input `s_cf` of the held-out test (multiply by \(\sqrt{\tau}\) for total
+dispersion). Reporting the result for every rule on the menu, not only
+the selected one, shows how much the conclusion depends on this choice.
+
+For low-volatility assets with short maturities, such as currencies,
+compare shapes in standard deviations rather than in log-moneyness:
+`ec_quiet_library(..., moneyness = "standardized")` measures each strike
+by \(k/(\sigma_{ATM}\sqrt{\tau})\), so a one-week and a three-week smile
+line up.
+
+### From exchange settlements to smiles
+
+Exchange-traded options come with daily settlement prices.
+`cme_definitions()`, `cme_statistics()`, and `cme_option_surfaces()`
+turn CME Globex instrument definitions and daily statistics (as
+delivered in Databento's `GLBX.MDP3` files, which you license
+yourself; no exchange data ships with the package) into the smile format
+used throughout this vignette: one row per date, expiry, and strike with
+the futures price as forward, Black implied volatilities, open interest,
+and a put-call parity check. The result feeds `ec_theta_fit()` and
+`ec_quiet_library()` directly:
+
+```{r cme, eval = FALSE}
+defs  <- cme_definitions("data/definition/")      # Parquet or CSV files
+stats <- cme_statistics("data/statistics/")
+surf  <- cme_option_surfaces(defs, stats,
+  assets = c("6M", "1M", "2M", "3M", "4M", "5M"),   # peso options
+  invert = TRUE,       # quote per U.S. dollar (USDMXN) instead of per peso
+  rate = 0.05,         # discount rate; matters when rates are high
+  x = ep               # adds the event probability at each valuation time
+)
+lib <- ec_quiet_library(surf, x = ep, moneyness = "standardized")
+```
 
 Back-of-the-envelope (first-order) versions of the same channel are
 `ec_iv_rule()`, `ec_variance_share()`, and `ec_sigma_eff()`; see their
@@ -366,12 +464,12 @@ the conservative low end used above.
 ## Scope and further reading
 
 The package ships **no proprietary option data**: the estimation and
-pricing functions take your smiles in the format described above. The
-full empirical design — choosing quiet-week smiles by rules fixed in
-advance, running the held-out comparison across clock constructions,
-venues, and recovery bounds, and allowing ordinary asset news to be
-correlated with event news — is developed in the accompanying working
-paper (Hanke, Schadner, Stöckl, and Weissensteiner, Working Paper,
+pricing functions take your smiles in the format described above, and
+the CME reader takes files you license yourself. The full empirical
+design — running the held-out comparison across clock constructions,
+venues, ordinary-smile rules, and recovery bounds, and allowing
+ordinary asset news to be correlated with event news — is developed in
+the accompanying working paper (Hanke, Schadner, Stöckl, and Weissensteiner, Working Paper,
 "Learning Before Scheduled Events: Prediction Markets, State Prices,
 and Option Valuation").
 

@@ -32,6 +32,8 @@ Imports:
     stats,
     tibble
 Suggests:
+    arrow,
+    bit64,
     curl,
     knitr,
     rmarkdown,
