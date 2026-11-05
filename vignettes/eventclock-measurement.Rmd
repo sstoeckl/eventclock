@@ -69,10 +69,10 @@ noise:
 plot_signature(ec_signature(ep24, max_every = 24))
 ```
 
-Here the clock measured from every hourly price is about half again as
-large as the one from every 24th price, and it falls steadily as the
-spacing grows: coarser grids average out short-lived noise (and miss
-some intraday news).
+Over the full five months, the clock measured from every hourly price
+is about half again as large as the one from every 24th price, and it
+falls steadily as the spacing grows: coarser grids average out
+short-lived noise (and miss some intraday news).
 
 `event_clock_staggered()` then measures the clock at a chosen interval
 while still using all the data: it samples every `interval` minutes,
@@ -98,8 +98,8 @@ knitr::kable(
 )
 ```
 
-The clock roughly halves between hourly and daily sampling. Part of
-that is genuine intraday news that a daily snapshot misses, part is
+In the final month the clock roughly halves between hourly and daily
+sampling. Part of that is genuine intraday news that a daily snapshot misses, part is
 noise — so report several constructions side by side rather than
 picking one. Dropping the largest move shows how much a single news
 burst contributes.
@@ -111,7 +111,8 @@ will arrive *while it is alive*. On the day you price it, that news has
 not happened yet, so you need a forecast. `event_clock_forecast()`
 measures how fast the clock has been ticking recently (clock time per
 day) and multiplies by the remaining time — using only prices observed
-up to the valuation time:
+up to the valuation time. The `horizon` can be a number of days or an
+end time:
 
 ```{r forecast}
 at     <- ny("2024-10-25 15:45")  # Friday, end-of-day option snapshot
@@ -195,7 +196,8 @@ Taking both venues' prices at the same moment each day gives two
 synchronized series. `pm_daily()` keeps the last price at or before a
 given hour of each day and works for any intraday series, not only
 Polymarket; `snapshot_hour = 15.75` means 15:45 New York time (15.75 in
-decimal hours), which matches end-of-day option quotes:
+decimal hours), which matches end-of-day option quotes. The shipped
+`kalshi2024` series is already such a 15:45 snapshot:
 
 ```{r venues-levels, fig.alt = "Polymarket and Kalshi Trump-win prices at 15:45 New York time"}
 pm <- pm_daily(ep24, snapshot_hour = 15.75)
@@ -244,8 +246,11 @@ The two venues' daily moves are strongly correlated
 venue's own: under the noise model above, about
 `r round(100 * v$noise_share_x)`% of Polymarket's and
 `r round(100 * v$noise_share_y)`% of Kalshi's daily clock is
-venue-specific. The cumulative version shows where the venues agree and
-where they part ways:
+venue-specific. (Polymarket's own daily clock here,
+`r round(v$A_x, 3)`, differs slightly from the daily row of the table
+in section 1 because it uses one sampling grid — the 15:45 snapshot —
+instead of the average over all daily grids.) The cumulative version
+shows where the venues agree and where they part ways:
 
 ```{r venues-path, fig.alt = "Cumulative clocks for Polymarket, Kalshi, their average, and the cross-venue clock"}
 plot(event_clock_venues_path(pm, ks, from = as.Date("2024-10-04"),

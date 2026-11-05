@@ -28,7 +28,8 @@ currencies, or indices move when the event probability moves, and by
 how much?
 
 Think of an asset whose value would be \(\eta_1\) times today's value
-if the event happens and \(\eta_2\) times today's value if it does not.
+if the event happens (outcome 1) and \(\eta_2\) times today's value if
+it does not (outcome 2).
 Then a rise of \(\Delta q\) in the event probability moves the asset by
 about
 \[ r_t \;\approx\; \Delta\eta \,\Delta q_t, \qquad
@@ -113,9 +114,10 @@ elsewhere — for instance from option prices — pass it as `deta`.
 `event_beta()` then reports \(\beta = \widehat{\Delta\eta}/\Delta\eta\)
 and tests \(\beta = 1\): do returns move as much as the options imply?
 (Testing against the regression's own estimate would be circular.) As
-an illustration, the accompanying working paper estimates from DJT's
-event-spanning options that the stock was worth about 2.71 times as
-much under a Trump win as under a non-Trump outcome:
+an illustration, the accompanying working paper estimates from DJT
+options expiring after the election ("event-spanning" options; see
+`vignette("eventclock-event-spanning")`) that the stock was worth about
+2.71 times as much under a Trump win as under a non-Trump outcome:
 
 ```{r}
 q_bar <- eb$q_mean
@@ -153,29 +155,29 @@ q_pre <- ep$q[ep$time == as.Date("2024-10-22")]
 # ordinary volatility: daily returns net of the election component,
 # annualized over 252 trading days; two weeks = 10 trading days
 r  <- diff(log(djt2024$adjusted))
+# probability on each trading day (last value on or before it),
+# matched the way event_beta() matches it
 qa <- ep$q[findInterval(as.numeric(djt2024$date), as.numeric(ep$time))]
 sigma_ord <- stats::sd(r - eb$deta_hat * diff(qa)) * sqrt(252)
 tau <- 10 / 252
 
-rho_djt <- ec_relevance(deta = eb$deta_hat, q = q_pre, A = A_2w,
-                        sigma = sigma_ord, tenor = tau)
-rho_gbp <- ec_relevance(deta = -0.012, q = 0.195, A = 0.166,
-                        sigma = 0.09325, tenor = 14 / 365)
-data.frame(
-  asset = c("DJT, 2024 election", "GBP, Brexit"),
-  rho = c(rho_djt, rho_gbp),
-  learning_share = c(rho_djt / (1 + rho_djt), rho_gbp / (1 + rho_gbp)),
-  iv_points = 100 * c(
-    ec_iv_rule(eb$deta_hat, q_pre, A_2w, sigma_ord, tau),
-    ec_iv_rule(-0.012, 0.195, 0.166, 0.09325, 14 / 365)
-  )
+djt <- list(deta = eb$deta_hat, q = q_pre, A = A_2w,
+            sigma = sigma_ord, tenor = tau)
+gbp <- list(deta = -0.012, q = 0.195, A = 0.166,
+            sigma = 0.09325, tenor = 14 / 365)
+screen <- function(x) c(
+  rho = do.call(ec_relevance, x),
+  learning_share = do.call(ec_variance_share, x),
+  iv_points = 100 * do.call(ec_iv_rule, x)
 )
+rbind(`DJT, 2024 election` = screen(djt), `GBP, Brexit` = screen(gbp))
 ```
 
 For DJT, election learning was about
-`r round(100 * rho_djt / (1 + rho_djt))`% of the two-week variance —
-worth roughly `r round(100 * ec_iv_rule(eb$deta_hat, q_pre, A_2w, sigma_ord, tau))`
-implied-volatility points, clearly first-order for its options. For the
+`r round(100 * do.call(ec_variance_share, djt))`% of the two-week
+variance — worth roughly
+`r round(100 * do.call(ec_iv_rule, djt))` implied-volatility points,
+clearly first-order for its options. For the
 British pound around Brexit, with an exposure about a hundred times
 smaller, the same calculation gives a rounding error. The squared
 exposure decides who cares about the event.
@@ -188,9 +190,11 @@ exposure decides who cares about the event.
   frequency with `ec_signature()` before interpreting exposures.
 * Newey-West lags default to \(\lfloor 4(n/100)^{2/9} \rfloor\); pass
   `lags = 0` for plain heteroskedasticity-robust errors.
-* Add market or factor returns via `controls =` (a data frame with a
-  `date` column) to separate the event channel from general market
-  moves, e.g. `event_beta(djt2024, ep, controls = market)`.
+* Add market or factor returns via `controls =` to separate the event
+  channel from general market moves, e.g.
+  `event_beta(djt2024, ep, controls = market)`, where `market` is a data
+  frame with a `date` column and one column per daily market or factor
+  *return* (not price).
 
 ## Where next
 

@@ -3,7 +3,7 @@
 \name{ec_theta_fit}
 \alias{ec_theta_fit}
 \alias{print.ec_theta_fit}
-\title{Estimate the event exposure theta from event-spanning option surfaces}
+\title{Estimate the log exposure theta from event-spanning option surfaces}
 \usage{
 ec_theta_fit(
   surfaces,
@@ -66,7 +66,7 @@ bootstrap). Required when \code{boot_reps > 0}.}
 }
 \value{
 An object of class \code{ec_theta_fit}: a list with
-\item{theta, ratio}{the common event exposure and
+\item{theta, ratio}{the common log exposure and
 \eqn{m_1/m_2 = e^{\theta}}.}
 \item{rmse}{surface-balanced root mean squared vega-scaled pricing
 error — implied-volatility units to first order, in the units of
@@ -90,7 +90,7 @@ bootstrap draws.}
 Fits the lognormal event mixture of \code{\link[=ec_mix_price]{ec_mix_price()}} to a panel of
 event-spanning option surfaces: each surface (one valuation date and one
 expiry) gets its own outcome-conditional dispersions \eqn{(s_1, s_2)},
-while the event exposure \eqn{\theta = \log(m_1/m_2)} is restricted to
+while the log exposure \eqn{\theta = \log(m_1/m_2)} is restricted to
 be common across all surfaces — the working paper's common
 conditional-mean-ratio design. The objective is the working paper's:
 price residuals divided by the Black vega at the observed node (the

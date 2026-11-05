@@ -41,7 +41,7 @@ test of the learning channel.
 | 2b. Measure it in practice | sampling frequency, real-time forecasts chosen without look-ahead, two venues | `event_clock_staggered()`, `ec_signature()`, `event_clock_forecast()`, `ec_forecast_select()`, `event_clock_venues()`, `ks_prices()` | [Measurement in practice](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-measurement.html) |
 | 3\. Validate the estimator | Monte Carlo: consistency, CI coverage, jumps, microstructure | `ec_simulate_path()`, `ec_simulate()` | [Validation](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-validation.html) |
 | 4\. Exposure from returns | $\widehat{\Delta\eta}$ from $r_t \approx \Delta\eta\,\Delta q_t$ | `event_beta()`, `ec_relevance()` | [Event betas](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-betas.html) |
-| 5\. Exposure from event-spanning options | $\theta = \log(m_1/m_2)$ via the lognormal event mixture | `ec_mix_price()`, `ec_mix_iv()`, `ec_theta_fit()`, `ec_theta_hump()`, `ec_delta_to_k()` | [Event-spanning options](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html) |
+| 5\. Exposure from event-spanning options | log exposure $\theta = \log(\eta_1/\eta_2)$ via the lognormal event mixture | `ec_mix_price()`, `ec_mix_iv()`, `ec_theta_fit()`, `ec_theta_hump()`, `ec_delta_to_k()` | [Event-spanning options](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html) |
 | 6\. Pre-resolution pricing and the learning test | held-out options vs. the no-learning benchmark | `ec_mix_price_pre()`, `ec_mix_iv_pre()`; first order: `ec_sigma_eff()`, `ec_variance_share()`, `ec_iv_rule()` | [Event-spanning options](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html) |
 
 ## Features
@@ -65,8 +65,8 @@ test of the learning channel.
   `ec_relevance()`: the sufficient statistic for pricing relevance.
 - **Event-spanning options** — the lognormal event mixture
   (`ec_mix_price()`, `ec_mix_iv()`); `ec_theta_fit()`: the common
-  conditional-mean-ratio surface fit for the event exposure
-  $\theta = \log(m_1/m_2)$; `ec_theta_hump()`: the first-order
+  conditional-mean-ratio surface fit for the log exposure
+  $\theta = \log(\eta_1/\eta_2)$; `ec_theta_hump()`: the first-order
   variance-hump estimator; `ec_delta_to_k()` for standardized delta
   grids; `ec_mix_price_pre()` / `ec_mix_iv_pre()`: exact pre-resolution
   option prices under event learning (the no-learning benchmark is the

@@ -30,7 +30,8 @@ news arrives in one big jump? How much does trading noise inflate it?
 
 Real data cannot answer these questions because the true clock is
 unknown. Simulated data can. `ec_simulate_path()` draws probability
-paths from the package's model with a *known* clock \(A\), so any gap
+paths from the package's model (the transition law in the formula book
+of `vignette("eventclock-brexit")`) with a *known* clock \(A\), so any gap
 between estimate and truth is the estimator's doing. Throughout,
 \(L = \log\{q/(1-q)\}\) are the log odds of the event probability \(q\),
 and the estimate is \(\widehat A = \sum (\Delta L)^2\), the sum of
@@ -89,7 +90,7 @@ built for \(\log A\) and transformed back (so it stays positive and is
 asymmetric). Do the intervals cover the truth as often as they claim?
 
 ```{r}
-coverage <- function(conf, reps = 500, n_steps = 60, A = 0.5) {
+coverage <- function(conf, n_steps, reps = 500, A = 0.5) {
   hits <- vapply(seq_len(reps), function(i) {
     p <- ec_simulate_path(n_paths = 1, n_steps = n_steps, q = 0.4, A = A)
     r <- event_clock(path_to_ep(p), methods = "rv", se = TRUE, conf = conf)
@@ -97,17 +98,20 @@ coverage <- function(conf, reps = 500, n_steps = 60, A = 0.5) {
   }, logical(1))
   mean(hits)
 }
-cov <- data.frame(nominal = c(0.90, 0.95))
-cov$empirical <- sapply(cov$nominal, coverage)
+cov <- expand.grid(nominal = c(0.90, 0.95), n_obs = c(30, 60))
+cov$empirical <- mapply(coverage, cov$nominal, cov$n_obs)
 cov$mc_error <- 1.96 * sqrt(cov$nominal * (1 - cov$nominal) / 500)
 cov
 ```
 
-Coverage is close to the nominal level but slightly below it: the 95%
-interval covered the truth in `r round(100 * cov$empirical[2], 1)`% of
-the replications (`mc_error` is the 95% simulation band around the
-nominal level). With 60 observations, treat the intervals as slightly
-optimistic.
+Coverage is close to the nominal level, and in the shortest windows
+somewhat below it: with 30 observations, the 95% interval covered the
+truth in
+`r round(100 * cov$empirical[cov$n_obs == 30 & cov$nominal == 0.95], 1)`%
+of the replications, with 60 observations in
+`r round(100 * cov$empirical[cov$n_obs == 60 & cov$nominal == 0.95], 1)`%
+(`mc_error` is the 95% simulation band around the nominal level). In
+short windows, treat the intervals as slightly optimistic.
 
 ## The clock does not depend on the outcome
 
@@ -126,9 +130,11 @@ data.frame(
 )
 ```
 
-Both averages sit at the true \(A = 0.5\). This is also why risk premia
-do not bias the clock: they change how much weight the market puts on
-each outcome, not how much the price moves along a given path.
+Both averages sit at the true \(A = 0.5\). Constant or slowly moving
+risk premia therefore do not bias the clock: they change how much
+weight the market puts on each outcome, not how much the price moves
+along a given path. Premia that fluctuate day to day can add to the
+measured clock; `ec_recovery_set()` bounds that effect.
 
 ## Lumpy news: what the robust variants measure
 

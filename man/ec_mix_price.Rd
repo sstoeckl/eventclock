@@ -35,7 +35,7 @@ of the accompanying working paper: with probability \eqn{q} (outcome 1)
 the gross event multiplier is lognormal with conditional mean \eqn{m_1}
 and total dispersion \eqn{s_1}, with probability \eqn{1-q} (outcome 2)
 lognormal with mean \eqn{m_2} and dispersion \eqn{s_2}. The
-outcome-conditional means are parametrized by the event exposure
+outcome-conditional means are parametrized by the log exposure
 \deqn{\theta = \log(m_1 / m_2)}
 and pinned down by the pricing-measure adding-up (scale) normalization
 \eqn{q\,m_1 + (1-q)\,m_2 = 1}, so that the mixture has forward value one.

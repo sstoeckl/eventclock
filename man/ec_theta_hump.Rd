@@ -2,7 +2,7 @@
 % Please edit documentation in R/spanning.R
 \name{ec_theta_hump}
 \alias{ec_theta_hump}
-\title{First-order event exposure from the spanning variance hump}
+\title{First-order log exposure from the spanning variance hump}
 \usage{
 ec_theta_hump(dvar, q)
 }

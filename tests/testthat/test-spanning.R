@@ -106,7 +106,7 @@ test_that("ec_theta_fit recovers a known common exposure from clean surfaces", {
   expect_equal(fit$surfaces$s1, cfg$s1, tolerance = 0.05)
   expect_equal(fit$surfaces$s2, cfg$s2, tolerance = 0.05)
   expect_lt(fit$rmse, 1e-3)
-  expect_output(print(fit), "Common event exposure")
+  expect_output(print(fit), "Common log exposure")
 })
 
 test_that("ec_theta_fit handles annualized IVs via tau and node weights", {

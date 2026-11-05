@@ -51,12 +51,13 @@ option and risk questions.
 * **Log odds \(L_t = \log\{q_t/(1-q_t)\}\).** The probability on a scale
   where a move from 50% to 60% and a move from 89% to 92% count about
   the same.
-* **Event Clock \(A_{t,T}\).** The sum of squared log-odds changes
-  between \(t\) and \(T\),
+* **Event Clock \(A_{t,T}\).** The amount of news between \(t\) and
+  \(T\), also called *event-clock time*. The package estimates it as
+  the sum of squared log-odds changes,
   $$\widehat A_{t,T} \;=\; \sum_{t_i \in [t,T)}
-    \bigl[L_{t_{i+1}} - L_{t_i}\bigr]^2 ,$$
-  also called *event-clock time*. Technically it is the quadratic
-  variation of the log odds.
+    \bigl[L_{t_{i+1}} - L_{t_i}\bigr]^2 ;$$
+  technically, the quadratic variation of the log odds. Below, \(A\)
+  denotes both the clock and its estimate when no confusion arises.
 
 ## Two classic event windows: Brexit and the 2016 U.S. election
 
@@ -235,9 +236,15 @@ mark_events(plot_clock(path_gb), events_gb)
 ```
 
 (`mark_events()` is a small plotting helper defined in this vignette's
-source, not a package function.) The steps of the cumulative clock have
-names — they are the campaign's news days (`dL` is the log-odds move of
-the *Leave* probability):
+source, not a package function.) The biggest single-day contributions:
+
+```{r}
+head(path_gb[order(-path_gb$dA), c("time", "dL", "dA")], 7)
+```
+
+The steps of the cumulative clock have names — they are the campaign's
+news days (`dL` is the log-odds move of the *Leave* probability; some
+news spans two adjacent days):
 
 * **Mar 22–23** — Brussels terror attacks; Leave odds jump
   (`dL = +0.19`).
@@ -291,10 +298,11 @@ fc <- event_clock_forecast(ep_us,
 fc[, c("horizon", "rate_per_day", "A_forecast")]
 ```
 
-On October 10 the market expected about
-`r sprintf("%.3f", fc$A_forecast[1])` of clock time over the next week
-— far more than the `r sprintf("%.3f", val(us, "1W", "rv"))` that
-actually arrived before the final weeks. Sampling frequency, forecast
+Extrapolating the speed of the last 60 days gave
+`r sprintf("%.3f", fc$A_forecast[1])` of clock time for the next week —
+about `r round(fc$A_forecast[1] / val(us, "1W", "rv"))` times the
+`r sprintf("%.3f", val(us, "1W", "rv"))` that actually arrived; the
+news came in the final two weeks instead. Sampling frequency, forecast
 selection, and comparisons across trading venues are covered in
 `vignette("eventclock-measurement")`.
 
@@ -304,10 +312,12 @@ Discounting and risk premia shift the *level* of a traded probability,
 but such shifts change slowly; the clock adds up squared *changes*, so a
 slowly varying shift contributes almost nothing. On May 24 the raw
 betting probability of Leave was
-`r round(ep_gb$q[ep_gb$time == as.Date("2016-05-24")], 3)`; converted to
-a dollar-priced probability, as in the working paper, it is 0.195. The
-two differ by an almost constant shift in log odds — and a constant
-shift has no changes, so it adds nothing to the clock:
+`r round(ep_gb$q[ep_gb$time == as.Date("2016-05-24")], 3)`. The
+working paper re-expresses it as the price of a contract paying one
+U.S. dollar if Leave wins (betting stakes are in pounds, and the pound
+itself depends on the vote), which gives 0.195. The two differ by an
+almost constant shift in log odds — and a constant shift has no
+changes, so it adds nothing to the clock:
 
 ```{r}
 shifted <- brexit2016
@@ -344,7 +354,22 @@ where \(J = 1\) if the event happens and \(0\) otherwise, \(\zeta\) is a
 standard normal shock, and \(A\) is the clock time between \(t\) and
 \(T\): given the eventual outcome, the log odds drift toward it by
 \(A/2\) and fluctuate with variance \(A\). The worked Brexit example
-uses the two-week window from May 24 (\(q = 0.195\), \(A = 0.166\)):
+uses the two-week window from May 24 with the working paper's inputs:
+\(q = 0.195\) (the dollar-based Leave probability; the shipped betting
+series gives `r round(ep_gb$q[ep_gb$time == as.Date("2016-05-24")], 3)`)
+and \(A = 0.166\).
+
+Units used by the calculators:
+
+| Input | Meaning | Unit |
+|---|---|---|
+| `q` | event probability today | 0–1 |
+| `A` | clock time between today and the horizon | log-odds variance |
+| `sigma`, `tenor` | ordinary (no-event) volatility and time to expiry, in `ec_iv_rule()`, `ec_relevance()` and friends | annualized; years |
+| `s_cf`, `s1`, `s2` | dispersions in the option functions of `vignette("eventclock-event-spanning")` | total: volatility × \(\sqrt{\text{years}}\) |
+
+Pass arguments by name: the calculators do not all take them in the
+same order.
 
 ```{r}
 # distribution of the probability and the log odds at June 7:
@@ -355,7 +380,7 @@ ec_moments(q = 0.195, A = 0.166)[, c("q", "A", "E_qT", "sd_LT", "var_qT")]
 # typical size of the revision by June 7: about 5 probability points
 ec_revision(q = 0.195, A = 0.166)
 
-# probability that Leave trades above 50% by June 7
+# probability that Leave is above 50% on June 7
 ec_exceedance(0.5, q = 0.195, A = 0.166)
 
 # clock time needed to move from 19.5% to "90% sure", in multiples of
@@ -363,38 +388,47 @@ ec_exceedance(0.5, q = 0.195, A = 0.166)
 ec_target_clock(q = 0.195, target = 0.9) / 0.166
 ```
 
-Moving from 19.5% to 90% would have taken about
-`r round(ec_target_clock(q = 0.195, target = 0.9) / 0.166)` times the
-news of those two weeks — a reminder of how far markets were from
+Even if Leave was going to win, its log odds drift up by only \(A/2\)
+per unit of clock time, so reaching 90% takes
+\(A \approx\) `r round(ec_target_clock(q = 0.195, target = 0.9), 1)` —
+about `r round(ec_target_clock(q = 0.195, target = 0.9) / 0.166)` times
+the news of those two weeks, a reminder of how far markets were from
 certainty.
 
 **How much does learning add to option prices?** An asset whose value
 differs between the outcomes moves with the probability. If its value
-would be a fraction \(\Delta\eta\) of today's value higher under one
-outcome than under the other (the *exposure*; see
-`vignette("eventclock-event-betas")`), learning adds roughly
+would be a fraction \(\Delta\eta\) of today's value higher if the event
+happens than if it does not (the *exposure*, negative when the event
+hurts the asset; see `vignette("eventclock-event-betas")`), learning
+adds roughly
 \([\Delta\eta\, q(1-q)]^2 A / (2\sigma\tau)\) to the implied volatility
 of an option with \(\tau\) years to expiry, where \(\sigma\) is the
 asset's annualized volatility without the event. `ec_iv_rule()` computes
 this screen (the exact value is `ec_mix_iv_pre()`, see
-`vignette("eventclock-event-spanning")`). For the British pound
-around Brexit (exposure \(-0.012\), volatility 9.3%) and the Mexican
-peso around the 2016 U.S. election (exposure \(-0.099\), volatility
-19.3%), using exposures estimated in the working paper, over two weeks
-and in annualized percentage points:
+`vignette("eventclock-event-spanning")`). The inputs below are the
+working paper's option-implied values. For the British pound, options
+priced its expected value only about 1.2% lower under Leave than under
+Remain (exposure \(-0.012\)) — far less than the 8% fall that followed
+the vote; volatility without the event was 9.3%. For the Mexican peso
+around the 2016 U.S. election, the exposure to a Trump win was
+\(-0.099\), with \(q = 0.172\) on October 10 (the shipped series gives
+`r round(ep_us$q[ep_us$time == as.Date("2016-10-10")], 3)`) and
+volatility 19.3%. Over two weeks, in annualized percentage points:
 
 ```{r}
-c(
+iv_pts <- c(
   pound_brexit_2w = 100 * ec_iv_rule(deta = -0.012, q = 0.195, A = 0.166,
                                      sigma = 0.09325, tenor = 14 / 365),
   peso_us2016_2w  = 100 * ec_iv_rule(deta = -0.099, q = 0.172, A = 0.046,
                                      sigma = 0.19326, tenor = 14 / 365)
 )
+iv_pts
 ```
 
 Learning was worth well under a tenth of a volatility point for the
-pound; for the peso it was about ten times larger — the squared
-exposure dominates.
+pound; for the peso it was about
+`r round(iv_pts[2] / iv_pts[1])` times larger — the squared exposure
+dominates.
 
 ## The Event Clock on live Polymarket data
 
@@ -501,7 +535,7 @@ out gradually as clock time accumulates.
 ## Notes for replicators
 
 The Brexit numbers above reproduce the working paper's main-text clock:
-0.064 (1W), 0.166 (2W), and 0.511 (1M) after rounding. The 2016 U.S.
+0.064 (1W), 0.166 (2W), and 0.510 (1M; the paper reports 0.511). The 2016 U.S.
 series is the paper's robustness application (0.015 and 0.046 over one
 and two weeks; real-time forecasts 0.0476 and 0.0951 from trailing-60
 realized variation, which this vignette reproduces to within half a

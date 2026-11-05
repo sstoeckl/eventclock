@@ -1,8 +1,8 @@
 ---
-title: "Event-spanning options: estimating the event exposure"
+title: "Event-spanning options: estimating an asset's exposure to an event"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Event-spanning options: estimating the event exposure}
+  %\VignetteIndexEntry{Event-spanning options: estimating an asset's exposure to an event}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -25,20 +25,22 @@ library(ggplot2)
 
 Scheduled binary events — elections, referendums, central-bank or court
 decisions, merger votes, drug approvals — move asset prices through a
-simple question: *how much would this asset be worth under outcome 1,
-and how much under outcome 2?* Write \(\eta_1\) and \(\eta_2\) for those
-two values as multiples of today's value. This vignette measures their
+simple question: *how much would this asset be worth under outcome 1
+(the event happens) and how much under outcome 2 (it does not)?* Write
+\(\eta_1\) and \(\eta_2\) for those two values as multiples of today's
+value. (In the transition law of `vignette("eventclock-brexit")`,
+outcome 1 is \(J = 1\) and outcome 2 is \(J = 0\).) This vignette measures their
 ratio from option prices, on a log scale:
 \[
   \theta \;=\; \log\!\big(\eta_1 / \eta_2\big).
 \]
-We call \(\theta\) the **event exposure**. A stock worth 10% more under
+We call \(\theta\) the **log exposure**. A stock worth 10% more under
 outcome 1 than under outcome 2 has \(\theta \approx 0.10\); an index
 that barely cares has \(\theta \approx 0\). The sign says *which*
 outcome the asset favors, the magnitude *how much* is at stake.
-(`vignette("eventclock-event-betas")` estimates the same exposure from
-stock returns, as the difference \(\Delta\eta = \eta_1 - \eta_2\); the
-two are linked exactly by
+(`vignette("eventclock-event-betas")` estimates the *exposure* from
+stock returns as the difference \(\Delta\eta = \eta_1 - \eta_2\); the
+two measures are linked exactly by
 \(\Delta\eta = (e^\theta - 1)/(q e^\theta + 1 - q)\).)
 
 The key idea is **which options to use**. An option that expires
@@ -57,8 +59,9 @@ the event date, one row per smile point, with columns:
 * `surface` — an identifier of the smile (valuation date × expiry);
 * `k` — log moneyness \(\log(K/F)\), strike over forward (or a delta
   grid, converted with `ec_delta_to_k()`, see below);
-* `iv` — the implied volatility, annualized, together with `tau`, the
-  time to expiry in years;
+* `iv` — the implied volatility: annualized if you also supply `tau`,
+  the time to expiry in years; without `tau` it is read as total
+  dispersion, volatility × \(\sqrt{\tau}\);
 * `q` — the event probability on the valuation date (e.g. from
   Polymarket via `pm_prices()`, or `q_from_price()`);
 * optionally `w` — a weight per point (for instance the number of
@@ -90,7 +93,7 @@ unit of forward and without discounting; `ec_mix_iv()` turns the prices
 into implied volatilities in total-dispersion units (divide by
 \(\sqrt{\tau}\) for the usual annualized number):
 
-```{r smiles, fig.alt = "Implied-dispersion smiles of the event mixture for increasing event exposure"}
+```{r smiles, fig.alt = "Implied-dispersion smiles of the event mixture for increasing log exposure"}
 k <- seq(-0.6, 0.6, by = 0.04)
 smile <- function(theta) ec_mix_iv(k, q = 0.35, theta = theta,
                                    s1 = 0.25, s2 = 0.25)
@@ -136,7 +139,7 @@ Put deltas enter as call-equivalent deltas, \(1 + \delta_{put}\), so a
 standard out-of-the-money composite smile (calls below 0.5, puts above)
 becomes one grid.
 
-## Estimating one exposure from many smiles
+## Estimating one log exposure from many smiles
 
 `ec_theta_fit()` gives every smile its own dispersions \(s_1, s_2\) but
 asks all smiles to share **one** exposure \(\theta\); each smile counts
@@ -167,8 +170,11 @@ The per-smile table shows the fitted dispersions and fit quality. With
 a `tau` column, `iv` is read as annualized; `fit$nodes` holds the
 fitted value of every point, and with `iv_bid`/`iv_ask` columns
 `fit$inside_share` reports how many fitted values fall inside the
-quotes. `boot_reps` with `block = "date"` adds a bootstrap confidence
-interval that resamples whole valuation dates.
+quotes. `boot_reps` together with `block` — the name of a column
+holding the valuation date, e.g. `boot_reps = 200, block = "obs_date"`
+for `us2016_surfaces_sim` (keep that column in the data you pass) —
+adds a bootstrap confidence interval that resamples whole valuation
+dates.
 
 **Is one exposure enough?** `common = FALSE` lets every smile choose its
 own \(\theta\); if those estimates scatter around the common one, the
@@ -198,7 +204,7 @@ fit16 <- ec_theta_fit(s16[, c("surface", "k", "iv", "q", "tau")])
 fit16
 ```
 
-The common exposure is \(\theta \approx\)
+The common log exposure is \(\theta \approx\)
 `r round(fit16$theta, 3)`: conditional on a Trump win, the index was
 priced about `r round(100 * (1 - exp(fit16$theta)), 1)`% lower than
 conditional on a Clinton win. How precise is that? Letting each smile
@@ -325,16 +331,20 @@ at the options being tested:
    date only.**
 
 In the authors' application — options on Trump Media expiring the
-Friday before the 2024 election — adding learning lowers the pricing
-errors of the held-out *calls* by about 4.6%, and still by 1.2% at the
-conservative low end, while the *puts* do not improve. A one-sided
+Friday before the 2024 election — adding learning lowers the
+root-mean-square pricing error of the held-out *calls* by about 4.6%
+relative to no learning, and still by 1.2% at the conservative low end,
+while the *puts* do not improve. (The simulation above uses the true
+\(\theta\), \(q\), and ordinary smile, so its much larger gain is an
+upper bound for what real data can show.) A one-sided
 result like this is informative in itself: it points to frictions (a
 hard-to-borrow stock with American-style options) rather than to a
 failure of the probability input.
 
-The first-order (back-of-the-envelope) versions of the same channel are
-in the formula book: `ec_sigma_eff()`, `ec_variance_share()`, and
-`ec_iv_rule()`.
+Back-of-the-envelope (first-order) versions of the same channel are
+`ec_iv_rule()`, `ec_variance_share()`, and `ec_sigma_eff()`; see their
+help pages and the relevance screen in
+`vignette("eventclock-event-betas")`.
 
 ## How sure are we about the clock?
 

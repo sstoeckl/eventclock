@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------
 # Event-spanning options: the two-component lognormal event mixture, model
 # implied volatilities, and estimation of the outcome-conditional mean ratio
-# (the "event exposure" theta) from event-spanning option surfaces.
+# (the log exposure theta) from event-spanning option surfaces.
 # Base-R numerical kernels; no proprietary data enters the package.
 # ---------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ mix_means <- function(q, theta) {
 #' the gross event multiplier is lognormal with conditional mean \eqn{m_1}
 #' and total dispersion \eqn{s_1}, with probability \eqn{1-q} (outcome 2)
 #' lognormal with mean \eqn{m_2} and dispersion \eqn{s_2}. The
-#' outcome-conditional means are parametrized by the event exposure
+#' outcome-conditional means are parametrized by the log exposure
 #' \deqn{\theta = \log(m_1 / m_2)}
 #' and pinned down by the pricing-measure adding-up (scale) normalization
 #' \eqn{q\,m_1 + (1-q)\,m_2 = 1}, so that the mixture has forward value one.
@@ -156,7 +156,7 @@ ec_delta_to_k <- function(delta, s) {
   r$s^2 / 2 - r$s * stats::qnorm(r$delta)
 }
 
-#' First-order event exposure from the spanning variance hump
+#' First-order log exposure from the spanning variance hump
 #'
 #' For the two-point event mixture, the event contributes exactly
 #' \eqn{q(1-q)\,\theta_{\log}^2} to the *total* variance of the terminal
@@ -371,12 +371,12 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
        mse = fit$value, par = fit$par, convergence = fit$convergence)
 }
 
-#' Estimate the event exposure theta from event-spanning option surfaces
+#' Estimate the log exposure theta from event-spanning option surfaces
 #'
 #' Fits the lognormal event mixture of [ec_mix_price()] to a panel of
 #' event-spanning option surfaces: each surface (one valuation date and one
 #' expiry) gets its own outcome-conditional dispersions \eqn{(s_1, s_2)},
-#' while the event exposure \eqn{\theta = \log(m_1/m_2)} is restricted to
+#' while the log exposure \eqn{\theta = \log(m_1/m_2)} is restricted to
 #' be common across all surfaces — the working paper's common
 #' conditional-mean-ratio design. The objective is the working paper's:
 #' price residuals divided by the Black vega at the observed node (the
@@ -421,7 +421,7 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
 #' @param conf Confidence level of the bootstrap interval (default 0.95).
 #'
 #' @return An object of class `ec_theta_fit`: a list with
-#'   \item{theta, ratio}{the common event exposure and
+#'   \item{theta, ratio}{the common log exposure and
 #'     \eqn{m_1/m_2 = e^{\theta}}.}
 #'   \item{rmse}{surface-balanced root mean squared vega-scaled pricing
 #'     error — implied-volatility units to first order, in the units of
@@ -626,7 +626,7 @@ print.ec_theta_fit <- function(x, ...) {
       if (x$n_surfaces != 1) "s", ", ", x$n_obs, " nodes)\n", sep = "")
   if (x$common) {
     cat(sprintf(
-      "Common event exposure theta = %.4f (conditional-mean ratio eta1/eta2 = %.3f)\n",
+      "Common log exposure theta = %.4f (conditional-mean ratio eta1/eta2 = %.3f)\n",
       x$theta, x$ratio
     ))
     if (!is.null(x$ratio_ci)) {

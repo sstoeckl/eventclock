@@ -31,7 +31,7 @@ matching the empirical profile of S&P 500 index options over the last
 four pre-election weeks. Every implied volatility is generated from
 the lognormal event mixture of \code{\link[=ec_mix_iv]{ec_mix_iv()}} plus Gaussian noise
 (sd 0.004); the generator is parametrized by estimation results only
-— a common event exposure \eqn{\theta = -0.077} and per-surface
+— a common log exposure \eqn{\theta = -0.077} and per-surface
 conditional dispersions and event probabilities fitted with
 \code{\link[=ec_theta_fit]{ec_theta_fit()}} — so the dataset contains no third-party data
 values. 47 surfaces (valuation dates 2016-10-11 to 2016-11-07,
