@@ -121,3 +121,60 @@
 #' data(polymarket2024)
 #' event_beta(djt2024, pm_daily(as_event_prices(polymarket2024)))
 "djt2024"
+
+#' Kalshi 2024 U.S. presidential election prices (daily 15:45 snapshot)
+#'
+#' Daily prices of the Kalshi contract "Will Donald Trump or another
+#' Republican win the Presidency?" (market `PRES-2024-DJT`), taken as the
+#' last hourly price at or before 15:45 New York time, from the contract's
+#' listing on October 4 to election day, November 5, 2024. Together with
+#' the same snapshot of [polymarket2024] it gives two synchronized venues
+#' for the same event — the input of [event_clock_venues()].
+#'
+#' @format A tibble with 33 rows and 2 columns:
+#' \describe{
+#'   \item{date}{Calendar date (`Date`).}
+#'   \item{q}{Traded price of the "Yes" contract (0-1).}
+#' }
+#' @source Kalshi public trade API (v2), downloaded with [ks_prices()];
+#'   see `data-raw/kalshi2024.R`.
+#' @examples
+#' data(kalshi2024)
+#' data(polymarket2024)
+#' pm <- pm_daily(as_event_prices(polymarket2024), snapshot_hour = 15.75)
+#' ks <- as_event_prices(kalshi2024, time = "date", price = "q")
+#' event_clock_venues(pm, ks, labels = c("Polymarket", "Kalshi"))
+"kalshi2024"
+
+#' Simulated event-spanning option surfaces, 2016 U.S. election profile
+#'
+#' **Simulated** implied-volatility surfaces for event-spanning options
+#' around the 2016 U.S. presidential election (event date 2016-11-08),
+#' matching the empirical profile of S&P 500 index options over the last
+#' four pre-election weeks. Every implied volatility is generated from
+#' the lognormal event mixture of [ec_mix_iv()] plus Gaussian noise
+#' (sd 0.004); the generator is parametrized by estimation results only
+#' — a common log exposure \eqn{\theta = -0.077} and per-surface
+#' conditional dispersions and event probabilities fitted with
+#' [ec_theta_fit()] — so the dataset contains no third-party data
+#' values. 47 surfaces (valuation dates 2016-10-11 to 2016-11-07,
+#' expiries 2016-11-16/18/21) on a nine-point call-equivalent delta
+#' grid. The event probabilities are the Trump series of [us2016].
+#'
+#' @format A tibble with 423 rows and 6 columns:
+#' \describe{
+#'   \item{event_date}{Election day (`Date`), 2016-11-08.}
+#'   \item{obs_date}{Valuation date (`Date`).}
+#'   \item{expiry_date}{Option expiry (`Date`), after the election.}
+#'   \item{node}{Call-equivalent delta grid node (0.1-0.9).}
+#'   \item{iv}{Simulated annualized Black implied volatility.}
+#'   \item{q}{State-price-implied probability of a Trump win at
+#'     `obs_date` (from [us2016]).}
+#' }
+#' @source Simulated; see `data-raw/us2016_surfaces_sim.R`. Calibration
+#'   targets estimated from index-option surfaces around the 2016
+#'   election; used in the event-spanning vignette.
+#' @examples
+#' data(us2016_surfaces_sim)
+#' head(us2016_surfaces_sim)
+"us2016_surfaces_sim"

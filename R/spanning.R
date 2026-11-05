@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------
 # Event-spanning options: the two-component lognormal event mixture, model
 # implied volatilities, and estimation of the outcome-conditional mean ratio
-# (the "event exposure" theta) from event-spanning option surfaces.
+# (the log exposure theta) from event-spanning option surfaces.
 # Base-R numerical kernels; no proprietary data enters the package.
 # ---------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ mix_means <- function(q, theta) {
 #' the gross event multiplier is lognormal with conditional mean \eqn{m_1}
 #' and total dispersion \eqn{s_1}, with probability \eqn{1-q} (outcome 2)
 #' lognormal with mean \eqn{m_2} and dispersion \eqn{s_2}. The
-#' outcome-conditional means are parametrized by the event exposure
+#' outcome-conditional means are parametrized by the log exposure
 #' \deqn{\theta = \log(m_1 / m_2)}
 #' and pinned down by the pricing-measure adding-up (scale) normalization
 #' \eqn{q\,m_1 + (1-q)\,m_2 = 1}, so that the mixture has forward value one.
@@ -73,6 +73,13 @@ mix_means <- function(q, theta) {
 #' for an annualized implied volatility.
 #'
 #' @details
+#' **Notation.** The conditional means \eqn{m_1, m_2} are the event
+#' multipliers \eqn{\eta_1, \eta_2} of the working paper (and of
+#' [event_beta()]); the paper reports the scale-free *conditional-mean
+#' ratio* \eqn{r = \eta_1/\eta_2 = e^{\theta}}. For example, the paper's
+#' 2024 estimate for Trump Media & Technology Group, a Trump/non-Trump
+#' ratio of 2.71, corresponds to \eqn{\theta = \log 2.71 \approx 1.0}.
+#'
 #' **Sign identification.** At \eqn{q = 1/2} the mixture is observationally
 #' symmetric in \eqn{(\theta, s_1, s_2) \mapsto (-\theta, s_2, s_1)}: option
 #' prices alone cannot tell which outcome the asset favors. Take the sign
@@ -149,7 +156,7 @@ ec_delta_to_k <- function(delta, s) {
   r$s^2 / 2 - r$s * stats::qnorm(r$delta)
 }
 
-#' First-order event exposure from the spanning variance hump
+#' First-order log exposure from the spanning variance hump
 #'
 #' For the two-point event mixture, the event contributes exactly
 #' \eqn{q(1-q)\,\theta_{\log}^2} to the *total* variance of the terminal
@@ -194,38 +201,141 @@ ec_theta_hump <- function(dvar, q) {
   out
 }
 
-#' Partial-recovery interval for the event clock
+#' Partial-recovery interval for the Event Clock
 #'
-#' Under exact recovery the measured state-price log-odds quadratic
-#' variation *is* the physical event clock. Under the partial-recovery
-#' bound of the working paper — valuation-wedge quadratic variation no
-#' larger than \eqn{\varepsilon^2} times the physical clock — the sharp
-#' implied interval for the clock is
-#' \deqn{\big((1-\varepsilon)_+\big)^2\,\widehat{A} \;\le\; A \;\le\;
-#'   (1+\varepsilon)^2\,\widehat{A},}
+#' A traded event price can move for two reasons: news about the outcome,
+#' or a change in how the market values the two outcomes relative to each
+#' other. Under *exact recovery* only the first moves log odds
+#' continuously, and the measured log-odds variation *is* the physical
+#' Event Clock. *Partial recovery* allows the valuation gap to contribute
+#' too, but at most a fraction \eqn{\delta^2} of the measured variation,
+#' \eqn{[\upsilon]^c \le \delta^2 [L]^c}. The physical clock then lies in
+#' the sharp interval
+#' \deqn{(1-\delta)_+^2\,\widehat{A} \;\le\; A \;\le\;
+#'   (1+\delta)^2\,\widehat{A},}
 #' where \eqn{\widehat{A}} is the measured log-odds variation. Exact
-#' recovery is \eqn{\varepsilon = 0}.
+#' recovery is \eqn{\delta = 0}. The lower end is the "low-clock endpoint"
+#' used for conservative sensitivity analysis: at \eqn{\delta = 0.5} it
+#' scales the measured clock by \eqn{(1 - 0.5)^2 = 0.25}.
 #'
 #' @param A Measured log-odds quadratic variation (e.g. the `A` column of
-#'   [event_clock()]).
-#' @param eps Partial-recovery bound(s) \eqn{\varepsilon \ge 0}; the
-#'   default reproduces the working paper's sensitivity grid.
-#' @return A tibble with columns `A`, `eps`, `lower`, `upper` (one row per
-#'   `A` \eqn{\times} `eps` combination).
+#'   [event_clock()], or a forecast from [event_clock_forecast()]).
+#' @param delta Partial-recovery bound(s) \eqn{\delta \ge 0}; the default
+#'   is a sensitivity grid up to the deliberately wide \eqn{\delta = 0.5}.
+#' @param eps Deprecated alias for `delta` (the argument name used up to
+#'   version 0.4.0).
+#' @return A tibble with columns `A`, `delta`, `lower`, `upper` (one row
+#'   per `A` \eqn{\times} `delta` combination).
+#' @references Hanke, Schadner, Stöckl, and Weissensteiner (Working
+#'   Paper), "The Event Clock: What State Prices Identify About Physical
+#'   Information".
 #' @examples
 #' ec_recovery_set(0.511)                   # Brexit 1M clock
-#' ec_recovery_set(c(0.064, 0.166), eps = 0.25)
+#' ec_recovery_set(c(0.064, 0.166), delta = 0.5)
 #' @export
-ec_recovery_set <- function(A, eps = c(0, 0.10, 0.25, 0.50)) {
+ec_recovery_set <- function(A, delta = c(0, 0.10, 0.25, 0.50), eps = NULL) {
+  if (!is.null(eps)) {
+    cli::cli_warn(
+      "{.arg eps} is deprecated; use {.arg delta} (same meaning)."
+    )
+    delta <- eps
+  }
   check_nonneg(A, "A")
-  check_nonneg(eps, "eps")
-  g <- expand.grid(A = A, eps = eps, KEEP.OUT.ATTRS = FALSE)
+  check_nonneg(delta, "delta")
+  g <- expand.grid(A = A, delta = delta, KEEP.OUT.ATTRS = FALSE)
   tibble::tibble(
     A = g$A,
-    eps = g$eps,
-    lower = pmax(1 - g$eps, 0)^2 * g$A,
-    upper = (1 + g$eps)^2 * g$A
+    delta = g$delta,
+    lower = pmax(1 - g$delta, 0)^2 * g$A,
+    upper = (1 + g$delta)^2 * g$A
   )
+}
+
+#' Pre-resolution option prices under event learning
+#'
+#' Prices a European option that expires *before* the event is resolved.
+#' The option never sees the outcome, but it is exposed to *learning*:
+#' while it is alive, the state-price-implied event probability moves by
+#' the elapsed event-clock time `A`, and with it the event component of
+#' the asset value. `ec_mix_price_pre()` evaluates this exactly under the
+#' package's maintained transition: the future probability follows the
+#' two-component logistic-normal law of [ec_transition_density()], the
+#' event component is \eqn{E = q' m_1 + (1-q') m_2} with the means of
+#' [ec_mix_price()], and ordinary (non-event) risk is lognormal with
+#' total dispersion `s_cf`, independent of event learning.
+#'
+#' `A = 0` is the **no-learning benchmark**: the price collapses to the
+#' plain Black price with dispersion `s_cf` — the fixed-probability
+#' scheduled-jump special case. For convex payoffs the price is
+#' nondecreasing in elapsed clock time (the convex-order effect of
+#' learning), which is what makes held-out pre-resolution options a
+#' *test* of the learning channel rather than a calibration input.
+#'
+#' @param k Log-forward moneyness \eqn{\log(K/F)} (vector).
+#' @param q Current state-price-implied probability of outcome 1.
+#' @param theta Event exposure \eqn{\log(m_1/m_2)}, e.g. from
+#'   [ec_theta_fit()] on event-spanning surfaces.
+#' @param A Event-clock time expected to elapse over the option's
+#'   remaining life, e.g. from [event_clock_forecast()].
+#' @param s_cf Total dispersion of the counterfactual (ordinary,
+#'   no-event) asset risk over the option's life.
+#' @param type `"call"` or `"put"`.
+#'
+#' @return `ec_mix_price_pre()`: forward-normalized undiscounted prices;
+#'   `ec_mix_iv_pre()`: the corresponding Black total implied
+#'   dispersions.
+#'
+#' @references Hanke, Schadner, Stöckl, and Weissensteiner (Working
+#'   Paper), "Learning Before Scheduled Events: Prediction Markets,
+#'   State Prices, and Option Valuation".
+#'
+#' @examples
+#' # learning raises the pre-event ATM value relative to no learning
+#' ec_mix_price_pre(0, q = 0.4, theta = 0.8, A = c(0, 0.25, 1), s_cf = 0.2)
+#' # ... and the effect vanishes without exposure
+#' ec_mix_price_pre(0, q = 0.4, theta = 0, A = c(0, 1), s_cf = 0.2)
+#' @seealso [ec_sigma_eff()] and [ec_iv_rule()] for the first-order
+#'   (formula-book) versions of the same channel.
+#' @export
+ec_mix_price_pre <- function(k, q, theta, A, s_cf, type = c("call", "put")) {
+  type <- match.arg(type)
+  r <- ec_recycle(k = k, q = q, theta = theta, A = A, s_cf = s_cf)
+  check_prob(r$q)
+  check_nonneg(r$A, "A")
+  check_nonneg(r$s_cf, "s_cf")
+  K <- exp(r$k)
+  n <- length(K)
+  out <- numeric(n)
+  for (i in seq_len(n)) {
+    m <- mix_means(r$q[i], r$theta[i])
+    if (r$A[i] < 1e-12 || abs(r$theta[i]) < 1e-12) {
+      out[i] <- black_call(1, K[i], r$s_cf[i])
+      next
+    }
+    lam <- ec_logit(r$q[i])
+    sA <- sqrt(r$A[i])
+    f <- function(eps, tilt) {
+      qq <- ec_ilogit(lam + tilt + sA * eps)
+      stats::dnorm(eps) *
+        black_call(qq * m$m1 + (1 - qq) * m$m2,
+                   rep(K[i], length(eps)), rep(r$s_cf[i], length(eps)))
+    }
+    up <- stats::integrate(f, -Inf, Inf, tilt = r$A[i] / 2,
+                           rel.tol = 1e-9, abs.tol = 1e-11)$value
+    dn <- stats::integrate(f, -Inf, Inf, tilt = -r$A[i] / 2,
+                           rel.tol = 1e-9, abs.tol = 1e-11)$value
+    out[i] <- r$q[i] * up + (1 - r$q[i]) * dn
+  }
+  if (type == "put") out <- out - 1 + K
+  out
+}
+
+#' @rdname ec_mix_price_pre
+#' @export
+ec_mix_iv_pre <- function(k, q, theta, A, s_cf) {
+  r <- ec_recycle(k = k, q = q, theta = theta, A = A, s_cf = s_cf)
+  price <- ec_mix_price_pre(r$k, r$q, r$theta, r$A, r$s_cf, type = "call")
+  black_iv_total(price, exp(r$k))
 }
 
 # Per-surface inner fit: dispersions (log-parametrized) given theta.
@@ -261,12 +371,12 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
        mse = fit$value, par = fit$par, convergence = fit$convergence)
 }
 
-#' Estimate the event exposure theta from event-spanning option surfaces
+#' Estimate the log exposure theta from event-spanning option surfaces
 #'
 #' Fits the lognormal event mixture of [ec_mix_price()] to a panel of
 #' event-spanning option surfaces: each surface (one valuation date and one
 #' expiry) gets its own outcome-conditional dispersions \eqn{(s_1, s_2)},
-#' while the event exposure \eqn{\theta = \log(m_1/m_2)} is restricted to
+#' while the log exposure \eqn{\theta = \log(m_1/m_2)} is restricted to
 #' be common across all surfaces — the working paper's common
 #' conditional-mean-ratio design. The objective is the working paper's:
 #' price residuals divided by the Black vega at the observed node (the
@@ -289,6 +399,9 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
 #'       annualized and total units.}
 #'     \item{`w`}{optional: node weight (e.g. quote count or inverse
 #'       spread); defaults to 1.}
+#'     \item{`iv_bid`, `iv_ask`}{optional: implied volatilities of the bid
+#'       and ask quotes (same units as `iv`); enables the bid-ask
+#'       diagnostic.}
 #'   }
 #' @param theta_range Search interval for the common exposure.
 #' @param common If `FALSE`, every surface gets its own \eqn{\theta}
@@ -297,9 +410,18 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
 #'   the `surfaces` table.
 #' @param min_nodes Surfaces with fewer observed nodes are dropped with a
 #'   warning (two free dispersions need cross-sectional information).
+#' @param boot_reps Number of block-bootstrap replications for a
+#'   confidence interval of the common exposure (default 0 = none).
+#' @param block Name of the column defining the bootstrap blocks —
+#'   typically the valuation date, so that all maturities observed on one
+#'   date are resampled together (the working paper's date-block
+#'   bootstrap). Required when `boot_reps > 0`.
+#' @param block_length Number of consecutive blocks drawn together
+#'   (moving-block bootstrap; default 1).
+#' @param conf Confidence level of the bootstrap interval (default 0.95).
 #'
 #' @return An object of class `ec_theta_fit`: a list with
-#'   \item{theta, ratio}{the common event exposure and
+#'   \item{theta, ratio}{the common log exposure and
 #'     \eqn{m_1/m_2 = e^{\theta}}.}
 #'   \item{rmse}{surface-balanced root mean squared vega-scaled pricing
 #'     error — implied-volatility units to first order, in the units of
@@ -307,6 +429,16 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
 #'   \item{surfaces}{per-surface tibble: `q`, nodes, fitted `s1`, `s2`
 #'     (total dispersions), per-surface `rmse`, and `theta` when
 #'     `common = FALSE`.}
+#'   \item{nodes}{per-node tibble: `surface`, `k`, `iv`, the fitted
+#'     `iv_fit` and residual `iv_err`; with bid and ask also `iv_bid`,
+#'     `iv_ask`, and `inside` (fitted value within the quotes).}
+#'   \item{inside_share}{share of nodes whose fitted implied volatility
+#'     lies inside the bid-ask interval (`NA` without quotes). Because
+#'     prices are monotone in implied volatility, this equals the share of
+#'     model prices inside the quoted price interval.}
+#'   \item{theta_ci, ratio_ci, theta_boot}{with `boot_reps > 0`: the
+#'     percentile interval for \eqn{\theta} and \eqn{e^\theta}, and the
+#'     bootstrap draws.}
 #'   \item{n_surfaces, n_obs, common}{bookkeeping.}
 #'
 #' @details
@@ -314,6 +446,11 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
 #' the sign of \eqn{\theta} is not identified from option prices alone and
 #' the optimizer returns one of the two equivalent solutions. Fix the sign
 #' externally (e.g. [event_beta()]).
+#'
+#' **Bootstrap.** Each replication draws blocks with replacement, refits
+#' the common exposure on the surfaces of the drawn blocks (warm-started
+#' from the full-sample fit), and records \eqn{\theta}. Runtime is roughly
+#' `boot_reps` times a full fit; a few hundred replications are typical.
 #'
 #' @references Hanke, Schadner, Stöckl, and Weissensteiner (Working Paper),
 #'   "Learning Before Scheduled Events: Prediction Markets, State Prices,
@@ -333,16 +470,25 @@ fit_dispersions <- function(obs, theta, par0 = NULL) {
 #'   [event_beta()] for the returns-based exposure.
 #' @export
 ec_theta_fit <- function(surfaces, theta_range = c(-3, 3), common = TRUE,
-                         min_nodes = 4) {
+                         min_nodes = 4, boot_reps = 0, block = NULL,
+                         block_length = 1, conf = 0.95) {
   stopifnot(is.data.frame(surfaces))
   need <- c("surface", "k", "iv", "q")
   miss <- setdiff(need, names(surfaces))
   if (length(miss) > 0) {
     cli::cli_abort("{.arg surfaces} is missing column{?s} {.field {miss}}.")
   }
+  if (boot_reps > 0) {
+    if (!common) cli::cli_abort("The bootstrap needs {.code common = TRUE}.")
+    if (is.null(block) || !block %in% names(surfaces)) {
+      cli::cli_abort("Supply {.arg block}, the name of a column of {.arg surfaces} (e.g. the valuation date).")
+    }
+    stopifnot(block_length >= 1, conf > 0, conf < 1)
+  }
   sf <- as.data.frame(surfaces)
   sf$w <- if ("w" %in% names(sf)) as.numeric(sf$w) else 1
   sf$scale <- if ("tau" %in% names(sf)) sqrt(as.numeric(sf$tau)) else 1
+  has_quotes <- all(c("iv_bid", "iv_ask") %in% names(sf))
   if (any(!is.finite(sf$scale) | sf$scale <= 0)) {
     cli::cli_abort("{.field tau} must be positive where supplied.")
   }
@@ -375,21 +521,9 @@ ec_theta_fit <- function(surfaces, theta_range = c(-3, 3), common = TRUE,
     )
   })
 
-  warm <- vector("list", length(obs))
-  surface_mse <- function(theta) {
-    mse <- numeric(length(obs))
-    for (i in seq_along(obs)) {
-      f <- fit_dispersions(obs[[i]], theta, par0 = warm[[i]])
-      warm[[i]] <<- f$par
-      mse[i] <- f$mse
-    }
-    mse
-  }
-
   if (common) {
-    opt <- stats::optimize(function(th) mean(surface_mse(th)),
-                           interval = theta_range, tol = 1e-4)
-    theta_hat <- opt$minimum
+    cf <- common_theta(obs, theta_range, warm = vector("list", length(obs)))
+    theta_hat <- cf$theta
     fits <- lapply(obs, fit_dispersions, theta = theta_hat)
     theta_col <- rep(theta_hat, length(obs))
   } else {
@@ -413,17 +547,75 @@ ec_theta_fit <- function(surfaces, theta_range = c(-3, 3), common = TRUE,
     s2 = unname(vapply(fits, function(f) f$s2, 0)),
     rmse = sqrt(unname(vapply(fits, function(f) f$mse, 0)))
   )
+
+  nodes <- dplyr::bind_rows(lapply(seq_along(obs), function(i) {
+    o <- obs[[i]]
+    iv_fit <- ec_mix_iv(o$k, o$q, theta_col[i], fits[[i]]$s1, fits[[i]]$s2) /
+      o$scale
+    tibble::tibble(surface = names(obs)[i], k = o$k, iv = o$iv,
+                   iv_fit = iv_fit, iv_err = iv_fit - o$iv)
+  }))
+  inside_share <- NA_real_
+  if (has_quotes) {
+    qt <- do.call(rbind, lapply(pieces, function(p) p[, c("iv_bid", "iv_ask")]))
+    nodes$iv_bid <- qt$iv_bid
+    nodes$iv_ask <- qt$iv_ask
+    nodes$inside <- nodes$iv_fit >= nodes$iv_bid & nodes$iv_fit <= nodes$iv_ask
+    inside_share <- mean(nodes$inside, na.rm = TRUE)
+  }
+
   out <- list(
     theta = theta_hat,
     ratio = exp(theta_hat),
     rmse = sqrt(mean(vapply(fits, function(f) f$mse, 0))),
     surfaces = per,
+    nodes = nodes,
+    inside_share = inside_share,
     n_surfaces = length(obs),
     n_obs = sum(per$n),
     common = common
   )
+
+  if (boot_reps > 0) {
+    blk <- vapply(pieces, function(p) as.character(p[[block]][1]), "")
+    lv <- unique(blk)
+    first_val <- vapply(lv, function(b) pieces[[which(blk == b)[1]]][[block]][1],
+                        pieces[[1]][[block]][1])
+    lv <- lv[order(first_val)]
+    B <- length(lv)
+    l <- min(as.integer(block_length), B)
+    warm_full <- lapply(fits, function(f) f$par)
+    draws <- vapply(seq_len(boot_reps), function(r) {
+      starts <- sample.int(B - l + 1, ceiling(B / l), replace = TRUE)
+      pick <- unlist(lapply(starts, function(s) lv[s:(s + l - 1)]))[seq_len(B)]
+      idx <- unlist(lapply(pick, function(b) which(blk == b)))
+      common_theta(obs[idx], theta_range, warm = warm_full[idx], tol = 1e-3)$theta
+    }, numeric(1))
+    a <- (1 - conf) / 2
+    out$theta_boot <- draws
+    out$theta_ci <- stats::quantile(draws, c(a, 1 - a), names = FALSE)
+    out$ratio_ci <- exp(out$theta_ci)
+    out$boot <- list(reps = boot_reps, block = block,
+                     block_length = l, conf = conf)
+  }
   class(out) <- "ec_theta_fit"
   out
+}
+
+# Common-exposure fit on a list of prepared surfaces (warm-started).
+common_theta <- function(obs, theta_range, warm, tol = 1e-4) {
+  surface_mse <- function(theta) {
+    mse <- numeric(length(obs))
+    for (i in seq_along(obs)) {
+      f <- fit_dispersions(obs[[i]], theta, par0 = warm[[i]])
+      warm[[i]] <<- f$par
+      mse[i] <- f$mse
+    }
+    mse
+  }
+  opt <- stats::optimize(function(th) mean(surface_mse(th)),
+                         interval = theta_range, tol = tol)
+  list(theta = opt$minimum, warm = warm)
 }
 
 #' @describeIn ec_theta_fit Print method.
@@ -434,9 +626,16 @@ print.ec_theta_fit <- function(x, ...) {
       if (x$n_surfaces != 1) "s", ", ", x$n_obs, " nodes)\n", sep = "")
   if (x$common) {
     cat(sprintf(
-      "Common event exposure theta = %.4f (conditional-mean ratio m1/m2 = %.3f)\n",
+      "Common log exposure theta = %.4f (conditional-mean ratio eta1/eta2 = %.3f)\n",
       x$theta, x$ratio
     ))
+    if (!is.null(x$ratio_ci)) {
+      cat(sprintf(
+        "%g%% block-bootstrap interval for eta1/eta2: [%.3f, %.3f] (%d replications, blocks: %s)\n",
+        100 * x$boot$conf, x$ratio_ci[1], x$ratio_ci[2], x$boot$reps,
+        x$boot$block
+      ))
+    }
   } else {
     cat(sprintf(
       "Free per-surface exposures: median theta = %.4f (range %.3f to %.3f)\n",
@@ -445,5 +644,9 @@ print.ec_theta_fit <- function(x, ...) {
     ))
   }
   cat(sprintf("Surface-balanced RMSE = %.4f (IV units of the input)\n", x$rmse))
+  if (is.finite(x$inside_share %||% NA_real_)) {
+    cat(sprintf("Fitted values inside the bid-ask interval: %.1f%%\n",
+                100 * x$inside_share))
+  }
   invisible(x)
 }

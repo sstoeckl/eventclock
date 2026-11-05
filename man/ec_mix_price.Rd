@@ -35,7 +35,7 @@ of the accompanying working paper: with probability \eqn{q} (outcome 1)
 the gross event multiplier is lognormal with conditional mean \eqn{m_1}
 and total dispersion \eqn{s_1}, with probability \eqn{1-q} (outcome 2)
 lognormal with mean \eqn{m_2} and dispersion \eqn{s_2}. The
-outcome-conditional means are parametrized by the event exposure
+outcome-conditional means are parametrized by the log exposure
 \deqn{\theta = \log(m_1 / m_2)}
 and pinned down by the pricing-measure adding-up (scale) normalization
 \eqn{q\,m_1 + (1-q)\,m_2 = 1}, so that the mixture has forward value one.
@@ -46,6 +46,13 @@ and pinned down by the pricing-measure adding-up (scale) normalization
 prices). \code{ec_mix_iv()} returns the Black \emph{total} implied dispersion of
 the mixture price; divide by \eqn{\sqrt{\tau}} (time to expiry in years)
 for an annualized implied volatility.
+
+\strong{Notation.} The conditional means \eqn{m_1, m_2} are the event
+multipliers \eqn{\eta_1, \eta_2} of the working paper (and of
+\code{\link[=event_beta]{event_beta()}}); the paper reports the scale-free \emph{conditional-mean
+ratio} \eqn{r = \eta_1/\eta_2 = e^{\theta}}. For example, the paper's
+2024 estimate for Trump Media & Technology Group, a Trump/non-Trump
+ratio of 2.71, corresponds to \eqn{\theta = \log 2.71 \approx 1.0}.
 
 \strong{Sign identification.} At \eqn{q = 1/2} the mixture is observationally
 symmetric in \eqn{(\theta, s_1, s_2) \mapsto (-\theta, s_2, s_1)}: option

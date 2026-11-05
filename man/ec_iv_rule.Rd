@@ -23,8 +23,8 @@ ec_iv_rule(deta, q, A, sigma, tenor)
 Numeric vector, the IV contribution in decimal volatility units.
 }
 \description{
-A first-order expansion of implied volatility gives the ATM
-contribution of learning ahead of a scheduled event:
+A first-order expansion of implied volatility gives a back-of-the-
+envelope ATM contribution of learning ahead of a scheduled event:
 \deqn{\Delta \mathrm{IV} \approx \frac{[\Delta\eta\; q(1-q)]^2\,
   A}{2\,\sigma\,(T-t)}.}
 }
@@ -32,9 +32,15 @@ contribution of learning ahead of a scheduled event:
 The four levers: the event exposure \eqn{\Delta\eta} (squared), the
 movability of the probability \eqn{q(1-q)} (squared), the event-clock
 time \eqn{A}, and the dilution by the no-learning volatility and tenor.
-(The function name \code{ec_iv_rule()} is kept for API stability; the
-formula is the working paper's first-order expansion of implied
-volatility.)
+
+This is a screening approximation. The exact pre-resolution value under
+the maintained finite-horizon transition is computed by
+\code{\link[=ec_mix_iv_pre]{ec_mix_iv_pre()}}, and the accompanying working paper reports the exact
+calculation. For small exposures the two coincide: for the Brexit
+two-week horizon both give 0.0083 annualized IV points (no-learning
+volatility 9.325\%). For large exposures, such as single stocks with
+strongly outcome-dependent values, use the exact function. The function
+name \code{ec_iv_rule()} is kept for API stability.
 
 \strong{Units and the \eqn{\sigma} convention.} With \code{sigma} as decimal
 annualized volatility and \code{tenor} in years, the result is a decimal

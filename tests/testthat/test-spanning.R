@@ -65,16 +65,24 @@ test_that("ec_theta_hump inverts the two-point variance identity exactly", {
 })
 
 test_that("ec_recovery_set reproduces the sharp partial-recovery interval", {
-  rs <- ec_recovery_set(0.5, eps = c(0, 0.25, 1, 2))
-  expect_equal(rs$lower[rs$eps == 0], 0.5)
-  expect_equal(rs$upper[rs$eps == 0], 0.5)
-  expect_equal(rs$lower[rs$eps == 0.25], 0.75^2 * 0.5)
-  expect_equal(rs$upper[rs$eps == 0.25], 1.25^2 * 0.5)
-  expect_equal(rs$lower[rs$eps == 1], 0)    # (1 - eps)_+ at eps >= 1
-  expect_equal(rs$lower[rs$eps == 2], 0)
-  # intervals are nested in eps
+  rs <- ec_recovery_set(0.5, delta = c(0, 0.25, 1, 2))
+  expect_equal(rs$lower[rs$delta == 0], 0.5)
+  expect_equal(rs$upper[rs$delta == 0], 0.5)
+  expect_equal(rs$lower[rs$delta == 0.25], 0.75^2 * 0.5)
+  expect_equal(rs$upper[rs$delta == 0.25], 1.25^2 * 0.5)
+  expect_equal(rs$lower[rs$delta == 1], 0)    # (1 - delta)_+ at delta >= 1
+  expect_equal(rs$lower[rs$delta == 2], 0)
+  # intervals are nested in delta
   expect_true(all(diff(rs$lower) <= 0) && all(diff(rs$upper) >= 0))
   expect_equal(nrow(ec_recovery_set(c(0.1, 0.2))), 8L)
+  # the working paper's wide low-clock endpoint: (1 - 0.5)^2 = 0.25
+  expect_equal(ec_recovery_set(1, delta = 0.5)$lower, 0.25)
+})
+
+test_that("ec_recovery_set keeps the deprecated eps alias working", {
+  expect_warning(rs <- ec_recovery_set(0.5, eps = 0.25), "deprecated")
+  expect_equal(rs$delta, 0.25)
+  expect_equal(rs$lower, 0.75^2 * 0.5)
 })
 
 test_that("ec_theta_fit recovers a known common exposure from clean surfaces", {
@@ -98,7 +106,7 @@ test_that("ec_theta_fit recovers a known common exposure from clean surfaces", {
   expect_equal(fit$surfaces$s1, cfg$s1, tolerance = 0.05)
   expect_equal(fit$surfaces$s2, cfg$s2, tolerance = 0.05)
   expect_lt(fit$rmse, 1e-3)
-  expect_output(print(fit), "Common event exposure")
+  expect_output(print(fit), "Common log exposure")
 })
 
 test_that("ec_theta_fit handles annualized IVs via tau and node weights", {
@@ -115,6 +123,106 @@ test_that("ec_theta_fit handles annualized IVs via tau and node weights", {
   expect_true(is.na(fit$theta))
   expect_equal(fit$surfaces$theta[1], true_theta, tolerance = 0.05)
   expect_output(print(fit), "Free per-surface exposures")
+})
+
+test_that("pre-resolution pricer: A = 0 and theta = 0 collapse to Black", {
+  k <- c(-0.3, 0, 0.25)
+  bl <- ec_mix_price(k, q = 0.4, theta = 0, s1 = 0.2, s2 = 0.2)
+  expect_equal(ec_mix_price_pre(k, 0.4, theta = 0.9, A = 0, s_cf = 0.2),
+               bl, tolerance = 1e-12)
+  expect_equal(ec_mix_price_pre(k, 0.4, theta = 0, A = 0.8, s_cf = 0.2),
+               bl, tolerance = 1e-12)
+})
+
+test_that("pre-resolution value is nondecreasing in elapsed clock time", {
+  # Corollary: learning generates a mean-preserving spread in q'
+  v <- ec_mix_price_pre(0, q = 0.45, theta = 0.8,
+                        A = c(0, 0.1, 0.4, 1, 2), s_cf = 0.2)
+  expect_true(all(diff(v) > 0))
+})
+
+test_that("pre-resolution prices satisfy parity and the forward bound", {
+  k <- c(-0.4, 0.1)
+  cc <- ec_mix_price_pre(k, 0.35, 0.7, A = 0.5, s_cf = 0.25, type = "call")
+  pp <- ec_mix_price_pre(k, 0.35, 0.7, A = 0.5, s_cf = 0.25, type = "put")
+  expect_equal(cc - pp, 1 - exp(k), tolerance = 1e-7)
+  # deep-ITM call ~ forward minus strike (martingale event component)
+  expect_equal(ec_mix_price_pre(-6, 0.35, 0.7, A = 0.5, s_cf = 0.25),
+               1 - exp(-6), tolerance = 1e-6)
+})
+
+test_that("small-A pre-resolution IV matches the first-order variance add-on", {
+  q <- 0.4; theta <- 0.5; A <- 0.01; s_cf <- 0.3
+  m <- exp(theta); m1 <- m / (q * m + 1 - q); m2 <- 1 / (q * m + 1 - q)
+  # d log E / d lambda = q(1-q)(m1 - m2) at E = 1
+  extra <- (q * (1 - q) * (m1 - m2))^2 * A
+  iv <- ec_mix_iv_pre(0, q, theta, A, s_cf)
+  expect_equal(iv^2, s_cf^2 + extra, tolerance = 0.02)
+})
+
+test_that("us2016_surfaces_sim reproduces its calibration exposure", {
+  data(us2016_surfaces_sim)
+  s <- us2016_surfaces_sim
+  expect_equal(nrow(s), 423L)
+  expect_true(all(s$expiry_date > s$event_date))  # event-spanning only
+  s$tau <- as.numeric(s$expiry_date - s$obs_date) / 365
+  s$k <- ec_delta_to_k(s$node, s$iv * sqrt(s$tau))
+  s$surface <- paste(s$obs_date, s$expiry_date)
+  fit <- ec_theta_fit(s[, c("surface", "k", "iv", "q", "tau")])
+  # golden: the simulation's calibration target (US-2016 SPX profile)
+  expect_equal(fit$theta, -0.0774, tolerance = 0.01)
+  expect_equal(fit$n_surfaces, 47L)
+  expect_lt(fit$rmse, 0.01)
+})
+
+make_panel <- function(theta = 0.6, noise = 0, seed = 1) {
+  set.seed(seed)
+  k <- seq(-0.45, 0.45, by = 0.15)
+  cfg <- expand.grid(date = as.Date("2024-10-21") + 0:3, expiry = c(1, 2))
+  cfg$q <- 0.45 + 0.03 * as.numeric(cfg$date - min(cfg$date))
+  cfg$s1 <- 0.20 + 0.04 * cfg$expiry
+  cfg$s2 <- 0.26 + 0.04 * cfg$expiry
+  do.call(rbind, lapply(seq_len(nrow(cfg)), function(i) {
+    iv <- ec_mix_iv(k, cfg$q[i], theta, cfg$s1[i], cfg$s2[i])
+    data.frame(surface = paste(cfg$date[i], cfg$expiry[i]), date = cfg$date[i],
+               k = k, q = cfg$q[i],
+               iv = iv + stats::rnorm(length(k), sd = noise))
+  }))
+}
+
+test_that("ec_theta_fit reports node fits and the bid-ask diagnostic", {
+  p <- make_panel()
+  fit <- ec_theta_fit(p)
+  expect_equal(nrow(fit$nodes), nrow(p))
+  expect_lt(max(abs(fit$nodes$iv_err)), 1e-3)
+  expect_true(is.na(fit$inside_share))
+
+  wide <- transform(p, iv_bid = iv - 0.01, iv_ask = iv + 0.01)
+  fw <- ec_theta_fit(wide)
+  expect_equal(fw$inside_share, 1)
+  expect_true(all(fw$nodes$inside))
+  expect_output(print(fw), "inside the bid-ask interval: 100.0%")
+
+  off <- transform(p, iv_bid = iv + 0.02, iv_ask = iv + 0.03)
+  expect_equal(ec_theta_fit(off)$inside_share, 0)
+})
+
+test_that("date-block bootstrap brackets the true exposure", {
+  p <- make_panel(theta = 0.6, noise = 0.003, seed = 4)
+  set.seed(10)
+  fit <- ec_theta_fit(p, boot_reps = 15, block = "date")
+  expect_length(fit$theta_boot, 15L)
+  expect_lt(fit$theta_ci[1], fit$theta_ci[2])
+  expect_true(fit$theta_ci[1] <= 0.6 + 0.05 && fit$theta_ci[2] >= 0.6 - 0.05)
+  expect_equal(fit$ratio_ci, exp(fit$theta_ci))
+  expect_output(print(fit), "block-bootstrap interval")
+  # moving blocks of two dates
+  set.seed(11)
+  f2 <- ec_theta_fit(p, boot_reps = 5, block = "date", block_length = 2)
+  expect_equal(f2$boot$block_length, 2L)
+  expect_error(ec_theta_fit(p, boot_reps = 5), "block")
+  expect_error(ec_theta_fit(p, boot_reps = 5, block = "date", common = FALSE),
+               "common")
 })
 
 test_that("ec_theta_fit input validation works", {

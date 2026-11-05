@@ -15,8 +15,12 @@ column (\code{ret}) or a price column (\code{adjusted}, \code{close}, or \code{p
 log returns are computed).}
 
 \item{x}{An \code{event_prices} object (or coercible); its probability
-innovations \eqn{\Delta q_t} are the regressor. Observations are
-matched on the calendar date.}
+innovations \eqn{\Delta q_t} are the regressor. The probability level
+is taken at each asset date (the last observation on or before it)
+and differenced between consecutive asset dates, so probability moves
+over weekends and holidays enter the next trading day's return.
+Collapse intraday prices to a daily snapshot first (see
+\code{\link[=pm_daily]{pm_daily()}}).}
 
 \item{deta}{Optional externally measured event exposure
 \eqn{\Delta\eta}; enables the \eqn{\beta = 1} test.}

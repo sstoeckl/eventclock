@@ -2,33 +2,46 @@
 % Please edit documentation in R/spanning.R
 \name{ec_recovery_set}
 \alias{ec_recovery_set}
-\title{Partial-recovery interval for the event clock}
+\title{Partial-recovery interval for the Event Clock}
 \usage{
-ec_recovery_set(A, eps = c(0, 0.1, 0.25, 0.5))
+ec_recovery_set(A, delta = c(0, 0.1, 0.25, 0.5), eps = NULL)
 }
 \arguments{
 \item{A}{Measured log-odds quadratic variation (e.g. the \code{A} column of
-\code{\link[=event_clock]{event_clock()}}).}
+\code{\link[=event_clock]{event_clock()}}, or a forecast from \code{\link[=event_clock_forecast]{event_clock_forecast()}}).}
 
-\item{eps}{Partial-recovery bound(s) \eqn{\varepsilon \ge 0}; the
-default reproduces the working paper's sensitivity grid.}
+\item{delta}{Partial-recovery bound(s) \eqn{\delta \ge 0}; the default
+is a sensitivity grid up to the deliberately wide \eqn{\delta = 0.5}.}
+
+\item{eps}{Deprecated alias for \code{delta} (the argument name used up to
+version 0.4.0).}
 }
 \value{
-A tibble with columns \code{A}, \code{eps}, \code{lower}, \code{upper} (one row per
-\code{A} \eqn{\times} \code{eps} combination).
+A tibble with columns \code{A}, \code{delta}, \code{lower}, \code{upper} (one row
+per \code{A} \eqn{\times} \code{delta} combination).
 }
 \description{
-Under exact recovery the measured state-price log-odds quadratic
-variation \emph{is} the physical event clock. Under the partial-recovery
-bound of the working paper — valuation-wedge quadratic variation no
-larger than \eqn{\varepsilon^2} times the physical clock — the sharp
-implied interval for the clock is
-\deqn{\big((1-\varepsilon)_+\big)^2\,\widehat{A} \;\le\; A \;\le\;
-  (1+\varepsilon)^2\,\widehat{A},}
+A traded event price can move for two reasons: news about the outcome,
+or a change in how the market values the two outcomes relative to each
+other. Under \emph{exact recovery} only the first moves log odds
+continuously, and the measured log-odds variation \emph{is} the physical
+Event Clock. \emph{Partial recovery} allows the valuation gap to contribute
+too, but at most a fraction \eqn{\delta^2} of the measured variation,
+\eqn{[\upsilon]^c \le \delta^2 [L]^c}. The physical clock then lies in
+the sharp interval
+\deqn{(1-\delta)_+^2\,\widehat{A} \;\le\; A \;\le\;
+  (1+\delta)^2\,\widehat{A},}
 where \eqn{\widehat{A}} is the measured log-odds variation. Exact
-recovery is \eqn{\varepsilon = 0}.
+recovery is \eqn{\delta = 0}. The lower end is the "low-clock endpoint"
+used for conservative sensitivity analysis: at \eqn{\delta = 0.5} it
+scales the measured clock by \eqn{(1 - 0.5)^2 = 0.25}.
 }
 \examples{
 ec_recovery_set(0.511)                   # Brexit 1M clock
-ec_recovery_set(c(0.064, 0.166), eps = 0.25)
+ec_recovery_set(c(0.064, 0.166), delta = 0.5)
+}
+\references{
+Hanke, Schadner, Stöckl, and Weissensteiner (Working
+Paper), "The Event Clock: What State Prices Identify About Physical
+Information".
 }

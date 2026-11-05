@@ -41,7 +41,7 @@ plot_q <- function(x, event_date = NULL, ...) {
   p
 }
 
-#' Clock plot: the cumulative event clock
+#' Clock plot: the cumulative Event Clock
 #'
 #' Plots cumulative event-clock time \eqn{\widehat A_t} against calendar
 #' time — the "clock plot": how much of the window's information had
@@ -71,7 +71,7 @@ plot_clock <- function(path, normalize = TRUE, ...) {
     ggplot2::labs(
       x = NULL, y = ylab,
       title = attr(path, "market_id"),
-      subtitle = "Cumulative event clock"
+      subtitle = "Cumulative Event Clock"
     ) +
     ggplot2::theme_minimal(base_size = 12)
   ed <- attr(path, "event_date")

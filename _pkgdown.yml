@@ -2,8 +2,18 @@ url: https://www.sebastianstoeckl.com/eventclock/
 template:
   bootstrap: 5
   bootswatch: spacelab
+  math-rendering: mathjax
 navbar:
   bg: primary
+articles:
+- title: The workflow, step by step
+  navbar: ~
+  contents:
+  - eventclock-brexit
+  - eventclock-measurement
+  - eventclock-validation
+  - eventclock-event-betas
+  - eventclock-event-spanning
 reference:
 - title: Event prices
   desc: Standardize and screen traded event probabilities.
@@ -18,11 +28,19 @@ reference:
   contents:
   - event_clock
   - event_clock_path
-  - event_clock_forecast
-  - ec_signature
-  - plot_signature
   - ec_recovery_set
   - ec_default_params
+- title: Measuring the clock in practice
+  desc: Sampling frequency, real-time forecasts, and multiple venues.
+  contents:
+  - event_clock_staggered
+  - ec_signature
+  - plot_signature
+  - event_clock_forecast
+  - ec_forecast_rules
+  - ec_forecast_select
+  - event_clock_venues
+  - event_clock_venues_path
 - title: Event-spanning options
   desc: The lognormal event mixture and the event exposure theta.
   contents:
@@ -30,6 +48,7 @@ reference:
   - ec_theta_fit
   - ec_theta_hump
   - ec_delta_to_k
+  - ec_mix_price_pre
 - title: Assets & finance
   desc: Event exposures and pricing relevance.
   contents:
@@ -57,13 +76,17 @@ reference:
   - plot_q
   - plot_clock
   - plot_clock_vs_calendar
-- title: Polymarket connector
+- title: Prediction-market connectors
+  desc: Public, keyless price histories from Polymarket and Kalshi.
   contents:
   - starts_with("pm_")
+  - starts_with("ks_")
 - title: Data
   contents:
   - brexit2016
   - us2016
+  - us2016_surfaces_sim
   - polymarket2024
+  - kalshi2024
   - fomc_meetings
   - djt2024
