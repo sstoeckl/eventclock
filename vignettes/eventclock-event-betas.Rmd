@@ -1,8 +1,8 @@
 ---
-title: "Event betas: assets on the event clock"
+title: "Event betas: assets on the Event Clock"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Event betas: assets on the event clock}
+  %\VignetteIndexEntry{Event betas: assets on the Event Clock}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -22,7 +22,7 @@ library(eventclock)
 
 ## From the clock to asset prices
 
-The event clock answers "how much was learned, and when". The asset
+The Event Clock answers "how much was learned, and when". The asset
 side asks: "who cares?" To first order, an asset whose event multiplier
 has outcome-conditional means \(\eta_1, \eta_2\) responds to probability
 news as

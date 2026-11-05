@@ -65,16 +65,24 @@ test_that("ec_theta_hump inverts the two-point variance identity exactly", {
 })
 
 test_that("ec_recovery_set reproduces the sharp partial-recovery interval", {
-  rs <- ec_recovery_set(0.5, eps = c(0, 0.25, 1, 2))
-  expect_equal(rs$lower[rs$eps == 0], 0.5)
-  expect_equal(rs$upper[rs$eps == 0], 0.5)
-  expect_equal(rs$lower[rs$eps == 0.25], 0.75^2 * 0.5)
-  expect_equal(rs$upper[rs$eps == 0.25], 1.25^2 * 0.5)
-  expect_equal(rs$lower[rs$eps == 1], 0)    # (1 - eps)_+ at eps >= 1
-  expect_equal(rs$lower[rs$eps == 2], 0)
-  # intervals are nested in eps
+  rs <- ec_recovery_set(0.5, delta = c(0, 0.25, 1, 2))
+  expect_equal(rs$lower[rs$delta == 0], 0.5)
+  expect_equal(rs$upper[rs$delta == 0], 0.5)
+  expect_equal(rs$lower[rs$delta == 0.25], 0.75^2 * 0.5)
+  expect_equal(rs$upper[rs$delta == 0.25], 1.25^2 * 0.5)
+  expect_equal(rs$lower[rs$delta == 1], 0)    # (1 - delta)_+ at delta >= 1
+  expect_equal(rs$lower[rs$delta == 2], 0)
+  # intervals are nested in delta
   expect_true(all(diff(rs$lower) <= 0) && all(diff(rs$upper) >= 0))
   expect_equal(nrow(ec_recovery_set(c(0.1, 0.2))), 8L)
+  # the working paper's wide low-clock endpoint: (1 - 0.5)^2 = 0.25
+  expect_equal(ec_recovery_set(1, delta = 0.5)$lower, 0.25)
+})
+
+test_that("ec_recovery_set keeps the deprecated eps alias working", {
+  expect_warning(rs <- ec_recovery_set(0.5, eps = 0.25), "deprecated")
+  expect_equal(rs$delta, 0.25)
+  expect_equal(rs$lower, 0.75^2 * 0.5)
 })
 
 test_that("ec_theta_fit recovers a known common exposure from clean surfaces", {

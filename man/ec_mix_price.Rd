@@ -47,6 +47,13 @@ prices). \code{ec_mix_iv()} returns the Black \emph{total} implied dispersion of
 the mixture price; divide by \eqn{\sqrt{\tau}} (time to expiry in years)
 for an annualized implied volatility.
 
+\strong{Notation.} The conditional means \eqn{m_1, m_2} are the event
+multipliers \eqn{\eta_1, \eta_2} of the working paper (and of
+\code{\link[=event_beta]{event_beta()}}); the paper reports the scale-free \emph{conditional-mean
+ratio} \eqn{r = \eta_1/\eta_2 = e^{\theta}}. For example, the paper's
+2024 estimate for Trump Media & Technology Group, a Trump/non-Trump
+ratio of 2.71, corresponds to \eqn{\theta = \log 2.71 \approx 1.0}.
+
 \strong{Sign identification.} At \eqn{q = 1/2} the mixture is observationally
 symmetric in \eqn{(\theta, s_1, s_2) \mapsto (-\theta, s_2, s_1)}: option
 prices alone cannot tell which outcome the asset favors. Take the sign

@@ -1,4 +1,28 @@
-# eventclock 0.4.1
+# eventclock 0.5.0
+
+## Synchronization with the current working paper
+
+* `ec_recovery_set()` now uses the paper's notation: the partial-recovery
+  bound is `delta` (the old argument `eps` still works with a
+  deprecation warning; the output column is now `delta`). The
+  documentation states the bound exactly as in the paper — valuation
+  variation at most `delta^2` times the *measured* log-odds variation —
+  and explains the low-clock endpoint `(1 - delta)^2`.
+* The companion working paper *The Event Clock: What State Prices
+  Identify About Physical Information* (SSRN 7420838) is now cited in
+  `citation("eventclock")`, the README, and the vignettes; the package
+  version in the citation is read from `DESCRIPTION`.
+* "Event Clock" is capitalized throughout, as in the papers
+  ("event-clock time" stays lower case).
+* `ec_iv_rule()` is documented as the first-order screening formula; the
+  exact pre-resolution value is `ec_mix_iv_pre()`, which reproduces the
+  paper's Brexit two-week learning contribution (0.0083 IV points).
+* Golden tests relabeled: Brexit 1W/2W/1M clocks are the paper's
+  main-text numbers; robustness variants are pinned against earlier
+  versions' reference values; the trailing-60 real-time forecast
+  reproduces the paper's 2016 values (0.0476 / 0.0951) to within 1%.
+
+## Pricing, data, and documentation
 
 * `ec_mix_price_pre()` / `ec_mix_iv_pre()` — exact pre-resolution
   option prices under event learning: the future event probability

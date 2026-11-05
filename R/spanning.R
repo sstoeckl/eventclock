@@ -73,6 +73,13 @@ mix_means <- function(q, theta) {
 #' for an annualized implied volatility.
 #'
 #' @details
+#' **Notation.** The conditional means \eqn{m_1, m_2} are the event
+#' multipliers \eqn{\eta_1, \eta_2} of the working paper (and of
+#' [event_beta()]); the paper reports the scale-free *conditional-mean
+#' ratio* \eqn{r = \eta_1/\eta_2 = e^{\theta}}. For example, the paper's
+#' 2024 estimate for Trump Media & Technology Group, a Trump/non-Trump
+#' ratio of 2.71, corresponds to \eqn{\theta = \log 2.71 \approx 1.0}.
+#'
 #' **Sign identification.** At \eqn{q = 1/2} the mixture is observationally
 #' symmetric in \eqn{(\theta, s_1, s_2) \mapsto (-\theta, s_2, s_1)}: option
 #' prices alone cannot tell which outcome the asset favors. Take the sign
@@ -194,37 +201,53 @@ ec_theta_hump <- function(dvar, q) {
   out
 }
 
-#' Partial-recovery interval for the event clock
+#' Partial-recovery interval for the Event Clock
 #'
-#' Under exact recovery the measured state-price log-odds quadratic
-#' variation *is* the physical event clock. Under the partial-recovery
-#' bound of the working paper — valuation-wedge quadratic variation no
-#' larger than \eqn{\varepsilon^2} times the physical clock — the sharp
-#' implied interval for the clock is
-#' \deqn{\big((1-\varepsilon)_+\big)^2\,\widehat{A} \;\le\; A \;\le\;
-#'   (1+\varepsilon)^2\,\widehat{A},}
+#' A traded event price can move for two reasons: news about the outcome,
+#' or a change in how the market values the two outcomes relative to each
+#' other. Under *exact recovery* only the first moves log odds
+#' continuously, and the measured log-odds variation *is* the physical
+#' Event Clock. *Partial recovery* allows the valuation gap to contribute
+#' too, but at most a fraction \eqn{\delta^2} of the measured variation,
+#' \eqn{[\upsilon]^c \le \delta^2 [L]^c}. The physical clock then lies in
+#' the sharp interval
+#' \deqn{(1-\delta)_+^2\,\widehat{A} \;\le\; A \;\le\;
+#'   (1+\delta)^2\,\widehat{A},}
 #' where \eqn{\widehat{A}} is the measured log-odds variation. Exact
-#' recovery is \eqn{\varepsilon = 0}.
+#' recovery is \eqn{\delta = 0}. The lower end is the "low-clock endpoint"
+#' used for conservative sensitivity analysis: at \eqn{\delta = 0.5} it
+#' scales the measured clock by \eqn{(1 - 0.5)^2 = 0.25}.
 #'
 #' @param A Measured log-odds quadratic variation (e.g. the `A` column of
-#'   [event_clock()]).
-#' @param eps Partial-recovery bound(s) \eqn{\varepsilon \ge 0}; the
-#'   default reproduces the working paper's sensitivity grid.
-#' @return A tibble with columns `A`, `eps`, `lower`, `upper` (one row per
-#'   `A` \eqn{\times} `eps` combination).
+#'   [event_clock()], or a forecast from [event_clock_forecast()]).
+#' @param delta Partial-recovery bound(s) \eqn{\delta \ge 0}; the default
+#'   is a sensitivity grid up to the deliberately wide \eqn{\delta = 0.5}.
+#' @param eps Deprecated alias for `delta` (the argument name used up to
+#'   version 0.4.0).
+#' @return A tibble with columns `A`, `delta`, `lower`, `upper` (one row
+#'   per `A` \eqn{\times} `delta` combination).
+#' @references Hanke, Schadner, Stöckl, and Weissensteiner (Working
+#'   Paper), "The Event Clock: What State Prices Identify About Physical
+#'   Information".
 #' @examples
 #' ec_recovery_set(0.511)                   # Brexit 1M clock
-#' ec_recovery_set(c(0.064, 0.166), eps = 0.25)
+#' ec_recovery_set(c(0.064, 0.166), delta = 0.5)
 #' @export
-ec_recovery_set <- function(A, eps = c(0, 0.10, 0.25, 0.50)) {
+ec_recovery_set <- function(A, delta = c(0, 0.10, 0.25, 0.50), eps = NULL) {
+  if (!is.null(eps)) {
+    cli::cli_warn(
+      "{.arg eps} is deprecated; use {.arg delta} (same meaning)."
+    )
+    delta <- eps
+  }
   check_nonneg(A, "A")
-  check_nonneg(eps, "eps")
-  g <- expand.grid(A = A, eps = eps, KEEP.OUT.ATTRS = FALSE)
+  check_nonneg(delta, "delta")
+  g <- expand.grid(A = A, delta = delta, KEEP.OUT.ATTRS = FALSE)
   tibble::tibble(
     A = g$A,
-    eps = g$eps,
-    lower = pmax(1 - g$eps, 0)^2 * g$A,
-    upper = (1 + g$eps)^2 * g$A
+    delta = g$delta,
+    lower = pmax(1 - g$delta, 0)^2 * g$A,
+    upper = (1 + g$delta)^2 * g$A
   )
 }
 

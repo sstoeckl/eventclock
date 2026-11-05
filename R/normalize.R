@@ -24,7 +24,7 @@
 #' A level distortion that is (approximately) constant on the log-odds scale
 #' — a constant discount factor, a constant state-price tilt — shifts
 #' \eqn{L_t = \mathrm{logit}(q_t)} by a constant and therefore leaves the
-#' event clock unchanged: quadratic variation is invariant to level shifts.
+#' Event Clock unchanged: quadratic variation is invariant to level shifts.
 #' Getting the level of `q` exactly right matters for probability
 #' statements, not for [event_clock()].
 #'

@@ -292,7 +292,7 @@ event_clock <- function(x, from = NULL, to = NULL,
 
 #' Cumulative event-clock path
 #'
-#' Computes the running (cumulative) event clock
+#' Computes the running (cumulative) Event Clock
 #' \eqn{\widehat A_t = \sum_{s \le t} (\Delta L_s)^2} — the object behind
 #' the "clock plot": how much of the eventual information had arrived by
 #' each calendar date.

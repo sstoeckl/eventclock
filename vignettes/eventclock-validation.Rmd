@@ -109,7 +109,7 @@ measures *how much* was learned, not *what* was learned.
 
 ## Lumpy information: what the robustness variants actually do
 
-Real event clocks are lumpy — debates and verdicts, not a smooth flow.
+Real Event Clocks are lumpy — debates and verdicts, not a smooth flow.
 With `jump_share`, the simulator concentrates part of \(A\) in a few
 jump steps, and the estimator battery reacts exactly as the theory says
 it should:

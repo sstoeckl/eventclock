@@ -1,8 +1,8 @@
 ---
-title: "Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket"
+title: "Measuring the Event Clock: Brexit, the 2016 U.S. election, and Polymarket"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Measuring the event clock: Brexit, the 2016 U.S. election, and Polymarket}
+  %\VignetteIndexEntry{Measuring the Event Clock: Brexit, the 2016 U.S. election, and Polymarket}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,10 +20,10 @@ knitr::opts_chunk$set(
 library(eventclock)
 ```
 
-## The event clock in one paragraph
+## The Event Clock in one paragraph
 
 Ahead of a scheduled event — a referendum, an election, a central-bank
-decision — markets learn. The *event clock* measures how much
+decision — markets learn. The *Event Clock* measures how much
 outcome-relevant information has arrived and when: event-clock time
 $A_{t,T}$ is the quadratic variation of the log-odds
 $L_t = \mathrm{logit}(q_t)$ of the state-price-implied event
@@ -33,12 +33,20 @@ $$\widehat A_{t,T} \;=\; \sum_{t_i \in [t,T)}
   \bigl[\mathrm{logit}(q_{t_{i+1}}) - \mathrm{logit}(q_{t_i})\bigr]^2 .$$
 
 Because quadratic variation ignores drift and is invariant under
-equivalent measure changes, $\widehat A$ needs no assumption about risk
-premia, and any constant level distortion of $q$ (discounting, a constant
-state-price tilt) drops out. The concept, identification results, and the
-empirical applications reproduced below are developed in Hanke, Schadner,
-Stöckl, and Weissensteiner (Working Paper), *Learning Before Scheduled
-Events: Prediction Markets, State Prices, and Option Valuation*.
+equivalent measure changes, $\widehat A$ needs no assumption about the
+level of risk premia, and any constant level distortion of $q$
+(discounting, a constant state-price tilt) drops out. One restriction
+remains: a traded price can also move because the market revalues the
+two outcomes relative to each other. The measured clock equals the
+physical information flow exactly when that relative valuation has no
+continuous variation of its own (*exact recovery*); when in doubt,
+`ec_recovery_set()` widens the measured clock into an interval. The
+concept and the empirical applications reproduced below are developed in
+Hanke, Schadner, Stöckl, and Weissensteiner (Working Paper), *Learning
+Before Scheduled Events: Prediction Markets, State Prices, and Option
+Valuation*; the identification theory behind the recovery restriction is
+in the companion working paper *The Event Clock: What State Prices
+Identify About Physical Information*.
 
 ## Two classic event windows: Brexit and the 2016 U.S. election
 
@@ -94,19 +102,21 @@ knitr::kable(
 )
 ```
 
-This reproduces the published table: Brexit $\widehat A$ of 0.064 (1W),
-0.166 (2W), and 0.511 (1M) with bipower 0.375; U.S. election 0.015,
-0.046, and 0.370 with bipower 0.386 and truncated 0.259.
+The RV column reproduces the working paper's Brexit clock — 0.064 (1W),
+0.166 (2W), and 0.511 (1M) — and the realized 2016 U.S. clock of its
+robustness application (0.015 and 0.046 over one and two weeks). The
+robustness columns match the reference values of earlier versions of
+the paper (bipower 0.375 and 0.386; truncated 0.259 for the U.S.).
 
 Two details worth noting:
 
 * **Truncation vs. largest-move exclusion.** The truncation rule (drop
   increments beyond 3 robust standard deviations) binds for the U.S.
-  window — where it removes exactly the largest move and matches the
-  published 0.259 — but not for the Brexit window, whose largest move
-  stays inside the threshold. The published Brexit "truncated" value
-  (0.426) corresponds to `largest1`. With daily data and short windows,
-  always compare both columns.
+  window — where it removes exactly the largest move (0.259) — but not
+  for the Brexit window, whose largest move stays inside the threshold;
+  there, the reference "truncated" value (0.426) corresponds to
+  `largest1`. With daily data and short windows, always compare both
+  columns.
 * **Windows are anchored, not trailing.** "1M" runs from the valuation
   date to the event date; observations are calendar-daily including
   weekends.
@@ -237,27 +247,30 @@ ec_exceedance(0.5, q = 0.195, A = 0.166)
 ec_target_clock(q = 0.195, target = 0.9) / 0.166
 ```
 
-A first-order expansion of implied volatility gives the contribution of
-event learning,
+How much does learning add to an option's implied volatility? A
+first-order expansion gives a quick screen,
 $\Delta\mathrm{IV} \approx [\Delta\eta\, q(1-q)]^2 A \,/\, (2\sigma(T-t))$,
-which reproduces the paper's headline decomposition (in annualized IV
-percentage points, using the tenor-specific no-learning ATM volatility
-and the event exposures $\Delta\eta$ estimated in the paper):
+where $\Delta\eta$ is the asset's event exposure and $\sigma$ the
+no-learning volatility over the tenor. The exact value under the
+transition law is `ec_mix_iv_pre()` (see
+`vignette("eventclock-event-spanning")`); for exposures as small as
+these the two coincide. In annualized IV percentage points:
 
 ```{r}
 c(
   brexit_2w = 100 * ec_iv_rule(deta = -0.012, q = 0.195, A = 0.166,
-                               sigma = 0.10590, tenor = 14 / 365),
+                               sigma = 0.09325, tenor = 14 / 365),
   us_2w     = 100 * ec_iv_rule(deta = -0.099, q = 0.172, A = 0.046,
                                sigma = 0.19326, tenor = 14 / 365)
 )
 ```
 
-Learning was priced at well under a tenth of a volatility point for
-Brexit but an order of magnitude more for the U.S. election — the
-$(\Delta\eta)^2$ lever dominates.
+The Brexit value is the working paper's two-week learning contribution
+(0.008 points): learning was priced at well under a tenth of a
+volatility point. The 2016 U.S. election (peso exposure) is an order of
+magnitude larger — the $(\Delta\eta)^2$ lever dominates.
 
-## The event clock on live Polymarket data
+## The Event Clock on live Polymarket data
 
 The package connects to the public, keyless Polymarket APIs. The shipped
 `polymarket2024` dataset was downloaded with exactly this code:
@@ -350,10 +363,15 @@ ggplot(paths, aes(t_frac, q, group = path,
 
 ## Citation
 
-If you use the package or the event-clock methodology, please cite:
+If you use the package or the Event Clock methodology, please cite:
 
 > Hanke, M., Schadner, W., Stöckl, S., and Weissensteiner, A. (2026).
 > *Learning Before Scheduled Events: Prediction Markets, State Prices,
 > and Option Valuation.* Working Paper.
+
+> Hanke, M., Schadner, W., Stöckl, S., and Weissensteiner, A. (2026).
+> *The Event Clock: What State Prices Identify About Physical
+> Information.* Working Paper.
+> <https://papers.ssrn.com/abstract=7420838>
 
 See `citation("eventclock")`.

@@ -30,7 +30,7 @@ test_that("target clock: from 19.5% to 90% takes A* of about 7.2", {
   expect_lt(ec_target_clock(0.9, 0.195), 0)
 })
 
-test_that("rule of thumb reproduces the paper's IV contributions", {
+test_that("first-order IV formula reproduces the reference contributions", {
   # US 2016, 2W, tenor ATM 19.326%: about 0.062 IV percentage points
   us <- 100 * ec_iv_rule(
     deta = -0.099, q = 0.172, A = 0.046, sigma = 0.19326, tenor = 14 / 365
@@ -61,7 +61,21 @@ test_that("variance shares match the companion's FAQ (0.2% / 1.1%)", {
   expect_equal(round(100 * us, 1), 1.1)
 })
 
-test_that("sigma_eff is consistent with the rule of thumb to first order", {
+test_that("exact transition reproduces the paper's Brexit 2W learning contribution", {
+  # working paper, Internet Appendix: baseline-clock 2W contribution
+  # 0.0083 annualized IV points, from the exact finite-horizon transition
+  theta <- log(0.990 / 1.002)
+  tau <- 14 / 365
+  s_cf <- 0.09325 * sqrt(tau)
+  exact <- 100 * (ec_mix_iv_pre(0, 0.195, theta, 0.166, s_cf) -
+                    ec_mix_iv_pre(0, 0.195, theta, 0, s_cf)) / sqrt(tau)
+  expect_lt(abs(exact - 0.0083), 5e-5)
+  # small exposure: exact and first order agree to within 1%
+  first <- 100 * ec_iv_rule(theta, 0.195, 0.166, 0.09325, tau)
+  expect_lt(abs(exact / first - 1), 0.01)
+})
+
+test_that("sigma_eff is consistent with the first-order formula", {
   sigma <- 0.19326
   tenor <- 14 / 365
   se <- ec_sigma_eff(sigma, deta = -0.099, q = 0.172, A = 0.046, tenor = tenor)

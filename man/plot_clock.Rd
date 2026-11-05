@@ -2,7 +2,7 @@
 % Please edit documentation in R/plots.R
 \name{plot_clock}
 \alias{plot_clock}
-\title{Clock plot: the cumulative event clock}
+\title{Clock plot: the cumulative Event Clock}
 \usage{
 plot_clock(path, normalize = TRUE, ...)
 }

@@ -1,6 +1,11 @@
-# Golden tests: the estimator must reproduce the working paper's headline
-# information-time table from the shipped datasets. Exact values pinned at
-# 1e-6; the published (rounded) values checked at 2e-3.
+# Golden tests: the estimator must reproduce the working paper's
+# information-time numbers from the shipped datasets (Brexit main text:
+# 1W/2W/1M realized variation; 2016 U.S. election: Internet Appendix
+# robustness application). The robustness variants (bipower, truncated,
+# largest-move exclusion) are pinned against the reference values of
+# earlier working-paper versions; the current version reports them only
+# in its replication package. Exact values pinned at 1e-6; rounded
+# reference values checked at 1.1e-3.
 
 test_that("Brexit event-clock estimates reproduce the paper table", {
   res <- event_clock(ep_brexit(), from = as.Date("2016-05-24"), to = brexit_horizons)
@@ -45,16 +50,27 @@ test_that("US election event-clock estimates reproduce the paper table", {
   expect_lt(abs(clock_value(res, "1M", "truncated") - 0.259), 1.1e-3)
 })
 
-test_that("real-time forecast rule reproduces the paper numbers", {
+test_that("real-time forecast reproduces the reference numbers", {
+  # trailing 40 observations: reference values of earlier paper versions
   fus <- event_clock_forecast(ep_us(),
     at = as.Date("2016-10-10"), horizon = c(`1W` = 7, `2W` = 14)
   )
   expect_equal(fus$A_forecast[fus$horizon == "1W"], 0.06809, tolerance = 1e-4)
   expect_equal(fus$A_forecast[fus$horizon == "2W"], 0.13618, tolerance = 1e-4)
-  # paper: 0.068 / 0.135
   expect_lt(abs(fus$A_forecast[fus$horizon == "1W"] - 0.068), 1.1e-3)
   expect_lt(abs(fus$A_forecast[fus$horizon == "2W"] - 0.135), 1.5e-3)
   expect_equal(unique(fus$n_incr), 39L)
+
+  # the current working paper selects trailing-60 realized variation for
+  # the 2016 application and reports 0.0476 (1W) / 0.0951 (2W); the
+  # calendar-daily series reproduces these to within 1% with 60 increments
+  f60 <- event_clock_forecast(ep_us(),
+    at = as.Date("2016-10-10"), horizon = c(`1W` = 7, `2W` = 14),
+    trailing = 61
+  )
+  expect_equal(unique(f60$n_incr), 60L)
+  expect_lt(abs(f60$A_forecast[1] / 0.0476 - 1), 0.01)
+  expect_lt(abs(f60$A_forecast[2] / 0.0951 - 1), 0.01)
 
   # Brexit real-time (the paper's series differs marginally; pin ours)
   fgb <- event_clock_forecast(ep_brexit(),

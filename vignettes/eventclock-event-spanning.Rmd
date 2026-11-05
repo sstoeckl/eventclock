@@ -168,9 +168,12 @@ of quotes behind each node) to weight nodes within a surface.
 
 `common = FALSE` is the free-ratio diagnostic: every surface picks its
 own \(\theta\), and the comparison with the common fit shows how much
-the cross-surface restriction costs — in the working paper's 2024
-application the deterioration is modest while the common ratio is
-stable across maturities, which is what makes the exposure credible.
+the cross-surface restriction costs. In the working paper's 2024
+application (Trump Media & Technology Group around the U.S. election)
+the maturity-specific conditional-mean ratios range from 2.51 to 2.90
+and are statistically consistent with one common ratio of 2.71
+(\(\theta \approx 1.0\)) — stability across maturities is what makes
+the exposure credible.
 
 **Sign identification.** At \(q = 1/2\) the mixture is observationally
 symmetric in \((\theta, s_1, s_2) \mapsto (-\theta, s_2, s_1)\):
@@ -280,9 +283,11 @@ partial-recovery interval, which `ec_recovery_set()` tabulates:
 ec_recovery_set(0.511)   # the Brexit one-month clock
 ```
 
-At `eps = 0` (exact recovery) the interval degenerates to the measured
-value; wider bounds propagate economically motivated uncertainty about
-state-dependent valuation into everything downstream.
+At `delta = 0` (exact recovery) the interval degenerates to the
+measured value; wider bounds propagate economically motivated
+uncertainty about state-dependent valuation into everything downstream.
+The working paper's most conservative check uses the low end at
+`delta = 0.5`, i.e. a quarter of the measured clock.
 
 ## Scope and further reading
 

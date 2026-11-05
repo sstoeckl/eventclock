@@ -148,8 +148,14 @@ the full tour starts at
 citation("eventclock")
 ```
 
-Please cite the working paper above when you use the event-clock
-methodology.
+Please cite the working paper above when you use the Event Clock
+methodology, and for the identification theory (exact and partial
+recovery, multiple venues) also the companion paper
+
+> Hanke, M., Schadner, W., Stöckl, S., and Weissensteiner, A. (2026).
+> *The Event Clock: What State Prices Identify About Physical
+> Information.* Working Paper.
+> [SSRN 7420838](https://papers.ssrn.com/abstract=7420838).
 
 ## License
 

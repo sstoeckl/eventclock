@@ -3,7 +3,7 @@
 \name{ec_signature}
 \alias{ec_signature}
 \alias{plot.ec_signature}
-\title{Sampling-frequency signature of the event clock}
+\title{Sampling-frequency signature of the Event Clock}
 \usage{
 ec_signature(x, max_every = 10, from = NULL, to = NULL, clip = NULL)
 
