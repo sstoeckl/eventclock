@@ -22,6 +22,27 @@
   versions' reference values; the trailing-60 real-time forecast
   reproduces the paper's 2016 values (0.0476 / 0.0951) to within 1%.
 
+## Measuring the clock in practice
+
+* `event_clock_forecast()` is rebuilt around the paper's no-look-ahead
+  forecast: estimation windows in trailing observations (default,
+  unchanged results), trailing calendar days (`days = 3` with hourly
+  data), or the whole history (`expanding = TRUE`); any estimator
+  (`method`); optional staggered sampling (`interval`). New output
+  columns `rule` and `rate_per_day`.
+* `ec_forecast_rules()` and `ec_forecast_select()` choose the forecasting
+  rule by out-of-sample RMSE on earlier option lives only. On the shipped
+  data they reproduce the working paper's choices: trailing-60 realized
+  variation for the 2016 daily series, and a trailing three-day window
+  for hourly Polymarket prices with weekly option lives in 2024.
+* `event_clock_staggered()` — clocks on staggered time grids (e.g. 30-,
+  60-, 120-minute sampling averaged over all grid offsets), with the
+  estimator applied within each grid.
+* `event_clock_venues()` / `event_clock_venues_path()` — clocks from two
+  venues: each venue's own clock, the equal-weight composite, and the
+  cross-venue clock that filters venue-specific noise; reports
+  increment correlation and each venue's noise share.
+
 ## Pricing, data, and documentation
 
 * `ec_mix_price_pre()` / `ec_mix_iv_pre()` — exact pre-resolution

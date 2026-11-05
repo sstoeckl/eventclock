@@ -10,5 +10,7 @@ utils::globalVariables(c(
   # signature / beta
   "spacing_days", "A_min", "A_max", "dq",
   # plotting
-  "method", "horizon"
+  "method", "horizon",
+  # forecast selection / venues
+  "forecast", "realized", "rule", "clock"
 ))

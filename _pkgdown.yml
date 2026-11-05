@@ -27,11 +27,19 @@ reference:
   contents:
   - event_clock
   - event_clock_path
-  - event_clock_forecast
-  - ec_signature
-  - plot_signature
   - ec_recovery_set
   - ec_default_params
+- title: Measuring the clock in practice
+  desc: Sampling frequency, real-time forecasts, and multiple venues.
+  contents:
+  - event_clock_staggered
+  - ec_signature
+  - plot_signature
+  - event_clock_forecast
+  - ec_forecast_rules
+  - ec_forecast_select
+  - event_clock_venues
+  - event_clock_venues_path
 - title: Event-spanning options
   desc: The lognormal event mixture and the event exposure theta.
   contents:
