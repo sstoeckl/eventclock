@@ -538,7 +538,7 @@ print.ec_forecast_select <- function(x, ...) {
 #'
 #' @return A tibble with one row per horizon: `venue_x`, `venue_y`,
 #'   `from`, `to`, `horizon`, `n_common` (synchronized observations),
-#'   `A_x`, `A_y`, `A_composite`, `A_cross`, `rho` (correlation of the two
+#'   `A_x`, `A_y`, `A_composite`, `A_cross`, `corr` (correlation of the two
 #'   venues' log-odds changes), `noise_share_x`, `noise_share_y`.
 #'
 #' @references Hanke, Schadner, Stöckl, and Weissensteiner (Working
@@ -575,7 +575,7 @@ event_clock_venues <- function(x, y, from = NULL, to = NULL, labels = NULL,
       venue_x = attr(m, "labels")[1], venue_y = attr(m, "labels")[2],
       from = from, to = to[i], horizon = hl[i], n_common = nrow(w),
       A_x = Ax, A_y = Ay, A_composite = sum(dc^2), A_cross = Ac,
-      rho = if (stats::sd(dx) > 0 && stats::sd(dy) > 0) stats::cor(dx, dy) else NA_real_,
+      corr = if (stats::sd(dx) > 0 && stats::sd(dy) > 0) stats::cor(dx, dy) else NA_real_,
       noise_share_x = if (Ax > 0) 1 - Ac / Ax else NA_real_,
       noise_share_y = if (Ay > 0) 1 - Ac / Ay else NA_real_
     )

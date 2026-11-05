@@ -39,7 +39,7 @@ test_that("the shipped kalshi2024 snapshot is a valid event-price series", {
   pm <- pm_daily(as_event_prices(polymarket2024), snapshot_hour = 15.75)
   v <- event_clock_venues(pm, ep, labels = c("Polymarket", "Kalshi"))
   expect_equal(v$n_common, 33L)
-  expect_gt(v$rho, 0.3)
+  expect_gt(v$corr, 0.3)
   expect_equal(v$A_composite, (v$A_x + v$A_y + 2 * v$A_cross) / 4,
                tolerance = 1e-12)
 })

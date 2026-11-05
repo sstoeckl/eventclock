@@ -27,9 +27,9 @@ The Event Clock answers a simple question: *how much news about a
 scheduled event has arrived, and when?* It is computed from the price of
 a contract that pays out if the event happens — a prediction-market
 price such as "Trump wins the 2024 election" — by adding up the squared
-changes of its log odds. Big, frequent revisions mean lots of news; a
-flat price means none. (`vignette("eventclock-brexit")` introduces the
-idea.)
+changes of its log odds, \(\log\{q/(1-q)\}\). Big, frequent revisions
+mean lots of news; a flat price means none.
+(`vignette("eventclock-brexit")` introduces the idea.)
 
 In practice three things can distort that sum, and this vignette shows
 the package's tools for each:
@@ -45,37 +45,46 @@ the package's tools for each:
 
 All examples use data that ship with the package: hourly Polymarket
 prices for the 2024 U.S. presidential election and a daily Kalshi
-series for the same event.
+series for the same event. Times below are written in New York time,
+the time zone of the U.S. option market.
 
 ```{r}
 data(polymarket2024)
 data(kalshi2024)
 ep24 <- as_event_prices(polymarket2024, market_id = "Polymarket")
+ny <- function(x) as.POSIXct(x, tz = "America/New_York")
 ```
 
 ## 1. Sampling frequency
 
 Sample too often and the clock counts noise; sample too rarely and it
 throws information away. Two tools make the trade-off visible. The
-*signature plot* shows the measured clock across sampling intervals —
-if it falls steeply as sampling gets coarser, the fine-grained version
-is inflated by noise:
+*signature plot* shows the measured clock when you keep every
+observation, every second, every third, and so on (`max_every = 24`:
+up to every 24th hourly price, i.e. daily). If the clock falls steeply
+as sampling gets coarser, the fine-grained version is inflated by
+noise:
 
 ```{r signature, fig.alt = "Signature plot of the 2024 Polymarket clock"}
 plot_signature(ec_signature(ep24, max_every = 24))
 ```
 
+Here the clock measured from every hourly price is about half again as
+large as the one from every 24th price, and it falls steadily as the
+spacing grows: coarser grids average out short-lived noise (and miss
+some intraday news).
+
 `event_clock_staggered()` then measures the clock at a chosen interval
 while still using all the data: it samples every `interval` minutes,
 repeats this for every possible starting point of the sampling grid, and
-averages. The estimator — plain realized variation (`rv`), the version
-that drops each grid's largest move (`largest1`), or the jump-robust
-`bipower` — is applied within each grid. For the final month of the
-campaign:
+averages. The estimator — the plain sum (`rv`), the version that drops
+each grid's largest move (`largest1`), or `bipower`, which an isolated
+jump barely affects — is applied within each grid. For the final month
+of the campaign:
 
 ```{r staggered}
-oct4 <- as.POSIXct("2024-10-04 19:45", tz = "UTC")
-nov5 <- as.POSIXct("2024-11-05 19:45", tz = "UTC")
+oct4 <- ny("2024-10-04 15:45")
+nov5 <- ny("2024-11-05 15:45")
 stag <- do.call(rbind, lapply(c(60, 120, 240, 1440), function(iv) {
   event_clock_staggered(ep24, from = oct4, to = nov5, interval = iv,
                         methods = c("rv", "largest1", "bipower"))
@@ -84,57 +93,63 @@ knitr::kable(
   stats::reshape(as.data.frame(stag[, c("interval_min", "method", "A")]),
                  idvar = "interval_min", timevar = "method",
                  direction = "wide"),
-  digits = 3, col.names = c("Interval (min)", "RV", "Drop largest", "Bipower"),
+  digits = 3, col.names = c("Interval (min)", "RV", "Largest-1", "Bipower"),
   row.names = FALSE
 )
 ```
 
 The clock roughly halves between hourly and daily sampling. Part of
 that is genuine intraday news that a daily snapshot misses, part is
-noise; that is why the working paper reports several constructions side
-by side rather than picking one. Dropping the largest move shows how
-much a single news burst contributes.
+noise — so report several constructions side by side rather than
+picking one. Dropping the largest move shows how much a single news
+burst contributes.
 
 ## 2. Forecasting the clock in real time
 
 An option that expires before the election is exposed to the news that
 will arrive *while it is alive*. On the day you price it, that news has
 not happened yet, so you need a forecast. `event_clock_forecast()`
-measures how fast the clock has been ticking recently (log-odds
-variation per day) and multiplies by the remaining time — using only
-prices observed up to the valuation date:
+measures how fast the clock has been ticking recently (clock time per
+day) and multiplies by the remaining time — using only prices observed
+up to the valuation time:
 
 ```{r forecast}
-at  <- as.POSIXct("2024-10-25 19:45", tz = "UTC")  # Friday, 15:45 New York
-expiry <- as.POSIXct("2024-11-01 19:45", tz = "UTC")  # next Friday
+at     <- ny("2024-10-25 15:45")  # Friday, end-of-day option snapshot
+expiry <- ny("2024-11-01 15:45")  # the following Friday's expiry
 fc <- event_clock_forecast(ep24, at = at, horizon = expiry, days = 3)
 fc[, c("rule", "rate_per_day", "A_forecast")]
 ```
+
+The recent window can be set in three ways: `days =` a number of
+calendar days before the valuation time (here 3), `trailing =` a number
+of observations, or `expanding = TRUE` for the whole history so far.
 
 How far back should "recently" reach — three days, two weeks, the whole
 history? Do not guess, and above all do not choose the window that
 makes your test results look best. Instead, let earlier option lives
 decide: for every past option, forecast its clock from what was known
 when it started, compare with the clock that actually materialized, and
-keep the rule with the smallest error. `ec_forecast_select()` does
-exactly that. Here the earlier lives are weekly options (valued Monday
-to Thursday at 15:45 New York time, expiring Friday) that all ended
-before the option above was priced:
+keep the rule with the smallest root-mean-square forecast error.
+`ec_forecast_select()` does exactly that. Here the earlier lives are
+weekly options valued Monday to Thursday at 15:45 and expiring on
+Friday, for every week whose expiry is no later than October 25:
 
 ```{r select}
 fridays <- seq(as.Date("2024-09-06"), as.Date("2024-10-25"), by = "week")
 lives <- do.call(rbind, lapply(fridays, function(f) {
-  data.frame(start = as.POSIXct(paste(f - (4:1), "19:45"), tz = "UTC"),
-             end   = as.POSIXct(paste(f, "19:45"), tz = "UTC"))
+  data.frame(start = ny(paste(f - (4:1), "15:45")),
+             end   = ny(paste(f, "15:45")))
 }))
 sel <- ec_forecast_select(ep24, lives,
   rules = ec_forecast_rules(days = c(3, 5, 7, 10, 14, 20), expanding = TRUE))
 sel
 ```
 
-The three-day window wins — the same choice the working paper makes on
-its own set of option lives. Recent activity predicts near-term news
-better than the long-run average, because campaign news comes in waves.
+By RMSE the three-day window wins, narrowly ahead of five days; all
+short windows beat the long and expanding ones. Recent activity
+predicts near-term news better than the long-run average, because
+campaign news comes in waves. (The working paper makes the same choice
+on its own set of option lives.)
 
 ```{r select-plot, fig.alt = "Forecast versus realized clock for the selected rule"}
 best <- sel$detail[sel$detail$rule == sel$best$rule, ]
@@ -147,23 +162,27 @@ ggplot(best, aes(realized, forecast)) +
   theme_minimal(base_size = 12)
 ```
 
-Forecasts are noisy: the scatter is wide. In our example, the forecast
-made on October 25 (`r round(fc$A_forecast, 3)`) turned out to be about
-twice the news that actually arrived the following week:
+Forecasts are noisy: points scatter widely around the dashed line of
+perfect forecasts. The forecast made on October 25
+(`r round(fc$A_forecast, 3)`) turned out to be
+`r round(fc$A_forecast / event_clock(ep24, from = at, to = expiry, methods = "rv")$A, 1)`
+times the news that actually arrived the following week:
 
 ```{r realized}
 event_clock(ep24, from = at, to = expiry, methods = "rv")$A
 ```
 
-The selection procedure also depends on which earlier lives you score
-— choose lives that look like the options you study (same length, same
-time of day).
+The selection also depends on which earlier lives you score — choose
+lives that look like the options you study (same length, same time of
+day).
 
 **A conservative check.** The clock measures news only if the market
-does not also keep re-weighing how much it values the two outcomes.
-`ec_recovery_set()` turns that uncertainty into a range; the working
-paper's most conservative check scales the forecast down to a quarter
-(`delta = 0.5`):
+does not also keep re-weighing how much it values the two outcomes. If
+at most a fraction \(\delta^2\) of the measured clock came from such
+re-valuation, the true news clock lies between \((1-\delta)^2\) and
+\((1+\delta)^2\) times the measured one; \(\delta = 0.5\) gives a range
+from a quarter to 2.25 times. The working paper's most conservative
+check uses that lower end. `ec_recovery_set()` tabulates the range:
 
 ```{r recovery}
 ec_recovery_set(fc$A_forecast, delta = c(0, 0.25, 0.5))
@@ -171,9 +190,12 @@ ec_recovery_set(fc$A_forecast, delta = c(0, 0.25, 0.5))
 
 ## 3. Two venues for one event
 
-Kalshi listed its own contract on the 2024 election on October 4. Taking
-both venues' prices at the same moment each day (the last price at or
-before 15:45 New York time) gives two synchronized series:
+Kalshi listed its own contract on the 2024 election on October 4.
+Taking both venues' prices at the same moment each day gives two
+synchronized series. `pm_daily()` keeps the last price at or before a
+given hour of each day and works for any intraday series, not only
+Polymarket; `snapshot_hour = 15.75` means 15:45 New York time (15.75 in
+decimal hours), which matches end-of-day option quotes:
 
 ```{r venues-levels, fig.alt = "Polymarket and Kalshi Trump-win prices at 15:45 New York time"}
 pm <- pm_daily(ep24, snapshot_hour = 15.75)
@@ -195,22 +217,31 @@ ggplot(subset(both, date >= as.Date("2024-10-04")),
 
 The levels differ persistently — Kalshi traded a few points lower — but
 the clock does not care about a constant gap in levels; it measures the
-*changes*. `event_clock_venues()` compares four clocks: each venue's
-own, the clock of the two venues' average, and a *cross-venue* clock
-that multiplies one venue's daily move by the other's. News moves both
-venues in the same direction, so it survives the product; trading noise
-on one venue is unrelated to the other's, so on average it cancels.
+*changes*. `event_clock_venues()` compares four clocks:
+
+* `A_x`, `A_y` — each venue's own clock;
+* `A_composite` — the clock of the average of the two venues' log odds;
+* `A_cross` — a *cross-venue* clock that multiplies one venue's daily
+  move by the other's.
+
+The idea behind the last one: suppose each venue's log odds are the
+common news plus its own independent trading noise. News moves both
+venues in the same direction, so it survives the product; one venue's
+noise is unrelated to the other's, so on average it cancels. Then
+`1 - A_cross / A_x` is the share of venue x's clock that is its own
+noise. In short samples with little common news `A_cross` can even turn
+negative — treat it as a diagnostic, not an exact measurement.
 
 ```{r venues}
 v <- event_clock_venues(pm, ks, from = as.Date("2024-10-04"),
                         labels = c("Polymarket", "Kalshi"))
-v[, c("A_x", "A_y", "A_composite", "A_cross", "rho",
+v[, c("A_x", "A_y", "A_composite", "A_cross", "corr",
       "noise_share_x", "noise_share_y")]
 ```
 
 The two venues' daily moves are strongly correlated
-(`r round(v$rho, 2)`), and the cross-venue clock is smaller than either
-venue's own: under a simple noise model, about
+(`r round(v$corr, 2)`), and the cross-venue clock is smaller than either
+venue's own: under the noise model above, about
 `r round(100 * v$noise_share_x)`% of Polymarket's and
 `r round(100 * v$noise_share_y)`% of Kalshi's daily clock is
 venue-specific. The cumulative version shows where the venues agree and
@@ -255,6 +286,16 @@ event_clock_venues(pm_daily(pm_raw, snapshot_hour = 15.75),
   baseline.
 * When a second venue exists, check the cross-venue clock: it shows
   how much of each venue's clock is its own noise.
+
+## Where next
+
+* `vignette("eventclock-validation")` — the estimator on simulated data
+  with a known true clock, including noise and jumps;
+* `vignette("eventclock-event-betas")` — which assets move with the
+  event probability;
+* `vignette("eventclock-event-spanning")` — the exposure from options,
+  and pricing options that expire before the event with a forecast
+  clock.
 
 The methods follow the accompanying working papers: Hanke, Schadner,
 Stöckl, and Weissensteiner, *Learning Before Scheduled Events:

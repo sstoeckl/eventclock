@@ -77,5 +77,10 @@ align_bound <- function(bound, time, side = c("start", "end")) {
     if (side == "end") out <- out + (86400 - 1)
     return(out)
   }
+  if (inherits(time, "POSIXct") && inherits(bound, "POSIXct")) {
+    # same instants, expressed in the series' time zone (avoids R's
+    # inconsistent-tzone warnings when comparing)
+    attr(bound, "tzone") <- attr(time, "tzone") %||% "UTC"
+  }
   bound
 }

@@ -115,6 +115,17 @@ test_that("ec_forecast_select validates its inputs", {
                "No interval")
 })
 
+test_that("bounds in another time zone select the same instants without warnings", {
+  ep <- as_event_prices(ramp_hourly(), clip = c(1e-6, 1 - 1e-6))
+  utc <- as.POSIXct("2024-03-05 12:00", tz = "UTC")
+  ny <- as.POSIXct("2024-03-05 07:00", tz = "America/New_York")
+  expect_equal(as.numeric(utc), as.numeric(ny))
+  expect_no_warning(a <- event_clock(ep, from = ny, methods = "rv"))
+  b <- event_clock(ep, from = utc, methods = "rv")
+  expect_equal(a$A, b$A)
+  expect_no_warning(event_clock_forecast(ep, at = ny, horizon = 1, days = 2))
+})
+
 test_that("staggered grid at the data's spacing equals plain realized variation", {
   ep <- as_event_prices(ramp_hourly(n = 100, step = 0.02),
                         clip = c(1e-6, 1 - 1e-6))
@@ -163,7 +174,7 @@ test_that("venue clocks: identities and noise filtering", {
   same <- event_clock_venues(mk(0), mk(0), clip = c(1e-6, 1 - 1e-6))
   expect_equal(same$A_cross, same$A_x, tolerance = 1e-12)
   expect_equal(same$noise_share_x, 0, tolerance = 1e-12)
-  expect_equal(same$rho, 1, tolerance = 1e-12)
+  expect_equal(same$corr, 1, tolerance = 1e-12)
 })
 
 test_that("venue clocks validate synchronization and support windows", {

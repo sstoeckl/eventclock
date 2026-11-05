@@ -23,7 +23,7 @@ log-odds transform; defaults to the bounds stored in \code{x}.}
 \value{
 A tibble with one row per horizon: \code{venue_x}, \code{venue_y},
 \code{from}, \code{to}, \code{horizon}, \code{n_common} (synchronized observations),
-\code{A_x}, \code{A_y}, \code{A_composite}, \code{A_cross}, \code{rho} (correlation of the two
+\code{A_x}, \code{A_y}, \code{A_composite}, \code{A_cross}, \code{corr} (correlation of the two
 venues' log-odds changes), \code{noise_share_x}, \code{noise_share_y}.
 }
 \description{

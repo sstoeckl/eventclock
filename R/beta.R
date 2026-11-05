@@ -53,8 +53,12 @@ newey_west_vcov <- function(X, u, lags) {
 #'   column (`ret`) or a price column (`adjusted`, `close`, or `price`;
 #'   log returns are computed).
 #' @param x An `event_prices` object (or coercible); its probability
-#'   innovations \eqn{\Delta q_t} are the regressor. Observations are
-#'   matched on the calendar date.
+#'   innovations \eqn{\Delta q_t} are the regressor. The probability level
+#'   is taken at each asset date (the last observation on or before it)
+#'   and differenced between consecutive asset dates, so probability moves
+#'   over weekends and holidays enter the next trading day's return.
+#'   Collapse intraday prices to a daily snapshot first (see
+#'   [pm_daily()]).
 #' @param deta Optional externally measured event exposure
 #'   \eqn{\Delta\eta}; enables the \eqn{\beta = 1} test.
 #' @param controls Optional `data.frame` with a time column and control
@@ -96,21 +100,46 @@ event_beta <- function(asset, x, deta = NULL, controls = NULL, lags = NULL) {
   a_date <- as.Date(asset[[tcol]])
 
   rcol <- find_col(asset, c("ret", "return"))
-  if (!is.null(rcol)) {
+  ret_case <- !is.null(rcol)
+  if (ret_case) {
     a <- tibble::tibble(date = a_date, ret = as.numeric(asset[[rcol]]))
+    a <- a[order(a$date), , drop = FALSE]
+    dates_all <- a$date
   } else {
     pcol <- find_col(asset, c("adjusted", "close", "price", "value"))
     if (is.null(pcol)) {
       cli::cli_abort("Found neither a return nor a price column in {.arg asset}.")
     }
-    p <- as.numeric(asset[[pcol]])
-    a <- tibble::tibble(date = a_date[-1], ret = diff(log(p)))
+    o <- order(a_date)
+    p <- as.numeric(asset[[pcol]])[o]
+    dates_all <- a_date[o]
+    a <- tibble::tibble(date = dates_all[-1], ret = diff(log(p)))
   }
 
-  ev <- tibble::tibble(date = as.Date(x$time), q = x$q) |>
-    dplyr::filter(!is.na(q)) |>
-    dplyr::mutate(dq = q - dplyr::lag(q)) |>
-    dplyr::select(date, dq)
+  # Probability level at each asset date (last observation on or before
+  # it), differenced on the asset's own calendar: moves over weekends and
+  # holidays enter the next trading day's return window.
+  qt <- x[!is.na(x$q), , drop = FALSE]
+  qt <- qt[order(qt$time), , drop = FALSE]
+  q_date <- if (inherits(qt$time, "POSIXct")) {
+    as.Date(qt$time, tz = attr(qt$time, "tzone") %||% "UTC")
+  } else {
+    as.Date(qt$time)
+  }
+  level_at <- function(d) {
+    pos <- findInterval(as.numeric(d), as.numeric(q_date))
+    out <- rep(NA_real_, length(d))
+    out[pos > 0] <- qt$q[pos[pos > 0]]
+    out
+  }
+  qa <- level_at(dates_all)
+  if (ret_case) {
+    # the first return's window starts at the last price before its date
+    q0 <- level_at(dates_all[1] - 1)
+    ev <- tibble::tibble(date = dates_all, dq = diff(c(q0, qa)))
+  } else {
+    ev <- tibble::tibble(date = dates_all[-1], dq = diff(qa))
+  }
 
   d <- dplyr::inner_join(a, ev, by = "date")
   if (!is.null(controls)) {

@@ -1,5 +1,15 @@
 # eventclock 0.5.0
 
+## Bug fix
+
+* `event_beta()` now takes the probability *level* at each asset date
+  (the last observation on or before it) and differences it between
+  consecutive asset dates. Previously probability changes were computed
+  on the calendar-daily series before matching, so moves over weekends
+  and holidays were lost: a Monday return was paired with the
+  Sunday-to-Monday change only. On the shipped DJT/Polymarket example
+  the exposure estimate rises from 1.28 (t = 2.6) to 1.47 (t = 3.9).
+
 ## Synchronization with the current working paper
 
 * `ec_recovery_set()` now uses the paper's notation: the partial-recovery

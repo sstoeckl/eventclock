@@ -74,6 +74,25 @@ test_that("event_beta handles price input, controls, and validation", {
   )
 })
 
+test_that("event_beta carries weekend probability moves into Monday returns", {
+  # calendar-daily probability, weekday-only asset; returns are an exact
+  # linear function of the probability change between trading days
+  set.seed(12)
+  days <- as.Date("2024-01-01") + 0:139
+  q <- 0.5 + cumsum(c(0, stats::rnorm(139, sd = 0.02)))
+  trade <- days[!format(days, "%u") %in% c("6", "7")]
+  q_trade <- q[match(trade, days)]
+  price <- 100 * exp(cumsum(c(0, 0.8 * diff(q_trade))))
+  asset <- tibble::tibble(date = trade, adjusted = price)
+  ep <- as_event_prices(tibble::tibble(time = days, q = q))
+  eb <- event_beta(asset, ep, lags = 0)
+  expect_equal(eb$deta_hat, 0.8, tolerance = 1e-10)
+  expect_equal(eb$r2, 1, tolerance = 1e-10)
+  # the same with a return column
+  ar <- tibble::tibble(date = trade[-1], ret = diff(log(price)))
+  expect_equal(event_beta(ar, ep, lags = 0)$deta_hat, 0.8, tolerance = 1e-10)
+})
+
 test_that("event_beta on the shipped DJT/Polymarket data is stable", {
   eb <- event_beta(djt2024, pm_daily(as_event_prices(polymarket2024)))
   # DJT is significantly positively exposed to the Trump probability
@@ -82,4 +101,8 @@ test_that("event_beta on the shipped DJT/Polymarket data is stable", {
   expect_gt(eb$deta_hat / eb$deta_se, 2)
   expect_gt(eb$r2, 0.04)
   expect_gt(eb$n, 90)
+  # pinned after aligning probability levels to trading days
+  expect_equal(eb$deta_hat, 1.466851, tolerance = 1e-5)
+  expect_equal(eb$r2, 0.106413, tolerance = 1e-4)
+  expect_equal(eb$n, 125L)
 })

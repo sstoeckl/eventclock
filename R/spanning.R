@@ -626,12 +626,12 @@ print.ec_theta_fit <- function(x, ...) {
       if (x$n_surfaces != 1) "s", ", ", x$n_obs, " nodes)\n", sep = "")
   if (x$common) {
     cat(sprintf(
-      "Common event exposure theta = %.4f (conditional-mean ratio m1/m2 = %.3f)\n",
+      "Common event exposure theta = %.4f (conditional-mean ratio eta1/eta2 = %.3f)\n",
       x$theta, x$ratio
     ))
     if (!is.null(x$ratio_ci)) {
       cat(sprintf(
-        "%g%% block-bootstrap interval for m1/m2: [%.3f, %.3f] (%d replications, blocks: %s)\n",
+        "%g%% block-bootstrap interval for eta1/eta2: [%.3f, %.3f] (%d replications, blocks: %s)\n",
         100 * x$boot$conf, x$ratio_ci[1], x$ratio_ci[2], x$boot$reps,
         x$boot$block
       ))
