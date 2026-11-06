@@ -13,6 +13,9 @@
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//news/index.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/as_event_prices.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/brexit2016.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/cme_definitions.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/cme_option_surfaces.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/cme_statistics.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/djt2024.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_atm_event_call.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_default_params.html</loc></url>
@@ -25,6 +28,10 @@
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_mix_price.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_mix_price_pre.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_moments.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_quiet_library.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_quiet_rules.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_quiet_select.html</loc></url>
+<url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_quiet_shape.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_recovery_set.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_relevance.html</loc></url>
 <url><loc>https://www.sebastianstoeckl.com/eventclock/dev//reference/ec_revision.html</loc></url>

@@ -412,9 +412,10 @@ tested:</p>
 <li>
 <strong>The ordinary smile <code>s_cf</code> comes from “quiet”
 weeks:</strong> earlier options whose own lives saw almost no movement
-in the event probability (a tiny clock; a cut-off such as <span class="math inline">\(A \le 0.04\)</span> is a judgment call) show the
-smile without event learning. Smiles from after the event are a poor
-substitute — they already know the outcome.</li>
+in the event probability (a tiny clock) show the smile without event
+learning. How tiny is a judgment call; the next section shows how to
+make it without looking at the tested options. Smiles from after the
+event are a poor substitute — they already know the outcome.</li>
 <li><strong>The exposure is estimated with data available on the
 valuation date only.</strong></li>
 </ol>
@@ -428,6 +429,137 @@ gain is an upper bound for what real data can show.) A one-sided result
 like this is informative in itself: it points to frictions (a
 hard-to-borrow stock with American-style options) rather than to a
 failure of the probability input.</p>
+</div>
+<div class="section level3">
+<h3 id="choosing-the-ordinary-smile-without-peeking">Choosing the ordinary smile without peeking<a class="anchor" aria-label="anchor" href="#choosing-the-ordinary-smile-without-peeking"></a>
+</h3>
+<p>Point 2 hides a temptation: there are many reasonable ways to build
+an “ordinary” smile from quiet weeks (how quiet is quiet? use all of
+them or only the most similar?), and trying them out on the options
+being tested would quietly bias the test. The package therefore
+separates the choice from the test:</p>
+<ol style="list-style-type: decimal">
+<li>
+<code><a href="../reference/ec_quiet_library.html">ec_quiet_library()</a></code> lists the earlier option smiles,
+each with its at-the-money volatility, its <em>shape</em> (how far each
+strike’s volatility sits above or below at-the-money), and its quietness
+— the clock realized while that option was alive.</li>
+<li>
+<code><a href="../reference/ec_quiet_rules.html">ec_quiet_rules()</a></code> fixes a menu of construction rules in
+advance — by default 15: three quietness cut-offs (the 25th, 50th, or
+75th percentile of the earlier clocks) times five ways of averaging (all
+quiet smiles, the 5 or 10 most recent, or the 5 or 10 whose at-the-money
+volatility is closest to the target’s).</li>
+<li>
+<code><a href="../reference/ec_quiet_select.html">ec_quiet_select()</a></code> tries every rule on <em>earlier</em>
+quiet weeks treated as if they were the target (“pseudo-targets”), using
+only smiles that had already expired at that time, and keeps the rule
+that predicts their wings best. The real target’s wings are never
+consulted; its at-the-money quote only sets the level.</li>
+</ol>
+<p>A simulated example with 30 weekly options: every week has the same
+ordinary smile, plus an event-driven skew that grows with how much news
+arrived during that week.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">30</span></span>
+<span><span class="va">weeks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  surface <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"week %02d"</span>, <span class="fl">1</span><span class="op">:</span><span class="va">n</span><span class="op">)</span>,</span>
+<span>  date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2024-05-06"</span><span class="op">)</span> <span class="op">+</span> <span class="fl">7</span> <span class="op">*</span> <span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,   <span class="co"># Monday quotes</span></span>
+<span>  A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">rexp</a></span><span class="op">(</span><span class="va">n</span>, rate <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">0.05</span><span class="op">)</span>,                      <span class="co"># clock over each life</span></span>
+<span>  atm <span class="op">=</span> <span class="fl">0.75</span> <span class="op">+</span> <span class="fl">0.10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">nodes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">weeks</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.3</span>, by <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">nodes</span><span class="op">$</span><span class="va">expiry</span> <span class="op">&lt;-</span> <span class="va">nodes</span><span class="op">$</span><span class="va">date</span> <span class="op">+</span> <span class="fl">4</span>                       <span class="co"># Friday expiry</span></span>
+<span><span class="va">nodes</span><span class="op">$</span><span class="va">iv</span> <span class="op">&lt;-</span> <span class="va">nodes</span><span class="op">$</span><span class="va">atm</span> <span class="op">+</span> <span class="fl">0.8</span> <span class="op">*</span> <span class="va">nodes</span><span class="op">$</span><span class="va">k</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span>            <span class="co"># ordinary smile</span></span>
+<span>  <span class="fl">3</span> <span class="op">*</span> <span class="va">nodes</span><span class="op">$</span><span class="va">A</span> <span class="op">*</span> <span class="va">nodes</span><span class="op">$</span><span class="va">k</span> <span class="op">+</span>                            <span class="co"># event-driven skew</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">nodes</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fl">0.005</span><span class="op">)</span></span>
+<span><span class="va">lib</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_quiet_library.html">ec_quiet_library</a></span><span class="op">(</span><span class="va">nodes</span><span class="op">)</span></span>
+<span><span class="va">lib</span></span>
+<span><span class="co">#&gt; &lt;ec_quiet_library&gt; 30 surfaces, shape = difference, moneyness = log, A known for 30</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 30 × 10</span></span></span>
+<span><span class="co">#&gt;    surface date       expiry     block      dte    tau atm_iv       A A_complete</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> week 01 2024-05-06 2024-05-10 2024-05…     4 0.011<span style="text-decoration: underline;">0</span>  0.801 0.040<span style="text-decoration: underline;">1</span>  TRUE      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> week 02 2024-05-13 2024-05-17 2024-05…     4 0.011<span style="text-decoration: underline;">0</span>  0.812 0.350   TRUE      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> week 03 2024-05-20 2024-05-24 2024-05…     4 0.011<span style="text-decoration: underline;">0</span>  0.794 0.001<span style="text-decoration: underline;">06</span> TRUE      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> week 04 2024-05-27 2024-05-31 2024-05…     4 0.011<span style="text-decoration: underline;">0</span>  0.779 0.210   TRUE      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> week 05 2024-06-03 2024-06-07 2024-06…     4 0.011<span style="text-decoration: underline;">0</span>  0.768 0.123   TRUE      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> week 06 2024-06-10 2024-06-14 2024-06…     4 0.011<span style="text-decoration: underline;">0</span>  0.794 0.042<span style="text-decoration: underline;">7</span>  TRUE      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> week 07 2024-06-17 2024-06-21 2024-06…     4 0.011<span style="text-decoration: underline;">0</span>  0.791 0.004<span style="text-decoration: underline;">27</span> TRUE      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> week 08 2024-06-24 2024-06-28 2024-06…     4 0.011<span style="text-decoration: underline;">0</span>  0.834 0.064<span style="text-decoration: underline;">2</span>  TRUE      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> week 09 2024-07-01 2024-07-05 2024-07…     4 0.011<span style="text-decoration: underline;">0</span>  0.758 0.023<span style="text-decoration: underline;">4</span>  TRUE      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> week 10 2024-07-08 2024-07-12 2024-07…     4 0.011<span style="text-decoration: underline;">0</span>  0.807 0.007<span style="text-decoration: underline;">37</span> TRUE      </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 20 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: n_nodes &lt;int&gt;</span></span></span></code></pre></div>
+<p>Now choose the rule on the quietest quarter of the earlier weeks, and
+predict the ordinary smile of a target week in December:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_quiet_select.html">ec_quiet_select</a></span><span class="op">(</span></span>
+<span>  <span class="va">lib</span>,</span>
+<span>  rules <span class="op">=</span> <span class="fu"><a href="../reference/ec_quiet_rules.html">ec_quiet_rules</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  pseudo_quiet <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">lib</span><span class="op">$</span><span class="va">A</span>, <span class="fl">0.25</span><span class="op">)</span>,</span>
+<span>  target <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2024-12-02"</span><span class="op">)</span>, expiry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2024-12-06"</span><span class="op">)</span>,</span>
+<span>                atm_iv <span class="op">=</span> <span class="fl">0.80</span>, k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">sel</span></span>
+<span><span class="co">#&gt; &lt;ec_quiet_select&gt; 15 rules on 8 pseudo-targets (templates available at each pseudo-target, wing 0.04-0.3 log-moneyness)</span></span>
+<span><span class="co">#&gt; Selected: p25 | any DTE | all  (RMSE 0.0141 on 96 nodes, 8 targets)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 5</span></span></span>
+<span><span class="co">#&gt;   rule                       rmse    mae n_targets n_nodes</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> p25 | any DTE | all      0.014<span style="text-decoration: underline;">1</span> 0.011<span style="text-decoration: underline;">3</span>         8      96</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> p25 | any DTE | recent10 0.014<span style="text-decoration: underline;">1</span> 0.011<span style="text-decoration: underline;">3</span>         8      96</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> p25 | any DTE | atm10    0.014<span style="text-decoration: underline;">1</span> 0.011<span style="text-decoration: underline;">3</span>         8      96</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> p25 | any DTE | recent5  0.014<span style="text-decoration: underline;">4</span> 0.011<span style="text-decoration: underline;">6</span>         8      96</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> p25 | any DTE | atm5     0.014<span style="text-decoration: underline;">7</span> 0.011<span style="text-decoration: underline;">7</span>         8      96</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">sel</span><span class="op">$</span><span class="va">target_shapes</span>, <span class="va">selected</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">k</span>, <span class="va">shape</span>, <span class="va">iv_pred</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 3</span></span></span>
+<span><span class="co">#&gt;       k     shape iv_pred</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  -<span style="color: #BB0000;">0.2</span>  0.041<span style="text-decoration: underline;">0</span>     0.841</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  -<span style="color: #BB0000;">0.1</span>  0.011<span style="text-decoration: underline;">3</span>     0.811</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>   0.1 -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">289</span>   0.800</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>   0.2  0.025<span style="text-decoration: underline;">8</span>     0.826</span></span></code></pre></div>
+<p>The selected rule (p25 | any DTE | all) predicts the pseudo-targets’
+wings with a root-mean-square error of 1.41 volatility points, against
+2.25 for the worst rule on the menu. <code>iv_pred</code> is the
+ordinary smile of the target week — the input <code>s_cf</code> of the
+held-out test (multiply by <span class="math inline">\(\sqrt{\tau}\)</span> for total dispersion).
+Reporting the result for every rule on the menu, not only the selected
+one, shows how much the conclusion depends on this choice.</p>
+<p>For low-volatility assets with short maturities, such as currencies,
+compare shapes in standard deviations rather than in log-moneyness:
+<code>ec_quiet_library(..., moneyness = "standardized")</code> measures
+each strike by <span class="math inline">\(k/(\sigma_{ATM}\sqrt{\tau})\)</span>, so a
+one-week and a three-week smile line up.</p>
+</div>
+<div class="section level3">
+<h3 id="from-exchange-settlements-to-smiles">From exchange settlements to smiles<a class="anchor" aria-label="anchor" href="#from-exchange-settlements-to-smiles"></a>
+</h3>
+<p>Exchange-traded options come with daily settlement prices.
+<code><a href="../reference/cme_definitions.html">cme_definitions()</a></code>, <code><a href="../reference/cme_statistics.html">cme_statistics()</a></code>, and
+<code><a href="../reference/cme_option_surfaces.html">cme_option_surfaces()</a></code> turn CME Globex instrument
+definitions and daily statistics (as delivered in Databento’s
+<code>GLBX.MDP3</code> files, which you license yourself; no exchange
+data ships with the package) into the smile format used throughout this
+vignette: one row per date, expiry, and strike with the futures price as
+forward, Black implied volatilities, open interest, and a put-call
+parity check. The exchange reuses an instrument number once its contract
+has expired, so the reader tracks which contract a number denoted on
+each date and never mixes the prices of two contracts. The result feeds
+<code><a href="../reference/ec_theta_fit.html">ec_theta_fit()</a></code> and <code><a href="../reference/ec_quiet_library.html">ec_quiet_library()</a></code>
+directly:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">defs</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cme_definitions.html">cme_definitions</a></span><span class="op">(</span><span class="st">"data/definition/"</span><span class="op">)</span>      <span class="co"># Parquet or CSV files</span></span>
+<span><span class="va">stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cme_statistics.html">cme_statistics</a></span><span class="op">(</span><span class="st">"data/statistics/"</span><span class="op">)</span></span>
+<span><span class="va">surf</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cme_option_surfaces.html">cme_option_surfaces</a></span><span class="op">(</span><span class="va">defs</span>, <span class="va">stats</span>,</span>
+<span>  assets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"6M"</span>, <span class="st">"1M"</span>, <span class="st">"2M"</span>, <span class="st">"3M"</span>, <span class="st">"4M"</span>, <span class="st">"5M"</span><span class="op">)</span>,   <span class="co"># peso options</span></span>
+<span>  invert <span class="op">=</span> <span class="cn">TRUE</span>,       <span class="co"># quote per U.S. dollar (USDMXN) instead of per peso</span></span>
+<span>  rate <span class="op">=</span> <span class="fl">0.05</span>,         <span class="co"># discount rate; matters when rates are high</span></span>
+<span>  x <span class="op">=</span> <span class="va">ep</span>               <span class="co"># adds the event probability at each valuation time</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">lib</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec_quiet_library.html">ec_quiet_library</a></span><span class="op">(</span><span class="va">surf</span>, x <span class="op">=</span> <span class="va">ep</span>, moneyness <span class="op">=</span> <span class="st">"standardized"</span><span class="op">)</span></span></code></pre></div>
 <p>Back-of-the-envelope (first-order) versions of the same channel are
 <code><a href="../reference/ec_iv_rule.html">ec_iv_rule()</a></code>, <code><a href="../reference/ec_variance_share.html">ec_variance_share()</a></code>, and
 <code><a href="../reference/ec_sigma_eff.html">ec_sigma_eff()</a></code>; see their help pages and the relevance
@@ -443,7 +575,7 @@ re-weighing how much it values the two outcomes. If at most a fraction
 from such re-valuation, the true news clock lies between <span class="math inline">\((1-\delta)^2\)</span> and <span class="math inline">\((1+\delta)^2\)</span> times the measured one.
 <code><a href="../reference/ec_recovery_set.html">ec_recovery_set()</a></code> tabulates this range — here for the
 forecast clock of the example above:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ec_recovery_set.html">ec_recovery_set</a></span><span class="op">(</span><span class="va">A_fc</span>, delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 4</span></span></span>
 <span><span class="co">#&gt;       A delta  lower upper</span></span>
@@ -461,13 +593,13 @@ the conservative low end used above.</p>
 </h2>
 <p>The package ships <strong>no proprietary option data</strong>: the
 estimation and pricing functions take your smiles in the format
-described above. The full empirical design — choosing quiet-week smiles
-by rules fixed in advance, running the held-out comparison across clock
-constructions, venues, and recovery bounds, and allowing ordinary asset
-news to be correlated with event news — is developed in the accompanying
-working paper (Hanke, Schadner, Stöckl, and Weissensteiner, Working
-Paper, “Learning Before Scheduled Events: Prediction Markets, State
-Prices, and Option Valuation”).</p>
+described above, and the CME reader takes files you license yourself.
+The full empirical design — running the held-out comparison across clock
+constructions, venues, ordinary-smile rules, and recovery bounds, and
+allowing ordinary asset news to be correlated with event news — is
+developed in the accompanying working paper (Hanke, Schadner, Stöckl,
+and Weissensteiner, Working Paper, “Learning Before Scheduled Events:
+Prediction Markets, State Prices, and Option Valuation”).</p>
 </div>
 <div class="section level2">
 <h2 id="where-next">Where next<a class="anchor" aria-label="anchor" href="#where-next"></a>

@@ -35,6 +35,7 @@ test of the learning channel.
 | 4\. Exposure from returns | \\\widehat{\Delta\eta}\\ from \\r_t \approx \Delta\eta\\\Delta q_t\\ | [`event_beta()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/event_beta.md), [`ec_relevance()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_relevance.md) | [Event betas](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-betas.html) |
 | 5\. Exposure from event-spanning options | log exposure \\\theta = \log(\eta_1/\eta_2)\\ via the lognormal event mixture | [`ec_mix_price()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_mix_price.md), [`ec_mix_iv()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_mix_price.md), [`ec_theta_fit()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_theta_fit.md), [`ec_theta_hump()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_theta_hump.md), [`ec_delta_to_k()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_delta_to_k.md) | [Event-spanning options](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html) |
 | 6\. Pre-resolution pricing and the learning test | held-out options vs. the no-learning benchmark | [`ec_mix_price_pre()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_mix_price_pre.md), [`ec_mix_iv_pre()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_mix_price_pre.md); first order: [`ec_sigma_eff()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_sigma_eff.md), [`ec_variance_share()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_variance_share.md), [`ec_iv_rule()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_iv_rule.md) | [Event-spanning options](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html) |
+| 6b. Ordinary smile for the test | template rules fixed in advance, chosen on earlier quiet surfaces | [`ec_quiet_library()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_quiet_library.md), [`ec_quiet_rules()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_quiet_rules.md), [`ec_quiet_select()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_quiet_select.md), [`ec_quiet_shape()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_quiet_shape.md) | [Event-spanning options](https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html) |
 
 ## Features
 
@@ -80,6 +81,14 @@ test of the learning channel.
   [`ec_mix_iv_pre()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_mix_price_pre.md):
   exact pre-resolution option prices under event learning (the
   no-learning benchmark is the \\A = 0\\ special case).
+- **Ordinary-risk benchmark** —
+  [`ec_quiet_library()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_quiet_library.md),
+  [`ec_quiet_rules()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_quiet_rules.md),
+  [`ec_quiet_select()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_quiet_select.md),
+  [`ec_quiet_shape()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_quiet_shape.md):
+  the smile without event learning, built from earlier quiet-clock
+  surfaces with a template rule chosen on pseudo-targets before the
+  target.
 - **Formula book** — closed-form calculators in \\(q, A)\\:
   [`ec_moments()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_moments.md),
   [`ec_exceedance()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_exceedance.md),
@@ -111,7 +120,12 @@ test of the learning channel.
   [`ks_events()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ks_markets.md),
   [`ks_markets()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ks_markets.md),
   [`ks_prices()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ks_prices.md)
-  on the public trade API. Both keyless.
+  on the public trade API. Both keyless. Exchange options:
+  [`cme_definitions()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/cme_definitions.md),
+  [`cme_statistics()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/cme_statistics.md),
+  [`cme_option_surfaces()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/cme_option_surfaces.md)
+  turn CME Globex definitions and daily settlements (Databento
+  `GLBX.MDP3` files you license yourself) into option surfaces.
 - **Datasets** — `brexit2016`, `us2016` (the working paper’s event
   windows), `polymarket2024` (hourly 2024 U.S. election prices),
   `kalshi2024` (the same event on Kalshi, daily 15:45 snapshot),

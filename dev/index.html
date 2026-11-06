@@ -159,6 +159,14 @@
 </td>
 <td><a href="https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html" class="external-link">Event-spanning options</a></td>
 </tr>
+<tr>
+<td>6b. Ordinary smile for the test</td>
+<td>template rules fixed in advance, chosen on earlier quiet surfaces</td>
+<td>
+<code><a href="reference/ec_quiet_library.html">ec_quiet_library()</a></code>, <code><a href="reference/ec_quiet_rules.html">ec_quiet_rules()</a></code>, <code><a href="reference/ec_quiet_select.html">ec_quiet_select()</a></code>, <code><a href="reference/ec_quiet_shape.html">ec_quiet_shape()</a></code>
+</td>
+<td><a href="https://www.sebastianstoeckl.com/eventclock/articles/eventclock-event-spanning.html" class="external-link">Event-spanning options</a></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -175,11 +183,13 @@
 <li>
 <strong>Event-spanning options</strong> — the lognormal event mixture (<code><a href="reference/ec_mix_price.html">ec_mix_price()</a></code>, <code><a href="reference/ec_mix_price.html">ec_mix_iv()</a></code>); <code><a href="reference/ec_theta_fit.html">ec_theta_fit()</a></code>: the common conditional-mean-ratio surface fit for the log exposure <span class="math inline">\(\theta = \log(\eta_1/\eta_2)\)</span>; <code><a href="reference/ec_theta_hump.html">ec_theta_hump()</a></code>: the first-order variance-hump estimator; <code><a href="reference/ec_delta_to_k.html">ec_delta_to_k()</a></code> for standardized delta grids; <code><a href="reference/ec_mix_price_pre.html">ec_mix_price_pre()</a></code> / <code><a href="reference/ec_mix_price_pre.html">ec_mix_iv_pre()</a></code>: exact pre-resolution option prices under event learning (the no-learning benchmark is the <span class="math inline">\(A = 0\)</span> special case).</li>
 <li>
+<strong>Ordinary-risk benchmark</strong> — <code><a href="reference/ec_quiet_library.html">ec_quiet_library()</a></code>, <code><a href="reference/ec_quiet_rules.html">ec_quiet_rules()</a></code>, <code><a href="reference/ec_quiet_select.html">ec_quiet_select()</a></code>, <code><a href="reference/ec_quiet_shape.html">ec_quiet_shape()</a></code>: the smile without event learning, built from earlier quiet-clock surfaces with a template rule chosen on pseudo-targets before the target.</li>
+<li>
 <strong>Formula book</strong> — closed-form calculators in <span class="math inline">\((q, A)\)</span>: <code><a href="reference/ec_moments.html">ec_moments()</a></code>, <code><a href="reference/ec_exceedance.html">ec_exceedance()</a></code>, <code><a href="reference/ec_revision.html">ec_revision()</a></code>, <code><a href="reference/ec_atm_event_call.html">ec_atm_event_call()</a></code>, <code><a href="reference/ec_sigma_eff.html">ec_sigma_eff()</a></code>, <code><a href="reference/ec_variance_share.html">ec_variance_share()</a></code>, <code><a href="reference/ec_iv_rule.html">ec_iv_rule()</a></code>, <code><a href="reference/ec_target_clock.html">ec_target_clock()</a></code>; exact transition law and simulators with lumpy-information jumps (<code><a href="reference/ec_transition_density.html">ec_transition_density()</a></code>, <code><a href="reference/ec_simulate.html">ec_simulate()</a></code>, <code><a href="reference/ec_simulate_path.html">ec_simulate_path()</a></code>).</li>
 <li>
 <strong>Measurement in practice</strong> — <code><a href="reference/event_clock_staggered.html">event_clock_staggered()</a></code> (staggered sampling grids), <code><a href="reference/event_clock_forecast.html">event_clock_forecast()</a></code> with <code><a href="reference/ec_forecast_select.html">ec_forecast_select()</a></code> (real-time forecasts whose window is chosen on earlier periods only), <code><a href="reference/event_clock_venues.html">event_clock_venues()</a></code> (own, composite, and cross-venue clocks from two venues).</li>
 <li>
-<strong>Connectors</strong> — Polymarket: <code><a href="reference/pm_search.html">pm_search()</a></code>, <code><a href="reference/pm_markets.html">pm_markets()</a></code>, <code><a href="reference/pm_prices.html">pm_prices()</a></code>, <code><a href="reference/pm_daily.html">pm_daily()</a></code> on the public Gamma/CLOB APIs; Kalshi: <code><a href="reference/ks_markets.html">ks_events()</a></code>, <code><a href="reference/ks_markets.html">ks_markets()</a></code>, <code><a href="reference/ks_prices.html">ks_prices()</a></code> on the public trade API. Both keyless.</li>
+<strong>Connectors</strong> — Polymarket: <code><a href="reference/pm_search.html">pm_search()</a></code>, <code><a href="reference/pm_markets.html">pm_markets()</a></code>, <code><a href="reference/pm_prices.html">pm_prices()</a></code>, <code><a href="reference/pm_daily.html">pm_daily()</a></code> on the public Gamma/CLOB APIs; Kalshi: <code><a href="reference/ks_markets.html">ks_events()</a></code>, <code><a href="reference/ks_markets.html">ks_markets()</a></code>, <code><a href="reference/ks_prices.html">ks_prices()</a></code> on the public trade API. Both keyless. Exchange options: <code><a href="reference/cme_definitions.html">cme_definitions()</a></code>, <code><a href="reference/cme_statistics.html">cme_statistics()</a></code>, <code><a href="reference/cme_option_surfaces.html">cme_option_surfaces()</a></code> turn CME Globex definitions and daily settlements (Databento <code>GLBX.MDP3</code> files you license yourself) into option surfaces.</li>
 <li>
 <strong>Datasets</strong> — <code>brexit2016</code>, <code>us2016</code> (the working paper’s event windows), <code>polymarket2024</code> (hourly 2024 U.S. election prices), <code>kalshi2024</code> (the same event on Kalshi, daily 15:45 snapshot), <code>djt2024</code> (the matching exposed stock), <code>us2016_surfaces_sim</code> (simulated event-spanning option surfaces), and <code>fomc_meetings</code> (2021-2027 FOMC calendar).</li>
 <li>

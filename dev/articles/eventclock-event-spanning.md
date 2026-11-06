@@ -369,10 +369,10 @@ test honest, and all three avoid looking at the options being tested:
     ([`vignette("eventclock-measurement")`](https://www.sebastianstoeckl.com/eventclock/dev/articles/eventclock-measurement.md)).
 2.  **The ordinary smile `s_cf` comes from “quiet” weeks:** earlier
     options whose own lives saw almost no movement in the event
-    probability (a tiny clock; a cut-off such as \\A \le 0.04\\ is a
-    judgment call) show the smile without event learning. Smiles from
-    after the event are a poor substitute — they already know the
-    outcome.
+    probability (a tiny clock) show the smile without event learning.
+    How tiny is a judgment call; the next section shows how to make it
+    without looking at the tested options. Smiles from after the event
+    are a poor substitute — they already know the outcome.
 3.  **The exposure is estimated with data available on the valuation
     date only.**
 
@@ -386,6 +386,152 @@ what real data can show.) A one-sided result like this is informative in
 itself: it points to frictions (a hard-to-borrow stock with
 American-style options) rather than to a failure of the probability
 input.
+
+### Choosing the ordinary smile without peeking
+
+Point 2 hides a temptation: there are many reasonable ways to build an
+“ordinary” smile from quiet weeks (how quiet is quiet? use all of them
+or only the most similar?), and trying them out on the options being
+tested would quietly bias the test. The package therefore separates the
+choice from the test:
+
+1.  [`ec_quiet_library()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_quiet_library.md)
+    lists the earlier option smiles, each with its at-the-money
+    volatility, its *shape* (how far each strike’s volatility sits above
+    or below at-the-money), and its quietness — the clock realized while
+    that option was alive.
+2.  [`ec_quiet_rules()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_quiet_rules.md)
+    fixes a menu of construction rules in advance — by default 15: three
+    quietness cut-offs (the 25th, 50th, or 75th percentile of the
+    earlier clocks) times five ways of averaging (all quiet smiles, the
+    5 or 10 most recent, or the 5 or 10 whose at-the-money volatility is
+    closest to the target’s).
+3.  [`ec_quiet_select()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_quiet_select.md)
+    tries every rule on *earlier* quiet weeks treated as if they were
+    the target (“pseudo-targets”), using only smiles that had already
+    expired at that time, and keeps the rule that predicts their wings
+    best. The real target’s wings are never consulted; its at-the-money
+    quote only sets the level.
+
+A simulated example with 30 weekly options: every week has the same
+ordinary smile, plus an event-driven skew that grows with how much news
+arrived during that week.
+
+``` r
+
+set.seed(11)
+n <- 30
+weeks <- data.frame(
+  surface = sprintf("week %02d", 1:n),
+  date = as.Date("2024-05-06") + 7 * (0:(n - 1)),   # Monday quotes
+  A = rexp(n, rate = 1 / 0.05),                      # clock over each life
+  atm = 0.75 + 0.10 * runif(n)
+)
+nodes <- merge(weeks, data.frame(k = round(seq(-0.3, 0.3, by = 0.05), 10)))
+nodes$expiry <- nodes$date + 4                       # Friday expiry
+nodes$iv <- nodes$atm + 0.8 * nodes$k^2 -            # ordinary smile
+  3 * nodes$A * nodes$k +                            # event-driven skew
+  rnorm(nrow(nodes), sd = 0.005)
+lib <- ec_quiet_library(nodes)
+lib
+#> <ec_quiet_library> 30 surfaces, shape = difference, moneyness = log, A known for 30
+#> # A tibble: 30 × 10
+#>    surface date       expiry     block      dte    tau atm_iv       A A_complete
+#>    <chr>   <date>     <date>     <chr>    <dbl>  <dbl>  <dbl>   <dbl> <lgl>     
+#>  1 week 01 2024-05-06 2024-05-10 2024-05…     4 0.0110  0.801 0.0401  TRUE      
+#>  2 week 02 2024-05-13 2024-05-17 2024-05…     4 0.0110  0.812 0.350   TRUE      
+#>  3 week 03 2024-05-20 2024-05-24 2024-05…     4 0.0110  0.794 0.00106 TRUE      
+#>  4 week 04 2024-05-27 2024-05-31 2024-05…     4 0.0110  0.779 0.210   TRUE      
+#>  5 week 05 2024-06-03 2024-06-07 2024-06…     4 0.0110  0.768 0.123   TRUE      
+#>  6 week 06 2024-06-10 2024-06-14 2024-06…     4 0.0110  0.794 0.0427  TRUE      
+#>  7 week 07 2024-06-17 2024-06-21 2024-06…     4 0.0110  0.791 0.00427 TRUE      
+#>  8 week 08 2024-06-24 2024-06-28 2024-06…     4 0.0110  0.834 0.0642  TRUE      
+#>  9 week 09 2024-07-01 2024-07-05 2024-07…     4 0.0110  0.758 0.0234  TRUE      
+#> 10 week 10 2024-07-08 2024-07-12 2024-07…     4 0.0110  0.807 0.00737 TRUE      
+#> # ℹ 20 more rows
+#> # ℹ 1 more variable: n_nodes <int>
+```
+
+Now choose the rule on the quietest quarter of the earlier weeks, and
+predict the ordinary smile of a target week in December:
+
+``` r
+
+sel <- ec_quiet_select(
+  lib,
+  rules = ec_quiet_rules(),
+  pseudo_quiet = quantile(lib$A, 0.25),
+  target = list(date = as.Date("2024-12-02"), expiry = as.Date("2024-12-06"),
+                atm_iv = 0.80, k = c(-0.2, -0.1, 0.1, 0.2))
+)
+sel
+#> <ec_quiet_select> 15 rules on 8 pseudo-targets (templates available at each pseudo-target, wing 0.04-0.3 log-moneyness)
+#> Selected: p25 | any DTE | all  (RMSE 0.0141 on 96 nodes, 8 targets)
+#> # A tibble: 5 × 5
+#>   rule                       rmse    mae n_targets n_nodes
+#>   <chr>                     <dbl>  <dbl>     <int>   <int>
+#> 1 p25 | any DTE | all      0.0141 0.0113         8      96
+#> 2 p25 | any DTE | recent10 0.0141 0.0113         8      96
+#> 3 p25 | any DTE | atm10    0.0141 0.0113         8      96
+#> 4 p25 | any DTE | recent5  0.0144 0.0116         8      96
+#> 5 p25 | any DTE | atm5     0.0147 0.0117         8      96
+subset(sel$target_shapes, selected, c(k, shape, iv_pred))
+#> # A tibble: 4 × 3
+#>       k     shape iv_pred
+#>   <dbl>     <dbl>   <dbl>
+#> 1  -0.2  0.0410     0.841
+#> 2  -0.1  0.0113     0.811
+#> 3   0.1 -0.000289   0.800
+#> 4   0.2  0.0258     0.826
+```
+
+The selected rule (p25 \| any DTE \| all) predicts the pseudo-targets’
+wings with a root-mean-square error of 1.41 volatility points, against
+2.25 for the worst rule on the menu. `iv_pred` is the ordinary smile of
+the target week — the input `s_cf` of the held-out test (multiply by
+\\\sqrt{\tau}\\ for total dispersion). Reporting the result for every
+rule on the menu, not only the selected one, shows how much the
+conclusion depends on this choice.
+
+For low-volatility assets with short maturities, such as currencies,
+compare shapes in standard deviations rather than in log-moneyness:
+`ec_quiet_library(..., moneyness = "standardized")` measures each strike
+by \\k/(\sigma\_{ATM}\sqrt{\tau})\\, so a one-week and a three-week
+smile line up.
+
+### From exchange settlements to smiles
+
+Exchange-traded options come with daily settlement prices.
+[`cme_definitions()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/cme_definitions.md),
+[`cme_statistics()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/cme_statistics.md),
+and
+[`cme_option_surfaces()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/cme_option_surfaces.md)
+turn CME Globex instrument definitions and daily statistics (as
+delivered in Databento’s `GLBX.MDP3` files, which you license yourself;
+no exchange data ships with the package) into the smile format used
+throughout this vignette: one row per date, expiry, and strike with the
+futures price as forward, Black implied volatilities, open interest, and
+a put-call parity check. The exchange reuses an instrument number once
+its contract has expired, so the reader tracks which contract a number
+denoted on each date and never mixes the prices of two contracts. The
+result feeds
+[`ec_theta_fit()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_theta_fit.md)
+and
+[`ec_quiet_library()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_quiet_library.md)
+directly:
+
+``` r
+
+defs  <- cme_definitions("data/definition/")      # Parquet or CSV files
+stats <- cme_statistics("data/statistics/")
+surf  <- cme_option_surfaces(defs, stats,
+  assets = c("6M", "1M", "2M", "3M", "4M", "5M"),   # peso options
+  invert = TRUE,       # quote per U.S. dollar (USDMXN) instead of per peso
+  rate = 0.05,         # discount rate; matters when rates are high
+  x = ep               # adds the event probability at each valuation time
+)
+lib <- ec_quiet_library(surf, x = ep, moneyness = "standardized")
+```
 
 Back-of-the-envelope (first-order) versions of the same channel are
 [`ec_iv_rule()`](https://www.sebastianstoeckl.com/eventclock/dev/reference/ec_iv_rule.md),
@@ -423,14 +569,14 @@ the conservative low end used above.
 ## Scope and further reading
 
 The package ships **no proprietary option data**: the estimation and
-pricing functions take your smiles in the format described above. The
-full empirical design — choosing quiet-week smiles by rules fixed in
-advance, running the held-out comparison across clock constructions,
-venues, and recovery bounds, and allowing ordinary asset news to be
-correlated with event news — is developed in the accompanying working
-paper (Hanke, Schadner, Stöckl, and Weissensteiner, Working Paper,
-“Learning Before Scheduled Events: Prediction Markets, State Prices, and
-Option Valuation”).
+pricing functions take your smiles in the format described above, and
+the CME reader takes files you license yourself. The full empirical
+design — running the held-out comparison across clock constructions,
+venues, ordinary-smile rules, and recovery bounds, and allowing ordinary
+asset news to be correlated with event news — is developed in the
+accompanying working paper (Hanke, Schadner, Stöckl, and Weissensteiner,
+Working Paper, “Learning Before Scheduled Events: Prediction Markets,
+State Prices, and Option Valuation”).
 
 ## Where next
 
