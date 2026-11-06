@@ -83,6 +83,32 @@ The lognormal event mixture and the event exposure theta.
   [`ec_mix_iv_pre()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_mix_price_pre.md)
   : Pre-resolution option prices under event learning
 
+## Ordinary-risk benchmark
+
+Smile shape of ordinary option risk from earlier quiet-clock surfaces,
+with the template rule chosen on pseudo-targets before the target.
+
+- [`ec_quiet_library()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_quiet_library.md)
+  : Library of earlier option surfaces with their realized Event Clock
+- [`ec_quiet_rules()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_quiet_rules.md)
+  : Pre-specified rules for the ordinary-risk template
+- [`ec_quiet_shape()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_quiet_shape.md)
+  : Ordinary-risk template shape for a target
+- [`ec_quiet_select()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_quiet_select.md)
+  : Choose the ordinary-risk template rule on earlier pseudo-targets
+
+## Exchange option data
+
+CME Globex instrument definitions and daily settlements to option
+surfaces with Black (1976) implied volatilities.
+
+- [`cme_definitions()`](https://www.sebastianstoeckl.com/eventclock/reference/cme_definitions.md)
+  : Read CME Globex instrument definitions
+- [`cme_statistics()`](https://www.sebastianstoeckl.com/eventclock/reference/cme_statistics.md)
+  : Daily settlement prices and open interest from CME Globex statistics
+- [`cme_option_surfaces()`](https://www.sebastianstoeckl.com/eventclock/reference/cme_option_surfaces.md)
+  : Option surfaces from CME Globex settlements
+
 ## Assets & finance
 
 Event exposures and pricing relevance.

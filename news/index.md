@@ -1,5 +1,62 @@
 # Changelog
 
+## eventclock 0.6.0
+
+### Ordinary-risk benchmark from quiet-clock surfaces
+
+- [`ec_quiet_library()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_quiet_library.md)
+  builds the library of earlier option surfaces: at-the-money
+  volatility, smile shape relative to at-the-money (difference or
+  ratio), calendar days to expiry, and the Event Clock realized over
+  each surface’s own remaining life (from event prices, optionally on
+  staggered intraday grids, or supplied).
+- [`ec_quiet_rules()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_quiet_rules.md)
+  fixes the template-rule grid in advance: quietness threshold (quantile
+  of the available clocks or absolute) × days-to-expiry band ×
+  aggregation (all, most recent *n*, *n* nearest by at-the-money
+  volatility). The defaults are the 15-rule grid; the 30-rule variant is
+  one call.
+- [`ec_quiet_shape()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_quiet_shape.md)
+  predicts a target’s smile shape under each rule from templates that
+  expired at or before the target date; the target contributes only its
+  date, expiry, and at-the-money level.
+- [`ec_quiet_select()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_quiet_select.md)
+  chooses the rule by cross-validation on earlier pseudo-targets
+  (maturity block left out; optionally only templates available at each
+  pseudo-target date; optionally only pseudo-targets with a minimum days
+  to expiry, `pseudo_min_dte`), with wing-shape RMSE over
+  `0.04 <= |k| <= 0.30` (or `0.5 <= |z| <= 3` in standardized moneyness,
+  `k / (ATM volatility × sqrt(tau))`), a common node set across rules,
+  and the target’s predicted shape under every rule.
+
+### Exchange option data
+
+- [`cme_definitions()`](https://www.sebastianstoeckl.com/eventclock/reference/cme_definitions.md),
+  [`cme_statistics()`](https://www.sebastianstoeckl.com/eventclock/reference/cme_statistics.md),
+  [`cme_option_surfaces()`](https://www.sebastianstoeckl.com/eventclock/reference/cme_option_surfaces.md)
+  turn CME Globex instrument definitions and daily statistics
+  (Databento’s `GLBX.MDP3` schemas, as Parquet or CSV files or data
+  frames) into option surfaces: last final settlement per trading date,
+  futures settlement as forward, time to the published expiration,
+  Black (1976) implied volatilities (both sides and out-of-the-money),
+  vega, open interest, a put-call parity diagnostic, exercise style from
+  the CFI code, inverted quotes (`invert = TRUE`), and the event
+  probability at the valuation time. Files whose columns all arrived as
+  text read the same as typed files. The output feeds
+  [`ec_theta_fit()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_theta_fit.md)
+  and
+  [`ec_quiet_library()`](https://www.sebastianstoeckl.com/eventclock/reference/ec_quiet_library.md)
+  directly. No exchange data ships with the package.
+- The exchange reuses instrument identifiers after a contract expires or
+  is deleted (a call can become a put, a spread an option).
+  [`cme_definitions()`](https://www.sebastianstoeckl.com/eventclock/reference/cme_definitions.md)
+  therefore returns one row per identifier *phase* (`valid_from`,
+  `valid_to`, `deleted`), and
+  [`cme_option_surfaces()`](https://www.sebastianstoeckl.com/eventclock/reference/cme_option_surfaces.md)
+  attributes each daily statistic to the phase in force on its trading
+  date; the output names the contracts used (`call_symbol`,
+  `put_symbol`).
+
 ## eventclock 0.5.0
 
 ### Bug fix

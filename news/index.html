@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">eventclock</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,26 @@
       <small>Source: <a href="https://github.com/sstoeckl/eventclock/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.0" id="eventclock-060">eventclock 0.6.0<a class="anchor" aria-label="anchor" href="#eventclock-060"></a></h2>
+<div class="section level3">
+<h3 id="ordinary-risk-benchmark-from-quiet-clock-surfaces-0-6-0">Ordinary-risk benchmark from quiet-clock surfaces<a class="anchor" aria-label="anchor" href="#ordinary-risk-benchmark-from-quiet-clock-surfaces-0-6-0"></a></h3>
+<ul><li>
+<code><a href="../reference/ec_quiet_library.html">ec_quiet_library()</a></code> builds the library of earlier option surfaces: at-the-money volatility, smile shape relative to at-the-money (difference or ratio), calendar days to expiry, and the Event Clock realized over each surface’s own remaining life (from event prices, optionally on staggered intraday grids, or supplied).</li>
+<li>
+<code><a href="../reference/ec_quiet_rules.html">ec_quiet_rules()</a></code> fixes the template-rule grid in advance: quietness threshold (quantile of the available clocks or absolute) × days-to-expiry band × aggregation (all, most recent <em>n</em>, <em>n</em> nearest by at-the-money volatility). The defaults are the 15-rule grid; the 30-rule variant is one call.</li>
+<li>
+<code><a href="../reference/ec_quiet_shape.html">ec_quiet_shape()</a></code> predicts a target’s smile shape under each rule from templates that expired at or before the target date; the target contributes only its date, expiry, and at-the-money level.</li>
+<li>
+<code><a href="../reference/ec_quiet_select.html">ec_quiet_select()</a></code> chooses the rule by cross-validation on earlier pseudo-targets (maturity block left out; optionally only templates available at each pseudo-target date; optionally only pseudo-targets with a minimum days to expiry, <code>pseudo_min_dte</code>), with wing-shape RMSE over <code>0.04 &lt;= |k| &lt;= 0.30</code> (or <code>0.5 &lt;= |z| &lt;= 3</code> in standardized moneyness, <code>k / (ATM volatility × sqrt(tau))</code>), a common node set across rules, and the target’s predicted shape under every rule.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="exchange-option-data-0-6-0">Exchange option data<a class="anchor" aria-label="anchor" href="#exchange-option-data-0-6-0"></a></h3>
+<ul><li>
+<code><a href="../reference/cme_definitions.html">cme_definitions()</a></code>, <code><a href="../reference/cme_statistics.html">cme_statistics()</a></code>, <code><a href="../reference/cme_option_surfaces.html">cme_option_surfaces()</a></code> turn CME Globex instrument definitions and daily statistics (Databento’s <code>GLBX.MDP3</code> schemas, as Parquet or CSV files or data frames) into option surfaces: last final settlement per trading date, futures settlement as forward, time to the published expiration, Black (1976) implied volatilities (both sides and out-of-the-money), vega, open interest, a put-call parity diagnostic, exercise style from the CFI code, inverted quotes (<code>invert = TRUE</code>), and the event probability at the valuation time. Files whose columns all arrived as text read the same as typed files. The output feeds <code><a href="../reference/ec_theta_fit.html">ec_theta_fit()</a></code> and <code><a href="../reference/ec_quiet_library.html">ec_quiet_library()</a></code> directly. No exchange data ships with the package.</li>
+<li>The exchange reuses instrument identifiers after a contract expires or is deleted (a call can become a put, a spread an option). <code><a href="../reference/cme_definitions.html">cme_definitions()</a></code> therefore returns one row per identifier <em>phase</em> (<code>valid_from</code>, <code>valid_to</code>, <code>deleted</code>), and <code><a href="../reference/cme_option_surfaces.html">cme_option_surfaces()</a></code> attributes each daily statistic to the phase in force on its trading date; the output names the contracts used (<code>call_symbol</code>, <code>put_symbol</code>).</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0" id="eventclock-050">eventclock 0.5.0<a class="anchor" aria-label="anchor" href="#eventclock-050"></a></h2>
 <div class="section level3">

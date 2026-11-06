@@ -34,13 +34,13 @@ Working Paper. https://papers.ssrn.com/abstract=7420838
     }
 
 Stöckl, S. (2026). eventclock: The Event Clock: Information Time from
-Traded Event State Prices. R package version 0.5.0.
+Traded Event State Prices. R package version 0.6.0.
 https://github.com/sstoeckl/eventclock
 
     @Manual{,
       title = {eventclock: The Event Clock: Information Time from Traded Event State Prices},
       author = {Sebastian Stöckl},
       year = {2026},
-      note = {R package version 0.5.0},
+      note = {R package version 0.6.0},
       url = {https://github.com/sstoeckl/eventclock},
     }
