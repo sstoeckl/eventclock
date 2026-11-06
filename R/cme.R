@@ -117,13 +117,27 @@ normalize_definitions <- function(d) {
 #' Read CME Globex instrument definitions
 #'
 #' Reads instrument definitions in Databento's `definition` schema for the
-#' CME Globex dataset (`GLBX.MDP3`) and keeps one row per instrument: the
-#' most recent record by receive time. Every column is coerced by content,
-#' not by its stored type, so files in which all columns arrived as text
-#' (which happens when one column holds an unexpected value) read the same
-#' as typed files.
+#' CME Globex dataset (`GLBX.MDP3`) and keeps one row per instrument
+#' *phase*: the period during which an instrument identifier denotes one
+#' contract. Every column is coerced by content, not by its stored type,
+#' so files in which all columns arrived as text (which happens when one
+#' column holds an unexpected value) read the same as typed files.
 #'
 #' @details
+#' **Reused identifiers.** The exchange assigns an expired or deleted
+#' contract's `instrument_id` to a new contract, sometimes within days
+#' and across classes (a call can become a put, a spread an option). A
+#' phase is a run of records for one identifier with the same
+#' `raw_symbol` (or, without symbols, the same class, strike, and
+#' expiration date), in receive-time order. A modification that only
+#' changes, say, the expiration time stays in the same phase; a deletion
+#' record (`security_update_action = "D"`) ends it. Each phase reports
+#' the attributes of its most recent record and is valid from its first
+#' record (`valid_from`) until the next phase of the same identifier
+#' starts or the deletion arrives (`valid_to`; `NA` while open).
+#' [cme_option_surfaces()] assigns each daily statistic to the phase in
+#' force on its trading date.
+#'
 #' **Exercise style.** For options, the third character of the ISO 10962
 #' CFI code is the exercise style (`A` American, `E` European). On CME
 #' currency options it differs across products and years — for example,
@@ -141,12 +155,15 @@ normalize_definitions <- function(d) {
 #'   future (default). Spreads (`"S"`, `"T"`, `"M"`) are dropped unless
 #'   listed.
 #'
-#' @return A tibble of class `cme_definitions` with columns
-#'   `instrument_id`, `ts_recv`, `raw_symbol`, `asset` (product code, e.g.
-#'   `"6M"`), `instrument_class`, `type` (`"call"`, `"put"`, `"future"`,
-#'   or `NA`), `exercise` (`"american"`, `"european"`, or `NA`), `cfi`,
-#'   `expiration` (POSIXct, UTC), `strike`, `underlying_id`,
-#'   `underlying`, `currency`, `unit_of_measure`.
+#' @return A tibble of class `cme_definitions`, one row per instrument
+#'   phase, with columns `instrument_id`, `valid_from`, `valid_to`
+#'   (POSIXct, UTC), `deleted` (logical: the phase ended with a deletion
+#'   record), `ts_recv` (receive time of the phase's most recent record),
+#'   `raw_symbol`, `asset` (product code, e.g. `"6M"`), `instrument_class`,
+#'   `type` (`"call"`, `"put"`, `"future"`, or `NA`), `exercise`
+#'   (`"american"`, `"european"`, or `NA`), `cfi`, `expiration` (POSIXct,
+#'   UTC), `strike`, `underlying_id`, `underlying`, `currency`,
+#'   `unit_of_measure`.
 #'
 #' @references Databento documentation of the instrument-definition schema
 #'   and of the CME Globex MDP 3.0 dataset (GLBX.MDP3),
@@ -172,21 +189,94 @@ cme_definitions <- function(x, classes = c("C", "P", "F")) {
   out <- out[!is.na(out$instrument_id), , drop = FALSE]
   o <- order(out$instrument_id, as.numeric(out$ts_recv), na.last = FALSE)
   out <- out[o, , drop = FALSE]
-  out <- out[!duplicated(out$instrument_id, fromLast = TRUE), , drop = FALSE]
-  out <- out[is.na(out$security_update_action) | out$security_update_action != "D", ,
-             drop = FALSE]
+  out <- definition_phases(out)
   out <- out[out$instrument_class %in% classes, , drop = FALSE]
   out$type <- unname(c(C = "call", P = "put", F = "future")[out$instrument_class])
   ex <- toupper(substr(out$cfi, 3, 3))
   out$exercise <- ifelse(out$type %in% c("call", "put"),
                          unname(c(A = "american", E = "european")[ex]),
                          NA_character_)
-  out <- out[, c("instrument_id", "ts_recv", "raw_symbol", "asset",
-                 "instrument_class", "type", "exercise", "cfi", "expiration",
-                 "strike", "underlying_id", "underlying", "currency",
-                 "unit_of_measure")]
+  out <- out[, c("instrument_id", "valid_from", "valid_to", "deleted",
+                 "ts_recv", "raw_symbol", "asset", "instrument_class", "type",
+                 "exercise", "cfi", "expiration", "strike", "underlying_id",
+                 "underlying", "currency", "unit_of_measure")]
   class(out) <- c("cme_definitions", class(tibble::tibble()))
   out
+}
+
+# Collapse definition records (sorted by identifier and receive time) to
+# one row per phase: a run of records with the same contract identity,
+# ended by a change of identity or by a deletion record.
+definition_phases <- function(d) {
+  n <- nrow(d)
+  if (n == 0) {
+    d$valid_from <- d$valid_to <- d$ts_recv
+    d$deleted <- logical(0)
+    return(d[, setdiff(names(d), "security_update_action")])
+  }
+  ident <- ifelse(is.na(d$raw_symbol) | !nzchar(trimws(d$raw_symbol)),
+                  paste(d$instrument_class, d$strike,
+                        format(as.Date(d$expiration, tz = "UTC"))),
+                  trimws(d$raw_symbol))
+  del <- d$security_update_action %in% "D"
+  same_id <- c(FALSE, d$instrument_id[-1] == d$instrument_id[-n])
+  new_phase <- !same_id | c(TRUE, ident[-1] != ident[-n]) | c(FALSE, del[-n])
+  first <- which(new_phase)
+  last <- c(first[-1] - 1L, n)
+  # a deletion can only be a phase's last record; attributes come from
+  # the latest record before it
+  deleted <- del[last]
+  attr_row <- ifelse(deleted, last - 1L, last)
+  nxt_same <- c(d$instrument_id[first[-1]] == d$instrument_id[first[-length(first)]], FALSE)
+  valid_to <- rep(NA_real_, length(first))
+  valid_to[nxt_same] <- as.numeric(d$ts_recv[first[-1]])[nxt_same[-length(first)]]
+  valid_to[deleted] <- as.numeric(d$ts_recv[last[deleted]])
+  keep <- attr_row >= first
+  out <- d[attr_row[keep], setdiff(names(d), "security_update_action"), drop = FALSE]
+  out$valid_from <- d$ts_recv[first[keep]]
+  out$valid_to <- as.POSIXct(valid_to[keep], origin = "1970-01-01", tz = "UTC")
+  out$deleted <- deleted[keep]
+  out
+}
+
+# Row of `defs` (an instrument phase) in force for each (instrument,
+# trading date), or NA: the latest phase of that identifier whose first
+# record falls on or before the date, provided the date precedes the
+# next phase (or falls on or before the deletion day) and does not lie
+# after the contract's expiration date. Dates are compared in UTC, the
+# calendar of the daily definition snapshots.
+cme_phase_index <- function(id, date, defs) {
+  if (length(id) == 0) return(integer(0))
+  day <- function(nm) {
+    t <- col_or_null(defs, nm)
+    if (is.null(t)) rep(NA_real_, nrow(defs)) else as.numeric(as.Date(t, tz = "UTC"))
+  }
+  from <- day("valid_from")
+  to <- day("valid_to")
+  deleted <- col_or_null(defs, "deleted") %||% rep(FALSE, nrow(defs))
+  deleted[is.na(deleted)] <- FALSE
+  expiry <- day("expiration")
+  ids <- sort(unique(defs$instrument_id))
+  rp <- match(defs$instrument_id, ids)
+  rs <- match(id, ids)
+  d <- as.numeric(date)
+  # rank of the identifier, then day: exact as a double for any date
+  # within +-5 million days
+  kp <- rp * 1e7 + ifelse(is.na(from), -4e6, from)
+  ks <- rs * 1e7 + d
+  o <- order(kp)
+  pos <- findInterval(ks, kp[o])
+  idx <- rep(NA_integer_, length(ks))
+  hit <- !is.na(pos) & pos > 0
+  idx[hit] <- o[pos[hit]]
+  idx[!is.na(idx) & rp[idx] != rs] <- NA_integer_
+  ok <- !is.na(idx)
+  i <- idx[ok]
+  dd <- d[ok]
+  bad <- (!is.na(to[i]) & (dd > to[i] | (dd == to[i] & !deleted[i]))) |
+    (!is.na(expiry[i]) & dd > expiry[i])
+  idx[which(ok)[bad]] <- NA_integer_
+  idx
 }
 
 stat_cols <- c("ts_recv", "ts_event", "instrument_id", "ts_ref", "price",
@@ -386,9 +476,22 @@ black_iv_total_vec <- function(price, K, upper = 10, iter = 100) {
 #' [ec_mix_iv_pre()], and [ec_quiet_library()] directly.
 #'
 #' @details
+#' **Which contract.** Instrument identifiers are reused (see
+#' [cme_definitions()]), so each daily statistic is attributed to the
+#' definition phase in force on its trading date: the latest phase of its
+#' identifier that started on or before that date (UTC calendar of the
+#' daily definition snapshots), provided the next phase has not started,
+#' the phase was not deleted earlier, and the contract had not expired
+#' (trading date after the expiration date). Statistics outside every
+#' phase are dropped, including settlements dated before a contract's
+#' first definition record, such as the theoretical reference settlement
+#' the exchange sends with a new listing, dated the previous session.
+#'
 #' **Forward and timing.** Each option is matched to its underlying future
 #' through `underlying_id`; the forward is that future's settlement on the
-#' same trading date. The valuation time is `settle_time` on the trading
+#' same trading date. Where both symbols are published, the future's
+#' `raw_symbol` must equal the option's `underlying`; otherwise the
+#' forward is missing. The valuation time is `settle_time` on the trading
 #' date in time zone `tz` (14:00 Chicago time, the settlement time of CME
 #' currency futures and options); time to expiry `tau` is measured in years
 #' of 365 days from the valuation time to the published `expiration`.
@@ -441,7 +544,9 @@ black_iv_total_vec <- function(price, K, upper = 10, iter = 100) {
 #'   `call_final`, `put_final`, `oi_call`, `oi_put`, `iv`, `iv_call`,
 #'   `iv_put`, `otm` (side used for `iv`), `vega` (price change per unit
 #'   of annualized volatility), `parity_gap`, `parity_gap_rel`,
-#'   `F_parity`, `call_id`, `put_id`, and `q` if `x` is supplied.
+#'   `F_parity`, `call_id`, `put_id`, `call_symbol`, `put_symbol`
+#'   (exchange symbols of the contracts used; with `invert = TRUE` the
+#'   original put is the new call), and `q` if `x` is supplied.
 #'
 #' @references Black, F. (1976). The pricing of commodity contracts.
 #'   *Journal of Financial Economics* 3, 167--179.
@@ -480,28 +585,43 @@ cme_option_surfaces <- function(definitions, statistics, assets = NULL,
     cme_statistics(statistics, tz = tz)
   stopifnot(is.numeric(rate) || is.function(rate), is.logical(invert))
 
-  opt <- defs[defs$type %in% c("call", "put"), , drop = FALSE]
-  if (!is.null(assets)) opt <- opt[opt$asset %in% assets, , drop = FALSE]
-  if (nrow(opt) == 0) cli::cli_abort("No option definitions found (check {.arg assets}).")
-  fut <- defs[defs$type %in% "future", , drop = FALSE]
+  is_opt <- defs$type %in% c("call", "put") &
+    (is.null(assets) | defs$asset %in% assets)
+  if (!any(is_opt)) cli::cli_abort("No option definitions found (check {.arg assets}).")
 
-  so <- st[st$instrument_id %in% opt$instrument_id,
+  # each daily statistic belongs to the definition phase in force on its date
+  so <- st[st$instrument_id %in% defs$instrument_id[is_opt],
            c("instrument_id", "date", "settle", "settle_final", "open_interest")]
   if (!is.null(from)) so <- so[so$date >= as.Date(from), , drop = FALSE]
   if (!is.null(to)) so <- so[so$date <= as.Date(to), , drop = FALSE]
   so <- so[!is.na(so$settle), , drop = FALSE]
+  i <- cme_phase_index(so$instrument_id, so$date, defs)
+  keep <- !is.na(i)
+  keep[keep] <- is_opt[i[keep]]
+  so <- so[keep, , drop = FALSE]
+  i <- i[keep]
   if (nrow(so) == 0) cli::cli_abort("No option settlements in the requested window.")
-  i <- match(so$instrument_id, opt$instrument_id)
-  for (v in c("asset", "type", "exercise", "expiration", "strike",
+  for (v in c("raw_symbol", "asset", "type", "exercise", "expiration", "strike",
               "underlying_id", "underlying")) {
-    so[[v]] <- opt[[v]][i]
+    so[[v]] <- defs[[v]][i]
   }
-  sf <- st[st$instrument_id %in% fut$instrument_id & !is.na(st$settle), ]
+  sf <- st[st$instrument_id %in% defs$instrument_id[defs$type %in% "future"] &
+             !is.na(st$settle), , drop = FALSE]
+  jf <- cme_phase_index(sf$instrument_id, sf$date, defs)
+  fkeep <- !is.na(jf)
+  fkeep[fkeep] <- defs$type[jf[fkeep]] %in% "future"
+  sf <- sf[fkeep, , drop = FALSE]
+  sf_symbol <- defs$raw_symbol[jf[fkeep]]
   j <- match(paste(so$underlying_id, so$date), paste(sf$instrument_id, sf$date))
+  # where both symbols are published, the future must be the option's underlying
+  clash <- !is.na(j) & !is.na(so$underlying) & nzchar(so$underlying) &
+    !is.na(sf_symbol[j]) & so$underlying != sf_symbol[j]
+  j[clash] <- NA_integer_
   so$F <- sf$settle[j]
   so$F_final <- sf$settle_final[j]
 
-  so$valuation <- as.POSIXct(paste(format(so$date), settle_time), tz = tz)
+  ud <- sort(unique(so$date))
+  so$valuation <- as.POSIXct(paste(format(ud), settle_time), tz = tz)[match(so$date, ud)]
   so$tau <- as.numeric(difftime(so$expiration, so$valuation, units = "days")) / 365
   so <- so[is.finite(so$tau) & so$tau > 0, , drop = FALSE]
   if (nrow(so) == 0) cli::cli_abort("No unexpired options in the requested window.")
@@ -515,8 +635,8 @@ cme_option_surfaces <- function(definitions, statistics, assets = NULL,
   side <- function(tp) {
     s <- so[so$type == tp, , drop = FALSE]
     m <- match(wkey, key[so$type == tp])
-    list(id = s$instrument_id[m], p = s$settle[m], fin = s$settle_final[m],
-         oi = s$open_interest[m])
+    list(id = s$instrument_id[m], sym = s$raw_symbol[m], p = s$settle[m],
+         fin = s$settle_final[m], oi = s$open_interest[m])
   }
   cs <- side("call")
   ps <- side("put")
@@ -565,7 +685,8 @@ cme_option_surfaces <- function(definitions, statistics, assets = NULL,
     iv = iv, iv_call = iv_call, iv_put = iv_put, otm = otm, vega = vega,
     parity_gap = gap, parity_gap_rel = gap / Fv,
     F_parity = K + (call - put) / DF,
-    call_id = cs$id, put_id = ps$id
+    call_id = cs$id, put_id = ps$id,
+    call_symbol = cs$sym, put_symbol = ps$sym
   )
   if (!is.null(x)) {
     x <- as_event_prices(x)

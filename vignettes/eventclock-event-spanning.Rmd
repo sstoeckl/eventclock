@@ -424,8 +424,10 @@ delivered in Databento's `GLBX.MDP3` files, which you license
 yourself; no exchange data ships with the package) into the smile format
 used throughout this vignette: one row per date, expiry, and strike with
 the futures price as forward, Black implied volatilities, open interest,
-and a put-call parity check. The result feeds `ec_theta_fit()` and
-`ec_quiet_library()` directly:
+and a put-call parity check. The exchange reuses an instrument number
+once its contract has expired, so the reader tracks which contract a
+number denoted on each date and never mixes the prices of two contracts.
+The result feeds `ec_theta_fit()` and `ec_quiet_library()` directly:
 
 ```{r cme, eval = FALSE}
 defs  <- cme_definitions("data/definition/")      # Parquet or CSV files

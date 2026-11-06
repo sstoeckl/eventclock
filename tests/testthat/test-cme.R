@@ -94,13 +94,128 @@ test_that("definitions read the same from an all-text file", {
   expect_equal(text$exercise, typed$exercise)
 })
 
-test_that("deleted instruments are dropped", {
+test_that("a modification stays in its phase; a deletion ends it", {
   fx <- make_fixture()
   d <- fx$defs
+  # the exchange moves the expiration time of the same contract
+  mod <- d[d$instrument_id == 102, ]
+  mod$ts_recv <- mod$ts_recv + 86400
+  mod$expiration <- mod$expiration - 7200
+  mod$security_update_action <- "M"
+  out <- cme_definitions(rbind(d, mod))
+  r <- out[out$instrument_id == 102, ]
+  expect_equal(nrow(r), 1)
+  expect_equal(r$expiration, mod$expiration)
+  expect_equal(r$valid_from, d$ts_recv[d$instrument_id == 102])
+  expect_true(is.na(r$valid_to))
+  expect_false(r$deleted)
+  # a deletion ends the phase but keeps its history
   del <- d[d$instrument_id == 105, ]
   del$ts_recv <- del$ts_recv + 86400
   del$security_update_action <- "D"
-  expect_false(105 %in% cme_definitions(rbind(d, del))$instrument_id)
+  out <- cme_definitions(rbind(d, del))
+  r <- out[out$instrument_id == 105, ]
+  expect_equal(nrow(r), 1)
+  expect_true(r$deleted)
+  expect_equal(r$valid_to, del$ts_recv)
+  expect_equal(r$strike, 0.058)
+  # a deletion record alone defines no phase
+  expect_false(105 %in% cme_definitions(rbind(d[d$instrument_id != 105, ], del))$instrument_id)
+  # statistics after the deletion day are not used
+  s <- cme_option_surfaces(rbind(d, del), fx$st, rate = fx$r)
+  expect_true(all(is.na(s$call[s$strike == 0.058])))
+  expect_true(all(is.finite(s$put[s$strike == 0.058])))
+})
+
+test_that("reused identifiers: each statistic belongs to the phase in force", {
+  fx <- make_fixture()
+  d <- fx$defs
+  utc <- function(x) as.POSIXct(x, tz = "UTC")
+  # identifier 600: a call until mid-June, then (after a gap) a put
+  call1 <- d[d$instrument_id == 101, ][c(1, 1), ]
+  call1$instrument_id <- 600
+  call1$ts_recv <- utc(c("2016-06-01", "2016-06-17"))
+  call1$raw_symbol <- "6MN6 C0.056"
+  call1$strike_price <- 0.056
+  call1$expiration <- utc("2016-06-17 19:00:00")
+  put2 <- d[d$instrument_id == 201, ][c(1, 1), ]
+  put2$instrument_id <- 600
+  put2$ts_recv <- utc(c("2016-06-20", "2016-07-05"))
+  put2$raw_symbol <- "6MQ6 P0.051"
+  put2$strike_price <- 0.051
+  # identifier 601: a call deleted on the evening of 2016-07-01
+  gone <- d[d$instrument_id == 101, ][c(1, 1), ]
+  gone$instrument_id <- 601
+  gone$raw_symbol <- "6MQ6 C0.057"
+  gone$strike_price <- 0.057
+  gone$ts_recv <- utc(c("2016-06-01 00:00:00", "2016-07-01 22:30:00"))
+  gone$security_update_action <- c("A", "D")
+  dd <- rbind(d, call1, put2, gone)
+
+  defs <- cme_definitions(dd)
+  p <- defs[defs$instrument_id == 600, ]
+  expect_equal(p$type, c("call", "put"))
+  expect_equal(p$strike, c(0.056, 0.051))
+  expect_equal(p$raw_symbol, c("6MN6 C0.056", "6MQ6 P0.051"))
+  expect_equal(as.numeric(p$valid_from), as.numeric(utc(c("2016-06-01", "2016-06-20"))))
+  expect_equal(as.numeric(p$valid_to), c(as.numeric(utc("2016-06-20")), NA))
+  expect_equal(p$deleted, c(FALSE, FALSE))
+  g <- defs[defs$instrument_id == 601, ]
+  expect_true(g$deleted)
+  expect_equal(g$valid_to, utc("2016-07-01 22:30:00"))
+  # all-text input gives the same phases
+  expect_equal(as.numeric(cme_definitions(to_text(dd))$valid_from),
+               as.numeric(defs$valid_from))
+
+  stat <- function(id, date, price) data.frame(
+    ts_recv = utc(paste(date, "22:00:00")), ts_event = utc(paste(date, "22:00:00")),
+    instrument_id = id, ts_ref = utc(date), price = price, quantity = NA,
+    sequence = 9, stat_type = 3, update_action = 1, stat_flags = 3L)
+  val <- as.POSIXct("2016-07-01 14:00", tz = "America/Chicago")
+  tau <- as.numeric(difftime(fx$exp_opt, val, units = "days")) / 365
+  F1 <- fx$F0[1]
+  p051 <- bs76(F1, 0.051, smile(log(0.051 / F1)), tau, fx$r, "put")
+  c057 <- bs76(F1, 0.057, smile(log(0.057 / F1)), tau, fx$r, "call")
+  st <- rbind(fx$st,
+              stat(600, "2016-06-16", 0.0005),  # phase 1 (call), before its expiry
+              stat(600, "2016-06-18", 0.0004),  # phase 1 expired, phase 2 not yet listed
+              stat(600, "2016-07-01", p051),    # phase 2 (put)
+              stat(601, "2016-07-01", c057),    # deletion day: still in force
+              stat(601, "2016-07-05", 0.0001))  # after the deletion
+  s <- cme_option_surfaces(dd, st, rate = fx$r)
+
+  r1 <- s[s$date == as.Date("2016-06-16"), ]
+  expect_equal(nrow(r1), 1)
+  expect_equal(r1$strike, 0.056)
+  expect_equal(r1$call, 0.0005)
+  expect_equal(r1$call_symbol, "6MN6 C0.056")
+  expect_true(is.na(r1$put))
+  expect_equal(r1$expiry, utc("2016-06-17 19:00:00"))
+  expect_false(any(s$date == as.Date("2016-06-18")))
+  r2 <- s[s$date == as.Date("2016-07-01") & s$strike == 0.051, ]
+  expect_equal(r2$put_symbol, "6MQ6 P0.051")
+  expect_true(is.na(r2$call))
+  expect_equal(r2$iv, smile(r2$k), tolerance = 1e-8)
+  r3 <- s[s$strike == 0.057, ]
+  expect_equal(r3$date, as.Date("2016-07-01"))
+  expect_equal(r3$iv, smile(r3$k), tolerance = 1e-8)
+  # the original grid is untouched
+  base <- cme_option_surfaces(d, fx$st, rate = fx$r)
+  grid <- s[s$strike %in% fx$strikes & s$date %in% fx$dates, names(base)]
+  expect_equal(grid$iv, base$iv)
+  expect_equal(grid$call_id, base$call_id)
+  # no node uses a settlement from outside its contract's phase
+  for (side in c("call", "put")) {
+    id <- s[[paste0(side, "_id")]]
+    sym <- s[[paste0(side, "_symbol")]]
+    has <- !is.na(id)
+    m <- match(paste(id[has], sym[has]), paste(defs$instrument_id, defs$raw_symbol))
+    expect_false(anyNA(m))
+    expect_true(all(s$date[has] >= as.Date(defs$valid_from[m], tz = "UTC")))
+    expect_true(all(s$date[has] <= as.Date(defs$expiration[m], tz = "UTC")))
+    to <- as.Date(defs$valid_to[m], tz = "UTC")
+    expect_true(all(is.na(to) | s$date[has] < to | (defs$deleted[m] & s$date[has] == to)))
+  }
 })
 
 test_that("statistics: last final settlement wins over preliminary ones", {
@@ -255,6 +370,19 @@ test_that("missing forward keeps the row without a volatility", {
   expect_true(all(is.na(s$F[s$date == as.Date("2016-07-05")])))
   expect_true(all(is.na(s$iv[s$date == as.Date("2016-07-05")])))
   expect_true(all(is.finite(s$iv[s$date == as.Date("2016-07-01")])))
+})
+
+test_that("a future that is not the option's underlying gives no forward", {
+  fx <- make_fixture()
+  d <- fx$defs
+  d$raw_symbol[d$instrument_id == 1] <- "6MZ6"
+  s <- cme_option_surfaces(d, fx$st, rate = fx$r)
+  expect_true(all(is.na(s$F) & is.na(s$iv)))
+  # without published symbols the identifier link alone is used
+  d$raw_symbol <- NA
+  d$underlying <- NA
+  expect_equal(cme_option_surfaces(d, fx$st, rate = fx$r)$iv,
+               cme_option_surfaces(fx$defs, fx$st, rate = fx$r)$iv)
 })
 
 test_that("Parquet and CSV paths read like data frames", {

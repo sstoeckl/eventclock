@@ -53,7 +53,9 @@ strike: \code{surface} (identifier \verb{asset date expiry}), \code{date},
 \code{call_final}, \code{put_final}, \code{oi_call}, \code{oi_put}, \code{iv}, \code{iv_call},
 \code{iv_put}, \code{otm} (side used for \code{iv}), \code{vega} (price change per unit
 of annualized volatility), \code{parity_gap}, \code{parity_gap_rel},
-\code{F_parity}, \code{call_id}, \code{put_id}, and \code{q} if \code{x} is supplied.
+\code{F_parity}, \code{call_id}, \code{put_id}, \code{call_symbol}, \code{put_symbol}
+(exchange symbols of the contracts used; with \code{invert = TRUE} the
+original put is the new call), and \code{q} if \code{x} is supplied.
 }
 \description{
 Joins option and futures settlement prices to their instrument
@@ -65,9 +67,22 @@ put-call parity diagnostic. The output feeds \code{\link[=ec_theta_fit]{ec_theta
 \code{\link[=ec_mix_iv_pre]{ec_mix_iv_pre()}}, and \code{\link[=ec_quiet_library]{ec_quiet_library()}} directly.
 }
 \details{
+\strong{Which contract.} Instrument identifiers are reused (see
+\code{\link[=cme_definitions]{cme_definitions()}}), so each daily statistic is attributed to the
+definition phase in force on its trading date: the latest phase of its
+identifier that started on or before that date (UTC calendar of the
+daily definition snapshots), provided the next phase has not started,
+the phase was not deleted earlier, and the contract had not expired
+(trading date after the expiration date). Statistics outside every
+phase are dropped, including settlements dated before a contract's
+first definition record, such as the theoretical reference settlement
+the exchange sends with a new listing, dated the previous session.
+
 \strong{Forward and timing.} Each option is matched to its underlying future
 through \code{underlying_id}; the forward is that future's settlement on the
-same trading date. The valuation time is \code{settle_time} on the trading
+same trading date. Where both symbols are published, the future's
+\code{raw_symbol} must equal the option's \code{underlying}; otherwise the
+forward is missing. The valuation time is \code{settle_time} on the trading
 date in time zone \code{tz} (14:00 Chicago time, the settlement time of CME
 currency futures and options); time to expiry \code{tau} is measured in years
 of 365 days from the valuation time to the published \code{expiration}.

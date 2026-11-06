@@ -16,22 +16,39 @@ future (default). Spreads (\code{"S"}, \code{"T"}, \code{"M"}) are dropped unles
 listed.}
 }
 \value{
-A tibble of class \code{cme_definitions} with columns
-\code{instrument_id}, \code{ts_recv}, \code{raw_symbol}, \code{asset} (product code, e.g.
-\code{"6M"}), \code{instrument_class}, \code{type} (\code{"call"}, \code{"put"}, \code{"future"},
-or \code{NA}), \code{exercise} (\code{"american"}, \code{"european"}, or \code{NA}), \code{cfi},
-\code{expiration} (POSIXct, UTC), \code{strike}, \code{underlying_id},
-\code{underlying}, \code{currency}, \code{unit_of_measure}.
+A tibble of class \code{cme_definitions}, one row per instrument
+phase, with columns \code{instrument_id}, \code{valid_from}, \code{valid_to}
+(POSIXct, UTC), \code{deleted} (logical: the phase ended with a deletion
+record), \code{ts_recv} (receive time of the phase's most recent record),
+\code{raw_symbol}, \code{asset} (product code, e.g. \code{"6M"}), \code{instrument_class},
+\code{type} (\code{"call"}, \code{"put"}, \code{"future"}, or \code{NA}), \code{exercise}
+(\code{"american"}, \code{"european"}, or \code{NA}), \code{cfi}, \code{expiration} (POSIXct,
+UTC), \code{strike}, \code{underlying_id}, \code{underlying}, \code{currency},
+\code{unit_of_measure}.
 }
 \description{
 Reads instrument definitions in Databento's \code{definition} schema for the
-CME Globex dataset (\code{GLBX.MDP3}) and keeps one row per instrument: the
-most recent record by receive time. Every column is coerced by content,
-not by its stored type, so files in which all columns arrived as text
-(which happens when one column holds an unexpected value) read the same
-as typed files.
+CME Globex dataset (\code{GLBX.MDP3}) and keeps one row per instrument
+\emph{phase}: the period during which an instrument identifier denotes one
+contract. Every column is coerced by content, not by its stored type,
+so files in which all columns arrived as text (which happens when one
+column holds an unexpected value) read the same as typed files.
 }
 \details{
+\strong{Reused identifiers.} The exchange assigns an expired or deleted
+contract's \code{instrument_id} to a new contract, sometimes within days
+and across classes (a call can become a put, a spread an option). A
+phase is a run of records for one identifier with the same
+\code{raw_symbol} (or, without symbols, the same class, strike, and
+expiration date), in receive-time order. A modification that only
+changes, say, the expiration time stays in the same phase; a deletion
+record (\code{security_update_action = "D"}) ends it. Each phase reports
+the attributes of its most recent record and is valid from its first
+record (\code{valid_from}) until the next phase of the same identifier
+starts or the deletion arrives (\code{valid_to}; \code{NA} while open).
+\code{\link[=cme_option_surfaces]{cme_option_surfaces()}} assigns each daily statistic to the phase in
+force on its trading date.
+
 \strong{Exercise style.} For options, the third character of the ISO 10962
 CFI code is the exercise style (\code{A} American, \code{E} European). On CME
 currency options it differs across products and years — for example,

@@ -37,6 +37,13 @@
   same as typed files. The output feeds `ec_theta_fit()` and
   `ec_quiet_library()` directly. No exchange data ships with the
   package.
+* The exchange reuses instrument identifiers after a contract expires or
+  is deleted (a call can become a put, a spread an option).
+  `cme_definitions()` therefore returns one row per identifier *phase*
+  (`valid_from`, `valid_to`, `deleted`), and `cme_option_surfaces()`
+  attributes each daily statistic to the phase in force on its trading
+  date; the output names the contracts used (`call_symbol`,
+  `put_symbol`).
 
 # eventclock 0.5.0
 
